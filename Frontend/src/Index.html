@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RetroMspaint</title>
+  <link rel="stylesheet" href="Style.css">
+</head>
+
+<body>
+  <div class="container-1">
+    <div class="menubar">
+      <button class="menubar-btn" data-dropdown="file_toggle">File</button>
+      <button class="menubar-btn" data-dropdown="edit_toggle">Edit</button>
+      <button class="menubar-btn" data-dropdown="view_toggle">View</button>
+      <button class="menubar-btn" data-dropdown="layer_toggle">Layer</button>
+      <button class="menubar-btn" data-dropdown="image_toggle">Image</button>
+      <button class="menubar-btn" data-dropdown="colors_toggle">Colors</button>
+      <button class="menubar-btn" data-dropdown="help_toggle">Help</button>
+    </div>
+    <div class="dropdown" id="file_toggle" style=" width: 275px;height: 310px;left: 0;">
+      <table class="toggle-content" style="width: 275px;height: 305px;left: 0; ">
+        <tr class="menu-row" id="New_file">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">New</td>
+          <td class="menu-item-shortcut">Ctrl+Alt+N</td>
+          <td class=" secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Open_file">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Open</td>
+          <td class="menu-item-shortcut">Ctrl+Alt+O</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Save_file">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Save</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Saveas_file">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">SaveAs</td>
+          <td class="menu-item-shortcut">Ctrl+S</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="div-line">
+          <td colspan="4">
+            <hr class="menuhr">
+          </td>
+        </tr>
+        <tr class="menu-row" id="Load_from_URL">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Load from URL</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Upload_to_Imgur">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Upload to Imgur</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="div-line">
+          <td colspan="4">
+            <hr class="menuhr">
+          </td>
+        </tr>
+        <tr class="menu-row" id="Manage_storage">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Manage storage</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="div-line">
+          <td colspan="4">
+            <hr class="menuhr">
+          </td>
+        </tr>
+        <tr class="menu-row" id="Set_as_WallpaperT">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Set as wallpaper(Tiled)</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Set_as_WallpaperC">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Set as Wallpaper(Centered)</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="div-line">
+          <td colspan="4">
+            <hr class="menuhr">
+          </td>
+        </tr>
+        <tr class="menu-row" id="Recent_files">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Recent Files</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        <tr class="div-line">
+          <td colspan="4">
+            <hr class="menuhr">
+          </td>
+        </tr>
+        <tr class="menu-row" id="Exit">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Exit</td>
+          <td class="menu-item-shortcut">Ctrl+Q</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+      </table>
+    </div>
+    <div class="dropdown" id="edit_toggle" >
+      <table class="edit-toggle-content" style="width: 192px; height: 195px; font-size: 11px; ">
+        <tr class="menu-row" id="Undo">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Undo</td>
+          <td class="menu-item-shortcut">Ctrl+Z</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Repeat">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Repeat</td>
+          <td class="menu-item-shortcut">F4</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="History">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">History</td>
+          <td class="menu-item-shortcut">Ctrl+Shift+Y</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="div-line">
+          <td colspan="4">
+            <hr class="menuhr">
+          </td>
+        </tr>
+        <tr class="menu-row" id="Cut">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Cut</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+
+        <tr class="menu-row" id="Copy">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Copy</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Paste">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Paste</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+
+        <tr class="menu-row" id="Clear-Selection">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Clear Selection</td>
+          <td class="menu-item-shortcut">Del</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+
+        <tr class="menu-row" id="Select-All">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Select All</td>
+          <td class="menu-item-shortcut">Ctrl+A</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="div-line">
+          <td colspan="4">
+            <hr class="menuhr">
+          </td>
+        </tr>
+        <tr class="menu-row" id="Copy-To">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Copy to</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Paste-from">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Paste-from</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+      </table>
+    </div>
+    <div class="dropdown" id="view_toggle" >
+      <table class="view-toggle-content" style="width: 192px; height: 150px; font-size: 11px; ">
+        <tr class="menu-row" id="Tool-Box">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Tool Box</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Color-Box">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Color-Box</td>
+          <td class="menu-item-shortcut">Ctrl+L</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Status-Bar">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Status Bar</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Text-Toolbar">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Text Toolbar</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="div-line">
+          <td colspan="4">
+            <hr class="menuhr">
+          </td>
+        </tr>
+
+
+        <tr class="menu-row" id="Zoom">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Zoom</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="View-Bitmap">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">View Bitmap</td>
+          <td class="menu-item-shortcut">Ctrl+F</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+
+        <tr class="menu-row" id="FullScreen">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Full Screen</td>
+          <td class="menu-item-shortcut">F11</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+      </table>
+    </div>
+    <div class="dropdown" id="layer_toggle" >
+      <table class="layers-toggle-content" style="width: 192px; height: 200px; font-size: 11px;">
+        <tr class="menu-row" id="Properties">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Properties..</td>
+          <td class="menu-item-shortcut">F2</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Visible">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Visible</td>
+          <td class="menu-item-shortcut">Shift+X</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Lock-Layers">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Lock Layers</td>
+          <td class="menu-item-shortcut"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+
+        <tr class="menu-row" id="Open-Group">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Open Group</td>
+          <td class="menu-item-shortcut">Shift+E</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="div-line">
+          <td colspan="4">
+            <hr class="menuhr">
+          </td>
+        </tr>
+        <tr class="menu-row" id="New-Layer">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">New</td>
+          <td class="menu-item-options"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Delete-Layer">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Delete Layer</td>
+          <td class="menu-item-options"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+
+        <tr class="menu-row" id="Convert-To">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Convert To..</td>
+          <td class="menu-item-options"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="div-line">
+          <td colspan="4">
+            <hr class="menuhr">
+          </td>
+        </tr>
+        <tr class="menu-row" id="Duplicate">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Duplicate</td>
+          <td class="menu-item-options"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Merge-Down">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Merge Down</td>
+          <td class="menu-item-options"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Flatten">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Flatten</td>
+          <td class="menu-item-options"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Flatten-Layer">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Flatten Layer</td>
+          <td class="menu-item-options"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+      </table>
+    </div>
+    <div class="dropdown" id="image_toggle" >
+      <table class="image-toggle-content" style="width: 153px; height: 110px; font-size: 11px;">
+        <tr class="menu-row" id="Flip_Rotate">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Flip/Rotate</td>
+          <td class="menu-item-shortcut">Ctrl+Alt+R</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Stretch_Skew">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Stretch/Skew</td>
+          <td class="menu-item-shortcut">Ctrl+Alt+W</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Invert_Color">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Invert Color</td>
+          <td class="menu-item-shortcut">Ctrl+I</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+
+        <tr class="menu-row" id="Attributes">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Attributes..</td>
+          <td class="menu-item-shortcut">Ctrl+E</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Clear_Image">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Clear Image</td>
+          <td class="menu-item-options"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Draw_Opaque">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Draw Opaque</td>
+          <td class="menu-item-options"></td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+      </table>
+    </div>
+    <div class="dropdown" id="colors_toggle" style="left: 180px;">
+      <table class="colors-toggle-content" style="width: 128px; height: 56px; font-size: 11px;">
+        <tr class="menu-row" id="Edit_Colors">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Edit Colors..</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Get_Colors">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Get Colors</td>
+          <td class="secondary-dialog-arrow"></td>
+        </tr>
+        <tr class="menu-row" id="Save_Colors">
+          <td class="tickspace"></td>
+          <td class="menu-item-label">Save Color</td>
+          <td class="secondary-dialog-arrow" style="align-items: center;">Ctrl+I</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="container-2">
+    <canvas id="ascanvas"></canvas>
+
+    <div class="sidebar">
+      <div class="toolbar">
+        <button id="polygon lasso"></button>
+        <button id="rect lasso"></button>
+        <button id="eraser"></button>
+        <button id="fill"></button>
+        <button id="eyedrop"></button>
+        <button id="zoom"></button>
+        <button id="pencil"></button>
+        <button id="brush"></button>
+        <button id="airbrush"></button>
+        <button id="text"></button>
+        <button id="line"></button>
+        <button id="curveline"></button>
+        <button id="rectshape"></button>
+        <button id="polygonshape"></button>
+        <button id="elipse"></button>
+        <button id="rectelipse"></button>
+      </div>
+      <div class="optionWindow" id="optionWindow">
+        <button id="choice1"></button>
+        <button id="choice2"></button>
+        <button id="choice3"></button>
+        <button id="choice4"></button>
+        <button id="choice5"></button>
+
+      </div>
+    </div>
+    <div class="right-sidebar"></div>
+  </div>
+  <div class="container-3">
+    <div class="pallete-preview">
+      <div id="selected-Color"></div>
+      <div id="background-Color"></div>
+    </div>
+    <div class="pallete-layout">
+      <button id="black-button" style="background-color: black;"></button>
+      <button id="grey-button" style="background-color: grey;"></button>
+      <button id="maroon-button" style="background-color: maroon ;"></button>
+      <button id="dirty-yellow-button" style="background-color: rgb(185, 155, 20) ;"></button>
+      <button id="green-button" style="background-color: green ;"></button>
+      <button id="teal-button" style="background-color: teal;"></button>
+      <button id="navyblue-button" style="background-color: navy ;"></button>
+      <button id="purple-button" style="background-color: purple ;"></button>
+      <button id="dirty-yellowish-button" style="background-color: rgb(199, 151, 61) ;"></button>
+      <button id="greenish-blue-button" style="background-color: #003f3f;"></button>
+      <button id="lightseagreen-button" style="background-color: lightseagreen ;"></button>
+      <button id="royal-blue-button" style="background-color:rgb(0, 65, 129) ;"></button>
+      <button id="deep-blue-button" style="background-color: rgb(64,0,255);"></button>
+      <button id="brown-button" style="background-color: rgb(128,65,1);"></button>
+      <button id="white-button" style="background-color:white ;"></button>
+      <button id="lightgray-button" style="background-color:lightgray ;"></button>
+      <button id="red-button" style="background-color:red ;"></button>
+      <button id="yellow-button" style="background-color:yellow ;"></button>
+      <button id="lightgreen-button" style="background-color:lightgreen ;"></button>
+      <button id="lightblue-button" style="background-color:lightblue ;"></button>
+      <button id="blue-button" style="background-color:blue ;"></button>
+      <button id="pink-button" style="background-color:pink ;"></button>
+      <button id="beige-button" style="background-color: beige;"></button>
+      <button id="sea-green-button" style="background-color: rgb(1,255,129) ;"></button>
+      <button id="cyan-button" style="background-color: cyan;"></button>
+      <button id="dull-blue-button" style="background-color: rgb(128,128,255);"></button>
+      <button id="darkpink-button" style="background-color:rgb(255,0,128);"></button>
+      <button id="mud-orange-button" style="background-color:rgb(255,129,65) ;"></button>
+    </div>
+  </div>
+  </div>
+  <div class="container-4">
+    <div class="footer-note">For Help, click Help Topics on the Help Menu</div>
+    <div id="coordinate_value" class="coordinates"></div>
+    <div class="extra"></div>
+
+  </div>
+  <script  src="Index.js"></script>
+
+
+</body>
+
+</html>

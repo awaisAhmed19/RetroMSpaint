@@ -1,0 +1,332 @@
+:root {
+    --main-color: #bbbbbb;
+    --borderlight: rgb(238, 238, 238);
+    --borderdark: rgb(44, 44, 44);
+    --borderlighterdark: rgb(109, 109, 109);
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
+}
+
+.container-1 {
+    margin: 0;
+    border: none;
+    display: flex;
+    top: 0;
+}
+
+.menubar {
+    background-color: var(--main-color);
+    height: 19px;
+    width: 100%;
+    align-content: center;
+    position: relative;
+    top: 0;
+    border-bottom: 1px solid var(--borderdark);
+}
+
+.menubar button {
+    background-color: transparent;
+    height: 19px;
+    gap: 1px;
+    display: block;
+    float: left;
+    border: none;
+    text-align: center;
+    padding: 1px 4px;
+    font-size: 13px;
+}
+.menubar button:hover {
+    background-color: var(--main-color);
+    border-top: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderlight);
+    border-right: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderdark);
+}
+
+.menubar button:active {
+    background-color: var(--main-color);
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+}
+
+.menubar button:focus {
+    background-color: var(--main-color);
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+}
+
+/* Common styles for both toggle content containers */
+#file_toggle,
+#edit_toggle,
+#view_toggle,
+#layer_toggle,
+#image_toggle,
+#colors_toggle {
+    background-color: var(--main-color);
+    position: absolute;
+    top: 19px;
+    z-index: 999;
+    margin: 0;
+    border-top: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderlight);
+    border-right: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderdark);
+}
+.dropdown.active {
+    display: flex;
+}
+.dropdown{
+    display: none;
+}
+
+.tickspace,
+.secondary-dialog-arrow {
+    background-color: var(--main-color);
+    height: 12px;
+    width: 18px;
+    margin: 0;
+    border: none;
+}
+
+/* Specific styles for #edit-toggle */
+#edit_toggle {
+    width: 192px;
+    height: 200px;
+    left: 31px;
+}
+
+#view_toggle {
+    width: 150px;
+    height: 156px;
+    left: 60px;
+}
+
+#image_toggle {
+    
+    width: 165px;
+    height: 114px;
+    left: 137px;
+}
+
+#colors_toggle {
+    width: 130px;
+    height: 60px;
+    left: 130px;
+}
+#layer_toggle {
+    left: 95px;
+}
+/* Common styles for hr on hover */
+hr:hover {
+    background-color: var(--main-color);
+}
+
+.menu-row:hover td {
+    background-color: rgb(12, 12, 99);
+    color: white;
+    cursor: pointer;
+}
+
+/* Common styles for .toggle-content and .edit-toggle-content */
+.toggle-content,
+.edit-toggle-content ,
+.view-toggle-content ,
+.layers-toggle-content ,
+.image-toggle-content,
+.colors-toggle-content {
+    border-spacing: 0;
+    border-collapse: collapse;
+    margin: 1px;
+    font-size: 12px;
+    align-items: center;
+}
+
+/* Common styles for #toggle-content td and #edit-toggle-content td */
+#file_toggle td,
+#edit_toggle td,
+#view_toggle td,
+#layers_toggle td,
+#colors_toggle td {
+    height: 10px;
+}
+
+
+
+.container-2 {
+    margin: 0;
+    background-color: grey;
+    display: flex;
+    height: 85vh;
+}
+
+.right-sidebar {
+    background-color: var(--main-color);
+    position: absolute;
+    width: 1px;
+    height: 85vh;
+    right: 0px;
+    border-left: 1px solid var(--borderlight);
+}
+
+.sidebar {
+    background-color: var(--main-color);
+    position: relative;
+    width: 56px;
+    left: 0;
+    height: 85vh;
+    border-right: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlighterdark);
+}
+
+canvas {
+    background-color: white;
+    position: absolute;
+    left: 60px;
+    top: 24px;
+}
+
+.toolbar {
+    background-color: transparent;
+    position: relative;
+    width: 56px;
+    left: 4px;
+    display: grid;
+    grid-template-columns: repeat(2, 25px);
+    gap: 0;
+}
+
+.toolbar button {
+    background-color: transparent;
+    height: 25px;
+    width: 25px;
+    border-bottom: 1px solid var(--borderdark);
+    border-top: 1px solid var(--borderlight);
+    border-right: 1px solid var(--borderdark);
+    border-left: 1px solid var(--borderlight);
+}
+
+.optionWindow {
+    background-color: transparent;
+    height: 62px;
+    width: 40px;
+    position: relative;
+    top: 0.3vh;
+    left: 7px;
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+}
+
+.optionWindow button {
+    background-color: transparent;
+    border: none;
+    width: 40px;
+    height: 12px;
+    display: block;
+}
+
+.container-3 {
+    background-color: var(--main-color);
+    display: flex;
+    height: 8vh;
+    width: 100%;
+    align-items: center;
+    border-top: 1px solid var(--borderlight);
+    border-bottom: 1px solid var(--borderlighterdark);
+}
+
+.pallete-layout {
+    background-color: transparent;
+    display: grid;
+    border: 0;
+    width: 223px;
+    height: 32px;
+    left: 8px;
+    position: relative;
+    grid-template-columns: repeat(14, 15px);
+    column-gap: 1px;
+    row-gap: 1px;
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+}
+
+.pallete-layout button {
+    background-color: transparent;
+    height: 15px;
+    width: 15px;
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+}
+
+.pallete-preview {
+    background-color: rgb(216, 216, 216);
+    position: relative;
+    left: 5px;
+    display: flex;
+    height: 32px;
+    width: 32px;
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+}
+
+.container-4 {
+    background-color: var(--main-color);
+    display: flex;
+    height: 4vh;
+    align-items: center;
+    column-gap: 2px;
+    border-top: 1px solid var(--borderlight);
+}
+
+.footer-note {
+    background-color: transparent;
+    flex: 4 1 80%;
+    font-size: 12px;
+    position: relative;
+    bottom: 2px;
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+}
+
+.coordinates {
+    background-color: transparent;
+    position: relative;
+    height: 14px;
+    width: 18vh;
+    bottom: 2px;
+    flex-basis: 1 1 10%;
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+}
+
+.extra {
+    background-color: transparent;
+    position: relative;
+    height: 14px;
+    width: 16vh;
+    bottom: 2px;
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+} 
