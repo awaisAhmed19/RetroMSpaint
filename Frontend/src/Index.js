@@ -1,6 +1,10 @@
 const menubtn = document.querySelectorAll(".menubar-btn");
 const dropdown = document.querySelectorAll(".dropdown");
+const toolsButton = document.querySelectorAll(".toolbar");
 
+function toolsOption(tool) {
+  
+}
 
 function closeDropdownMenu() {
   dropdown.forEach((drop) => {
@@ -24,7 +28,7 @@ menubtn.forEach((btn) => {
     e.stopPropagation();
   });
 });
-
+  
 //links.forEach((link) =>
  // link.addEventListener("click", () => {
  //   closeDropdownMenu();
