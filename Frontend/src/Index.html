@@ -6,12 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>RetroMspaint</title>
   <link rel="stylesheet" href="Style.css">
+  <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+
 </head>
 
 <body>
   <div class="container-1">
     <div class="menubar">
-      <button class="menubar-btn" data-dropdown="file_toggle">File</button>
+      <button class="menubar-btn" data-dropdown="file_toggle"  >File</button>
       <button class="menubar-btn" data-dropdown="edit_toggle">Edit</button>
       <button class="menubar-btn" data-dropdown="view_toggle">View</button>
       <button class="menubar-btn" data-dropdown="layer_toggle">Layer</button>
@@ -20,98 +22,98 @@
       <button class="menubar-btn" data-dropdown="help_toggle">Help</button>
     </div>
     <div class="dropdown" id="file_toggle" style=" width: 275px;height: 310px;left: 0;">
-      <table class="toggle-content" style="width: 275px;height: 305px;left: 0; ">
-        <tr class="menu-row" id="New_file">
-          <td class="tickspace"></td>
-          <td class="menu-item-label">New</td>
-          <td class="menu-item-shortcut">Ctrl+Alt+N</td>
-          <td class="  secondary-dialog-arrow"></td>
-        </tr>
-        <tr class="menu-row" id="Open_file">
-          <td class="tickspace"></td>
-          <td class="menu-item-label">Open</td>
-          <td class="menu-item-shortcut">Ctrl+Alt+O</td>
-          <td class="secondary-dialog-arrow"></td>
-        </tr>
-        <tr class="menu-row" id="Save_file">
-          <td class="tickspace"></td>
-          <td class="menu-item-label">Save</td>
-          <td class="menu-item-shortcut"></td>
-          <td class="secondary-dialog-arrow"></td>
-        </tr>
-        <tr class="menu-row" id="Saveas_file">
-          <td class="tickspace"></td>
-          <td class="menu-item-label">SaveAs</td>
-          <td class="menu-item-shortcut">Ctrl+S</td>
-          <td class="secondary-dialog-arrow"></td>
-        </tr>
-        <tr class="div-line">
-          <td colspan="4">
-            <hr class="menuhr">
-          </td>
-        </tr>
-        <tr class="menu-row" id="Load_from_URL">
-          <td class="tickspace"></td>
-          <td class="menu-item-label">Load from URL</td>
-          <td class="menu-item-shortcut"></td>
-          <td class="secondary-dialog-arrow"></td>
-        </tr>
-        <tr class="menu-row" id="Upload_to_Imgur">
-          <td class="tickspace"></td>
-          <td class="menu-item-label">Upload to Imgur</td>
-          <td class="menu-item-shortcut"></td>
-          <td class="secondary-dialog-arrow"></td>
-        </tr>
-        <tr class="div-line">
-          <td colspan="4">
-            <hr class="menuhr">
-          </td>
-        </tr>
-        <tr class="menu-row" id="Manage_storage">
-          <td class="tickspace"></td>
-          <td class="menu-item-label">Manage storage</td>
-          <td class="menu-item-shortcut"></td>
-          <td class="secondary-dialog-arrow"></td>
-        </tr>
-        <tr class="div-line">
-          <td colspan="4">
-            <hr class="menuhr">
-          </td>
-        </tr>
-        <tr class="menu-row" id="Set_as_WallpaperT">
-          <td class="tickspace"></td>
-          <td class="menu-item-label">Set as wallpaper(Tiled)</td>
-          <td class="menu-item-shortcut"></td>
-          <td class="secondary-dialog-arrow"></td>
-        </tr>
-        <tr class="menu-row" id="Set_as_WallpaperC">
-          <td class="tickspace"></td>
-          <td class="menu-item-label">Set as Wallpaper(Centered)</td>
-          <td class="menu-item-shortcut"></td>
-          <td class="secondary-dialog-arrow"></td>
-        </tr>
-        <tr class="div-line">
-          <td colspan="4">
-            <hr class="menuhr">
-          </td>
-        </tr>
-        <tr class="menu-row" id="Recent_files">
-          <td class="tickspace"></td>
-          <td class="menu-item-label" style="text-shadow: 1px 1px 0px rgb(255, 255, 255);">Recent Files</td>
-          <td class="menu-item-shortcut"></td>
-          <td class="secondary-dialog-arrow"></td>
-        <tr class="div-line">
-          <td colspan="4">
-            <hr class="menuhr">
-          </td>
-        </tr>
-        <tr class="menu-row" id="Exit">
-          <td class="tickspace"></td>
-          <td class="menu-item-label">Exit</td>
-          <td class="menu-item-shortcut">Ctrl+Q</td>
-          <td class="secondary-dialog-arrow"></td>
-        </tr>
-      </table>
+    <table class="toggle-content" style="width: 275px;height: 305px;left: 0; ">
+      <tr class="menu-row" id="New_file">
+        <td class="tickspace"></td>
+        <td class="menu-item-label">New</td>
+        <td class="menu-item-shortcut">Ctrl+Alt+N</td>
+        <td class="  secondary-dialog-arrow"></td>
+      </tr>
+      <tr class="menu-row" id="Open_file">
+        <td class="tickspace"></td>
+        <td class="menu-item-label">Open</td>
+        <td class="menu-item-shortcut">Ctrl+Alt+O</td>
+        <td class="secondary-dialog-arrow"></td>
+      </tr>
+      <tr class="menu-row" id="Save_file">
+        <td class="tickspace"></td>
+        <td class="menu-item-label">Save</td>
+        <td class="menu-item-shortcut"></td>
+        <td class="secondary-dialog-arrow"></td>
+      </tr>
+      <tr class="menu-row" id="Saveas_file">
+        <td class="tickspace"></td>
+        <td class="menu-item-label">SaveAs</td>
+        <td class="menu-item-shortcut">Ctrl+S</td>
+        <td class="secondary-dialog-arrow"></td>
+      </tr>
+      <tr class="div-line">
+        <td colspan="4">
+          <hr class="menuhr">
+        </td>
+      </tr>
+      <tr class="menu-row" id="Load_from_URL">
+        <td class="tickspace"></td>
+        <td class="menu-item-label">Load from URL</td>
+        <td class="menu-item-shortcut"></td>
+        <td class="secondary-dialog-arrow"></td>
+      </tr>
+      <tr class="menu-row" id="Upload_to_Imgur">
+        <td class="tickspace"></td>
+        <td class="menu-item-label">Upload to Imgur</td>
+        <td class="menu-item-shortcut"></td>
+        <td class="secondary-dialog-arrow"></td>
+      </tr>
+      <tr class="div-line">
+        <td colspan="4">
+          <hr class="menuhr">
+        </td>
+      </tr>
+      <tr class="menu-row" id="Manage_storage">
+        <td class="tickspace"></td>
+        <td class="menu-item-label">Manage storage</td>
+        <td class="menu-item-shortcut"></td>
+        <td class="secondary-dialog-arrow"></td>
+      </tr>
+      <tr class="div-line">
+        <td colspan="4">
+          <hr class="menuhr">
+        </td>
+      </tr>
+      <tr class="menu-row" id="Set_as_WallpaperT">
+        <td class="tickspace"></td>
+        <td class="menu-item-label">Set as wallpaper(Tiled)</td>
+        <td class="menu-item-shortcut"></td>
+        <td class="secondary-dialog-arrow"></td>
+      </tr>
+      <tr class="menu-row" id="Set_as_WallpaperC">
+        <td class="tickspace"></td>
+        <td class="menu-item-label">Set as Wallpaper(Centered)</td>
+        <td class="menu-item-shortcut"></td>
+        <td class="secondary-dialog-arrow"></td>
+      </tr>
+      <tr class="div-line">
+        <td colspan="4">
+          <hr class="menuhr">
+        </td>
+      </tr>
+      <tr class="menu-row" id="Recent_files">
+        <td class="tickspace"></td>
+        <td class="menu-item-label" style="text-shadow: 1px 1px 0px rgb(255, 255, 255);">Recent Files</td>
+        <td class="menu-item-shortcut"></td>
+        <td class="secondary-dialog-arrow"></td>
+      <tr class="div-line">
+        <td colspan="4">
+          <hr class="menuhr">
+        </td>
+      </tr>
+      <tr class="menu-row" id="Exit">
+        <td class="tickspace"></td>
+        <td class="menu-item-label">Exit</td>
+        <td class="menu-item-shortcut">Ctrl+Q</td>
+        <td class="secondary-dialog-arrow"></td>
+      </tr>
+    </table>
     </div>
     <div class="dropdown" id="edit_toggle" >
       <table class="edit-toggle-content" style="width: 192px; height: 195px; font-size: 11px; ">
@@ -410,7 +412,7 @@
         <button class="tools" id="elipse" style="background-image: url(classic/elipse.png); "></button>
         <button class="tools" id="rectelipse" style="background-image: url(classic/squareElipse.png); "></button>
       </div>
-      <div class="optionWindow" id="optionWindow" data->
+      <div class="optionWindow" id="optionWindow" >
         <button id="choice1"></button>
         <button id="choice2"></button>
         <button id="choice3"></button>
@@ -465,8 +467,7 @@
 
   </div>
   <script  src="Index.js"></script>
-
-
+  
 </body>
 
 </html>

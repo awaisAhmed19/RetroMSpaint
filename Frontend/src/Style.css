@@ -241,9 +241,7 @@ canvas {
 .optionWindow button {
     background-color: transparent;
     border: none;
-    width: 38px;
-    height: 12px;
-    display: block;
+  
 }
 
 .container-3 {
