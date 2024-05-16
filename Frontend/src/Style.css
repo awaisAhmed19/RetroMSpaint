@@ -8,10 +8,12 @@
 body {
     padding: 0;
     margin: 0;
+    width:100vw;
+    height: 100vh;
     font-family: Arial, Helvetica, sans-serif;
     overflow: hidden;
     touch-action: none;
-    zoom: reset;
+    
 }
 
 .container-1 {
@@ -19,27 +21,30 @@ body {
     border: none;
     display: flex;
     top: 0;
+    width: 100vw;
+    height:19px;
+    border-bottom: 1px solid var(--borderdark);
+    
 }
 
 .menubar {
     background-color: var(--main-color);
-    height: 19px;
+    height: 100%;
     width: 100%;
     align-content: center;
     position: relative;
     top: 0;
-    border-bottom: 1px solid var(--borderdark);
 }
 
 .menubar button {
     background-color: transparent;
-    height: 19px;
-    gap: 1px;
-    display: block;
+    height: 100%;
+    left:1px;
     float: left;
     border: none;
+    margin: 1px;
     text-align: center;
-    padding: 1px 4px;
+    padding: 1px 6px;
     font-size: 13px;
 }
 .menubar button:hover {
@@ -50,13 +55,6 @@ body {
     border-bottom: 1px solid var(--borderdark);
 }
 
-/*.menubar button:active {
-    background-color: var(--main-color);
-    border-top: 1px solid var(--borderdark);
-    border-right: 1px solid var(--borderlight);
-    border-left: 1px solid var(--borderdark);
-    border-bottom: 1px solid var(--borderlight);
-}*/
 
 .menubar button:focus {
     background-color: var(--main-color);
@@ -167,14 +165,17 @@ hr:hover {
     margin: 0;
     background-color: grey;
     display: flex;
-    height: 85vh;
+    height: 84vh;
+    width: 100vw;
+    position: relative;
 }
 
 .right-sidebar {
     background-color: var(--main-color);
+    display: flex;
     position: absolute;
     width: 1px;
-    height: 85vh;
+    height: 100%;
     right: 0px;
     border-left: 1px solid var(--borderlight);
 }
@@ -182,9 +183,9 @@ hr:hover {
 .sidebar {
     background-color: var(--main-color);
     position: relative;
-    width: 56px;
     left: 0;
-    height: 85vh;
+    width: 56px;
+    height: 100%;
     border-right: 1px solid var(--borderdark);
     border-bottom: 1px solid var(--borderlighterdark);
 }
@@ -193,13 +194,13 @@ canvas {
     background-color: white;
     position: absolute;
     left: 60px;
-    top: 24px;
+    top: 3px;
 }
 
 .toolbar {
     background-color: transparent;
     position: relative;
-    width: 56px;
+    width: 100%;
     left: 4px;
     display: grid;
     grid-template-columns: repeat(2, 25px);
@@ -211,9 +212,9 @@ canvas {
     height: 25px;
     width: 25px;
     border-bottom: 2px solid var(--borderdark);
-    border-top: 1px solid var(--borderlight);
+    border-top: 2px solid var(--borderlight);
     border-right: 2px solid var(--borderdark);
-    border-left: 1px solid var(--borderlight);
+    border-left: 2px solid var(--borderlight);
     background-position: center;
     background-repeat: no-repeat;
 }
@@ -232,10 +233,10 @@ canvas {
     position: relative;
     top: 0.3vh;
     left: 8px;
-    border-top: 1px solid var(--borderdark);
-    border-right: 1px solid var(--borderlight);
-    border-left: 1px solid var(--borderdark);
-    border-bottom: 1px solid var(--borderlight);
+    border-top: 2px solid var(--borderdark);
+    border-right: 2px solid var(--borderlight);
+    border-left: 2px solid var(--borderdark);
+    border-bottom: 2px solid var(--borderlight);
 }
 
 .optionWindow button {
@@ -247,8 +248,8 @@ canvas {
 .container-3 {
     background-color: var(--main-color);
     display: flex;
-    height: 8vh;
-    width: 100%;
+    height: 56px;
+    width: 100vw;
     align-items: center;
     border-top: 1px solid var(--borderlight);
     border-bottom: 1px solid var(--borderlighterdark);
@@ -258,11 +259,11 @@ canvas {
     background-color: transparent;
     display: grid;
     border: 0;
-    width: 223px;
+    width: 237px;
     height: 32px;
     left: 8px;
     position: relative;
-    grid-template-columns: repeat(14, 15px);
+    grid-template-columns: repeat(14,16px);
     column-gap: 1px;
     row-gap: 1px;
     border-top: 1px solid var(--borderdark);
@@ -273,8 +274,8 @@ canvas {
 
 .pallete-layout button {
     background-color: transparent;
-    height: 15px;
-    width: 15px;
+    height: 16px;
+    width: 16px;
     border-top: 1px solid var(--borderdark);
     border-right: 1px solid var(--borderlight);
     border-left: 1px solid var(--borderdark);
@@ -297,7 +298,9 @@ canvas {
 .container-4 {
     background-color: var(--main-color);
     display: flex;
-    height: 4vh;
+    height: 25px;
+    width: 100vw;
+    bottom: 0;
     align-items: center;
     column-gap: 2px;
     border-top: 1px solid var(--borderlight);
@@ -305,10 +308,12 @@ canvas {
 
 .footer-note {
     background-color: transparent;
+    align-items:bottom;
     flex: 4 1 80%;
     font-size: 12px;
     position: relative;
-    bottom: 2px;
+    height: 70%;
+    bottom: 1px;
     border-top: 1px solid var(--borderdark);
     border-right: 1px solid var(--borderlight);
     border-left: 1px solid var(--borderdark);
@@ -318,9 +323,9 @@ canvas {
 .coordinates {
     background-color: transparent;
     position: relative;
-    height: 14px;
-    width: 18vh;
-    bottom: 2px;
+    height: 70%;
+    width: 9vw;
+    bottom: 1px;
     flex-basis: 1 1 10%;
     border-top: 1px solid var(--borderdark);
     border-right: 1px solid var(--borderlight);
@@ -331,9 +336,9 @@ canvas {
 .extra {
     background-color: transparent;
     position: relative;
-    height: 14px;
-    width: 16vh;
-    bottom: 2px;
+    height: 70%;
+    width: 9vw;
+    bottom: 1px;
     border-top: 1px solid var(--borderdark);
     border-right: 1px solid var(--borderlight);
     border-left: 1px solid var(--borderdark);

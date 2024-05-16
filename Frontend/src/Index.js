@@ -2,6 +2,13 @@ const menubtn = document.querySelectorAll(".menubar-btn");
 const dropdown = document.querySelectorAll(".dropdown");
 const toolsButton = document.querySelectorAll(".toolbar");
 
+document.onkeydown=function(event){
+  if((event.ctrlKey && event.key==='+')||( event.ctrlKey && event.key==='-')){
+    event.preventDefault();
+  }
+};
+
+
 function toolsOption(tool) {
   
 }
@@ -28,14 +35,6 @@ menubtn.forEach((btn) => {
     e.stopPropagation();
   });
 });
-  
-//links.forEach((link) =>
- // link.addEventListener("click", () => {
- //   closeDropdownMenu();
- //   setAriaExpandedFalse();
- //   toggleHamburger();
- // })
-//);
 
 document.documentElement.addEventListener("click", () => {
   closeDropdownMenu();
