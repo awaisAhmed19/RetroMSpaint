@@ -4,12 +4,19 @@
     --borderdark: rgb(44, 44, 44);
     --borderlighterdark: rgb(109, 109, 109);
 }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
 body {
     padding: 0;
     margin: 0;
     width:100vw;
     height: 100vh;
+    display: flex;
+    flex-direction: column;
     font-family: Arial, Helvetica, sans-serif;
     overflow: hidden;
     touch-action: none;
@@ -17,6 +24,7 @@ body {
 }
 
 .container-1 {
+    flex-direction: 1;
     margin: 0;
     border: none;
     display: flex;
@@ -162,10 +170,11 @@ hr:hover {
 
 
 .container-2 {
+    flex-grow: 55;
     margin: 0;
     background-color: grey;
     display: flex;
-    height: 84vh;
+    height: 85vh;
     width: 100vw;
     position: relative;
 }
@@ -248,6 +257,7 @@ canvas {
 .container-3 {
     background-color: var(--main-color);
     display: flex;
+    flex-grow: 2;
     height: 56px;
     width: 100vw;
     align-items: center;
@@ -298,6 +308,7 @@ canvas {
 .container-4 {
     background-color: var(--main-color);
     display: flex;
+    flex-grow: 1;
     height: 25px;
     width: 100vw;
     bottom: 0;
