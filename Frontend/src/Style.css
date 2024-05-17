@@ -238,9 +238,9 @@ canvas {
     position: relative;
     top: 0.3vh;
     left: 9px;
-    border-top: 1px solid var(--borderdark);
+    border-top: 1px solid grey;
     border-right: 1px solid var(--borderlight);
-    border-left: 1px solid var(--borderdark);
+    border-left: 1px solid grey;
     border-bottom: 1px solid var(--borderlight);
 }
 
@@ -268,7 +268,6 @@ canvas {
     background-color: transparent;
     display: grid;
     border: 0;
-   
     left: 8px;
     position: relative;
     grid-template-columns: repeat(14,18px);
