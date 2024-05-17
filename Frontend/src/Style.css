@@ -4,11 +4,7 @@
     --borderdark: rgb(44, 44, 44);
     --borderlighterdark: rgb(109, 109, 109);
 }
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+
 
 body {
     padding: 0;
@@ -50,7 +46,7 @@ body {
     left:1px;
     float: left;
     border: none;
-    margin: 1px;
+    margin: 0;
     text-align: center;
     padding: 1px 6px;
     font-size: 13px;
@@ -193,7 +189,7 @@ hr:hover {
     background-color: var(--main-color);
     position: relative;
     left: 0;
-    width: 56px;
+    width: 60px;
     height: 100%;
     border-right: 1px solid var(--borderdark);
     border-bottom: 1px solid var(--borderlighterdark);
@@ -202,7 +198,7 @@ hr:hover {
 canvas {
     background-color: white;
     position: absolute;
-    left: 60px;
+    left: 63px;
     top: 3px;
 }
 
@@ -210,48 +206,51 @@ canvas {
     background-color: transparent;
     position: relative;
     width: 100%;
-    left: 4px;
+    left: 5px;
     display: grid;
-    grid-template-columns: repeat(2, 25px);
-    gap: 0;
+    grid-template-columns: repeat(2, 26px);
+    
 }
 
 .tools {
     background-color: transparent;
-    height: 25px;
-    width: 25px;
-    border-bottom: 2px solid var(--borderdark);
-    border-top: 2px solid var(--borderlight);
-    border-right: 2px solid var(--borderdark);
-    border-left: 2px solid var(--borderlight);
+    height: 26px;
+    width: 26px;
+    border-bottom: 1px solid var(--borderdark);
+    border-top: 1px solid var(--borderlight);
+    border-right: 1px solid var(--borderdark);
+    border-left: 1px solid var(--borderlight);
     background-position: center;
     background-repeat: no-repeat;
 }
 .tools:focus{
-    background-color: aliceblue;
-    border-top: 2px solid var(--borderdark);
+    background-color: rgb(233, 237, 240);
+    border-top: 1px solid var(--borderdark);
     border-right: 1px solid var(--borderlight);
-    border-left: 2px solid var(--borderdark);
+    border-left: 1px solid var(--borderdark);
     border-bottom: 1px solid var(--borderlight);
 }
 
 .optionWindow {
     background-color: transparent;
-    height: 62px;
-    width: 38px;
+    height: 66px;
+    width: 43px;
     position: relative;
     top: 0.3vh;
-    left: 8px;
-    border-top: 2px solid var(--borderdark);
-    border-right: 2px solid var(--borderlight);
-    border-left: 2px solid var(--borderdark);
-    border-bottom: 2px solid var(--borderlight);
+    left: 9px;
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
 }
 
 .optionWindow button {
     background-color: transparent;
     border: none;
   
+}
+.optionWindow button:hover{
+    background-color: blue;
 }
 
 .container-3 {
@@ -269,23 +268,19 @@ canvas {
     background-color: transparent;
     display: grid;
     border: 0;
-    width: 237px;
-    height: 32px;
+   
     left: 8px;
     position: relative;
-    grid-template-columns: repeat(14,16px);
+    grid-template-columns: repeat(14,18px);
     column-gap: 1px;
     row-gap: 1px;
-    border-top: 1px solid var(--borderdark);
-    border-right: 1px solid var(--borderlight);
-    border-left: 1px solid var(--borderdark);
-    border-bottom: 1px solid var(--borderlight);
+  
 }
 
 .pallete-layout button {
     background-color: transparent;
-    height: 16px;
-    width: 16px;
+    height: 18px;
+    width: 18px;
     border-top: 1px solid var(--borderdark);
     border-right: 1px solid var(--borderlight);
     border-left: 1px solid var(--borderdark);
@@ -297,8 +292,8 @@ canvas {
     position: relative;
     left: 5px;
     display: flex;
-    height: 32px;
-    width: 32px;
+    height: 36px;
+    width: 36px;
     border-top: 1px solid var(--borderdark);
     border-right: 1px solid var(--borderlight);
     border-left: 1px solid var(--borderdark);
@@ -323,7 +318,7 @@ canvas {
     flex: 4 1 80%;
     font-size: 12px;
     position: relative;
-    height: 70%;
+    height: 80%;
     bottom: 1px;
     border-top: 1px solid var(--borderdark);
     border-right: 1px solid var(--borderlight);
@@ -334,7 +329,7 @@ canvas {
 .coordinates {
     background-color: transparent;
     position: relative;
-    height: 70%;
+    height: 80%;
     width: 9vw;
     bottom: 1px;
     flex-basis: 1 1 10%;
@@ -347,7 +342,7 @@ canvas {
 .extra {
     background-color: transparent;
     position: relative;
-    height: 70%;
+    height: 80%;
     width: 9vw;
     bottom: 1px;
     border-top: 1px solid var(--borderdark);
