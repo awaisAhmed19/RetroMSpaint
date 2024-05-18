@@ -389,10 +389,18 @@
   </div>
 
   <div class="container-2">
-    <canvas id="ascanvas"></canvas>
+    <div id="canvas-container">
+      <canvas id="canvas"></canvas>
+      <img src="classic/point.png" class="resize-handle right" alt="right handle">
+      <img src="classic/point.png" class="resize-handle bottom" alt="bottom handle">
+      <img src="classic/point.png" class="resize-handle corner" alt="corner handle">
+      <div></div>
+      <div></div>
+    </div>
 
-    <div class="sidebar">
-      <div class="toolbar">
+    <div class="sidebar" id="side-bar">
+      <button class="side-close-button"></button>
+      <div class="toolbar" >
         <button class="tools" id="polygonlasso" style="background-image: url(classic/polySelector.png);"></button>
         <button class="tools" id="rectlasso" style="background-image: url(classic/rectSelector.png);"></button>
         <button class="tools" id="eraser" style="background-image: url(classic/eraser.png); "></button>
@@ -466,7 +474,8 @@
 
   </div>
   <script  src="Index.js"></script>
-  
+  <script src="canvas.js"></script>
+  <script src="toolbox.js"></script>
 </body>
 
 </html>

@@ -5,6 +5,7 @@ const footNote = document.getElementById("foot-note");
 const toolsClass = document.querySelectorAll(".tools");
 const menuRow = document.querySelectorAll(".menu-row");
 const elementFootNotesclasses = [...toolsClass, ...menuRow];
+window.addEventListener('load', defaultFootNote);
 document.onkeydown=function(event){
   if((event.ctrlKey && event.key==='+')||( event.ctrlKey && event.key==='-')){
     event.preventDefault();
@@ -53,7 +54,7 @@ const footNoteMessageList = {
   Color_Box: "shows or hides the color bar",
   Status_Bar: "shows or hides the status bar",
   Text_Toolbar: "shows or hides the text toolbar",
-  Zoom: "",
+  Zoom: "zooming with options.",
   View_Bitmap: "Displays the entire picture",
   FullScreen:"Makes the application full screen",
   Properties: "Shows properties",
