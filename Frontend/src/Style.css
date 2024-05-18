@@ -175,8 +175,45 @@ hr:hover {
     position: relative;
 }
 
+.sidebar-floating-top {
+    width: 56px;
+    height: 16px;
+    background: linear-gradient(to right, rgb(4, 4, 101), rgb(97, 110, 255));
+    margin: 2px;
+    display: none;
+    align-items: center;
+    align-self: center;
+    color: aliceblue;
+    font-size: 12px;
+    position: relative;
+    padding-left: 3px;
+    box-sizing: border-box;
+}
+
+.sidebar-floating-top button {
+    position: absolute;
+    right: 3px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: var(--main-color);
+    border-bottom: 1px solid var(--borderdark);
+    border-top: 1px solid var(--borderlight);
+    border-right: 1px solid var(--borderdark);
+    border-left: 1px solid var(--borderlight);
+}
+.sidebar-floating-top button:active{
+    background-color: var(--main-color);
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+}
 .sidebar.floating{
-    height: 280px;
+    height: 305px;
 }
 
 .right-sidebar {
