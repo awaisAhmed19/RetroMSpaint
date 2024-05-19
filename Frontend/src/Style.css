@@ -213,7 +213,7 @@ hr:hover {
     border-bottom: 1px solid var(--borderlight);
 }
 .sidebar.floating{
-    height: 305px;
+    height: 60%;
 }
 
 .right-sidebar {
@@ -293,7 +293,7 @@ hr:hover {
     position: absolute;
     left: 63px;
     top: 3px;
-    width: 80%;
+    width: calc(100%-60px);
     height: 80%;
     border: none;
 }
