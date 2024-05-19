@@ -31,7 +31,7 @@ function onMouseDown(e) {
         sidebarDrag.style.height = '300px';
         sidebarDrag.classList.add('floating');
         sidebarTop.style.display = 'flex';
-    }, 2000); // 2-second hold
+    }, 700); // 2-second hold
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
@@ -45,7 +45,7 @@ function onMouseMove(e) {
 
     sidebarDrag.style.left = `${startPosX + dx}px`;
     sidebarDrag.style.top = `${startPosY + dy}px`;
-    canvasContainer.style.marginLeft = `${sidebarDrag.offsetLeft + sidebarDrag.offsetWidth}px`;
+    //canvasContainer.style.marginLeft = `${sidebarDrag.offsetLeft + sidebarDrag.offsetWidth}px`;
 }
 
 function onMouseUp(e) {
@@ -78,5 +78,4 @@ function backToPosition() {
     sidebarDrag.classList.remove('floating');
     sidebarDrag.style.cursor = 'default';
     floating = false;
-    canvasContainer.style.marginLeft = '60px';
 }

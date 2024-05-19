@@ -389,15 +389,22 @@
   </div>
 
   <div class="container-2">
-    <div id="canvas-container">
-      <canvas id="canvas"></canvas>
-      <img src="classic/point.png" class="resize-handle right" alt="right handle">
-      <img src="classic/point.png" class="resize-handle bottom" alt="bottom handle">
-      <img src="classic/point.png" class="resize-handle corner" alt="corner handle">
-      <div></div>
-      <div></div>
-    </div>
+    
+      <div class="canvascontainer" id="canvas-container">
+        <canvas id="canvas" class="canvas"></canvas>
+        <img src="classic/point.png" class="resize-handle right" alt="right handle">
+        <img src="classic/point.png" class="resize-handle bottom" alt="bottom handle">
+        <img src="classic/point.png" class="resize-handle corner" alt="corner handle">
+        <div class="scrollBar scroll-vertical">
+          <div class="thumb thumb-vertical"></div>
+        </div>
+        <div class="scrollBar scrollbar-horizontal">
+          <div class="thumb thumb-horizontal"></div>
+        </div>
+      </div>
 
+      
+      
     <div class="sidebar" id="side-bar">
       <div class="sidebar-floating-top" placeholder="Tools"><button class="sidebar-close-button" style="background-image: url(classic/sidebar-closeButton.png);"></button>Tools</div>
       <div class="toolbar" >
