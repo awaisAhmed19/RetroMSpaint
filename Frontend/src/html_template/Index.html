@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>RetroMspaint</title>
-  <link rel="stylesheet" href="Style.css">
+  <link rel="stylesheet" href="../stylesheets/Style.css ">
   <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
 
 </head>
@@ -392,9 +392,9 @@
     
       <div class="canvascontainer" id="canvas-container">
         <canvas id="canvas" class="canvas"></canvas>
-        <img src="classic/point.png" class="resize-handle right" alt="right handle">
-        <img src="classic/point.png" class="resize-handle bottom" alt="bottom handle">
-        <img src="classic/point.png" class="resize-handle corner" alt="corner handle">
+        <img src="../classic/point.png" class="resize-handle right" alt="right handle">
+        <img src="../classic/point.png" class="resize-handle bottom" alt="bottom handle">
+        <img src="../classic/point.png" class="resize-handle corner" alt="corner handle">
         <div class="scrollBar scroll-vertical">
           <div class="thumb thumb-vertical"></div>
         </div>
@@ -406,24 +406,24 @@
       
       
     <div class="sidebar" id="side-bar">
-      <div class="sidebar-floating-top" placeholder="Tools"><button class="sidebar-close-button" style="background-image: url(classic/sidebar-closeButton.png);"></button>Tools</div>
+      <div class="sidebar-floating-top" placeholder="Tools"><button class="sidebar-close-button" style="background-image: url(../classic/sidebar-closeButton.png);"></button>Tools</div>
       <div class="toolbar" >
-        <button class="tools" id="polygonlasso" style="background-image: url(classic/polySelector.png);"></button>
-        <button class="tools" id="rectlasso" style="background-image: url(classic/rectSelector.png);"></button>
-        <button class="tools" id="eraser" style="background-image: url(classic/eraser.png); "></button>
-        <button class="tools" id="fill" style="background-image: url(classic/fillBucket.png);"></button>
-        <button class="tools" id="eyedrop" style="background-image: url(classic/dropSelector.png); "></button>
-        <button class="tools" id="zoom" style="background-image: url(classic/zoom.png); "></button>
-        <button class="tools" id="pencil" style="background-image: url(classic/pencil.png); "></button>
-        <button class="tools" id="brush" style="background-image: url(classic/brush.png); "></button>
-        <button class="tools" id="airbrush" style="background-image: url(classic/airBrush.png); "></button>
-        <button class="tools" id="text" style="background-image: url(classic/textButton.png); "></button>
-        <button class="tools" id="line" style="background-image: url(classic/line.png); "></button>
-        <button class="tools" id="curveline" style="background-image: url(classic/curvedLines.png); "></button>
-        <button class="tools" id="rectshape" style="background-image: url(classic/rectangle.png); "></button>
-        <button class="tools" id="polygonshape" style="background-image: url(classic/polygon.png); "></button>
-        <button class="tools" id="elipse" style="background-image: url(classic/elipse.png); "></button>
-        <button class="tools" id="rectelipse" style="background-image: url(classic/squareElipse.png); "></button>
+        <button class="tools" id="polygonlasso" style="background-image: url(../classic/polySelector.png);"></button>
+        <button class="tools" id="rectlasso" style="background-image: url(../classic/rectSelector.png);"></button>
+        <button class="tools" id="eraser" style="background-image: url(../classic/eraser.png); "></button>
+        <button class="tools" id="fill" style="background-image: url(../classic/fillBucket.png);"></button>
+        <button class="tools" id="eyedrop" style="background-image: url(../classic/dropSelector.png); "></button>
+        <button class="tools" id="zoom" style="background-image: url(../classic/zoom.png); "></button>
+        <button class="tools" id="pencil" style="background-image: url(../classic/pencil.png); "></button>
+        <button class="tools" id="brush" style="background-image: url(../classic/brush.png); "></button>
+        <button class="tools" id="airbrush" style="background-image: url(../classic/airBrush.png); "></button>
+        <button class="tools" id="text" style="background-image: url(../classic/textButton.png); "></button>
+        <button class="tools" id="line" style="background-image: url(../classic/line.png); "></button>
+        <button class="tools" id="curveline" style="background-image: url(../classic/curvedLines.png); "></button>
+        <button class="tools" id="rectshape" style="background-image: url(../classic/rectangle.png); "></button>
+        <button class="tools" id="polygonshape" style="background-image: url(../classic/polygon.png); "></button>
+        <button class="tools" id="elipse" style="background-image: url(../classic/elipse.png); "></button>
+        <button class="tools" id="rectelipse" style="background-image: url(../classic/squareElipse.png); "></button>
       </div>
       <div class="optionWindow" id="optionWindow" >
         <button id="choice1"></button>
@@ -480,9 +480,10 @@
     <div class="extra"></div>
 
   </div>
-  <script  src="Index.js"></script>
-  <script src="canvas.js"></script>
-  <script src="toolbox.js"></script>
+  <script type="module"  src="../scripts/Index.js"></script>
+  <script type="module"  src="../scripts/canvas.js"></script>
+  <script type="module"  src="../scripts/toolbox.js"></script>
+  
 </body>
 
 </html>

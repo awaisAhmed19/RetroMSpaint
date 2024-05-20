@@ -1,0 +1,98 @@
+@import "root.css";
+
+.container-3 {
+    background-color: var(--main-color);
+    display: flex;
+    flex-grow: 2;
+    height: 56px;
+    width: 100vw;
+    align-items: center;
+    border-top: 1px solid var(--borderlight);
+    border-bottom: 1px solid var(--borderlighterdark);
+}
+
+.pallete-layout {
+    background-color: transparent;
+    display: grid;
+    border: 0;
+    left: 8px;
+    position: relative;
+    grid-template-columns: repeat(14,18px);
+    column-gap: 1px;
+    row-gap: 1px;
+  
+}
+
+.pallete-layout button {
+    background-color: transparent;
+    height: 18px;
+    width: 18px;
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+}
+
+.pallete-preview {
+    background-color: rgb(216, 216, 216);
+    position: relative;
+    left: 5px;
+    display: flex;
+    height: 36px;
+    width: 36px;
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+}
+
+.container-4 {
+    background-color: var(--main-color);
+    display: flex;
+    flex-grow: 1;
+    height: 25px;
+    width: 100vw;
+    bottom: 0;
+    align-items: center;
+    column-gap: 2px;
+    border-top: 1px solid var(--borderlight);
+}
+
+.footer-note {
+    background-color: transparent;
+    align-items:bottom;
+    flex: 4 1 80%;
+    font-size: 12px;
+    position: relative;
+    height: 80%;
+    bottom: 1px;
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+}
+
+.coordinates {
+    background-color: transparent;
+    position: relative;
+    height: 80%;
+    width: 9vw;
+    bottom: 1px;
+    flex-basis: 1 1 10%;
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+}
+
+.extra {
+    background-color: transparent;
+    position: relative;
+    height: 80%;
+    width: 9vw;
+    bottom: 1px;
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+} 

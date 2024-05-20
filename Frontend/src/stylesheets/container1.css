@@ -1,0 +1,145 @@
+@import "root.css";
+
+.container-1 {
+    flex-direction: 1;
+    margin: 0;
+    border: none;
+    display: flex;
+    top: 0;
+    width: 100vw;
+    height:19px;
+    border-bottom: 1px solid var(--borderdark);
+    
+}
+
+.menubar {
+    background-color: var(--main-color);
+    height: 100%;
+    width: 100%;
+    align-content: center;
+    position: relative;
+    top: 0;
+}
+
+.menubar button {
+    background-color: transparent;
+    height: 100%;
+    left:1px;
+    float: left;
+    border: none;
+    margin: 0;
+    text-align: center;
+    padding: 1px 6px;
+    font-size: 13px;
+}
+.menubar button:hover {
+    background-color: var(--main-color);
+    border-top: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderlight);
+    border-right: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderdark);
+}
+
+
+.menubar button:focus {
+    background-color: var(--main-color);
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+}
+
+/* Common styles for both toggle content containers */
+#file_toggle,
+#edit_toggle,
+#view_toggle,
+#layer_toggle,
+#image_toggle,
+#colors_toggle {
+    background-color: var(--main-color);
+    position: absolute;
+    top: 19px;
+    z-index: 999;
+    margin: 0;
+    border-top: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderlight);
+    border-right: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderdark);
+}
+.dropdown.active {
+    display: flex;
+}
+.dropdown{
+    display: none;
+}
+
+.tickspace,
+.secondary-dialog-arrow {
+    background-color: var(--main-color);
+    height: 12px;
+    width: 18px;
+    margin: 0;
+    border: none;
+}
+
+/* Specific styles for #edit-toggle */
+#edit_toggle {
+    width: 192px;
+    height: 200px;
+    left: 31px;
+}
+
+#view_toggle {
+    width: 150px;
+    height: 156px;
+    left: 60px;
+}
+
+#image_toggle {
+    
+    width: 165px;
+    height: 114px;
+    left: 137px;
+}
+
+#colors_toggle {
+    width: 130px;
+    height: 60px;
+    left: 130px;
+}
+#layer_toggle {
+    left: 95px;
+}
+/* Common styles for hr on hover */
+hr:hover {
+    background-color: var(--main-color);
+}
+
+.menu-row:hover td {
+    background-color: rgb(12, 12, 99);
+    color: white;
+    cursor: pointer;
+}
+
+/* Common styles for .toggle-content and .edit-toggle-content */
+.toggle-content,
+.edit-toggle-content ,
+.view-toggle-content ,
+.layers-toggle-content ,
+.image-toggle-content,
+.colors-toggle-content {
+    border-spacing: 0;
+    border-collapse: collapse;
+    margin: 1px;
+    font-size: 12px;
+    align-items: center;
+}
+
+/* Common styles for #toggle-content td and #edit-toggle-content td */
+#file_toggle td,
+#edit_toggle td,
+#view_toggle td,
+#layers_toggle td,
+#colors_toggle td {
+    height: 10px;
+}

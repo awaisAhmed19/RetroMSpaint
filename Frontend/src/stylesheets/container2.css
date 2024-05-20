@@ -1,0 +1,177 @@
+@import "root.css";
+
+
+.container-2 {
+    flex-grow: 55;
+    margin: 0;
+    background-color: grey;
+    display: flex;
+    height: 85vh;
+    width: 100vw;
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-floating-top {
+    width: 56px;
+    height: 16px;
+    background: linear-gradient(to right, rgb(4, 4, 101), rgb(97, 110, 255));
+    margin: 2px;
+    display: none;
+    align-items: center;
+    align-self: center;
+    color: aliceblue;
+    font-size: 12px;
+    position: relative;
+    padding-left: 3px;
+    box-sizing: border-box;
+}
+
+.sidebar-floating-top button {
+    position: absolute;
+    right: 3px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: var(--main-color);
+    border-bottom: 1px solid var(--borderdark);
+    border-top: 1px solid var(--borderlight);
+    border-right: 1px solid var(--borderdark);
+    border-left: 1px solid var(--borderlight);
+}
+.sidebar-floating-top button:active{
+    background-color: var(--main-color);
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+}
+.sidebar.floating{
+    height: 60%;
+}
+
+.right-sidebar {
+    background-color: var(--main-color);
+    display: flex;
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    right: 0px;
+    border-left: 1px solid var(--borderlight);
+}
+
+.sidebar {
+    background-color: var(--main-color);
+    position: relative;
+    left: 0;
+    width: 60px;
+    height: 100%;
+    border-right: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlighterdark);
+}
+
+.toolbar {
+    background-color: transparent;
+    position: relative;
+    width: 100%;
+    left: 5px;
+    display: grid;
+    grid-template-columns: repeat(2, 26px);
+
+}
+
+.tools {
+    background-color: transparent;
+    height: 26px;
+    width: 26px;
+    border-bottom: 1px solid var(--borderdark);
+    border-top: 1px solid var(--borderlight);
+    border-right: 1px solid var(--borderdark);
+    border-left: 1px solid var(--borderlight);
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.tools:focus {
+    background-color: rgb(233, 237, 240);
+    border-top: 1px solid var(--borderdark);
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid var(--borderdark);
+    border-bottom: 1px solid var(--borderlight);
+}
+
+.optionWindow {
+    background-color: transparent;
+    height: 66px;
+    width: 43px;
+    position: relative;
+    top: 0.3vh;
+    left: 9px;
+    border-top: 1px solid grey;
+    border-right: 1px solid var(--borderlight);
+    border-left: 1px solid grey;
+    border-bottom: 1px solid var(--borderlight);
+}
+
+.optionWindow button {
+    background-color: transparent;
+    border: none;
+
+}
+
+.optionWindow button:hover {
+    background-color: blue;
+}
+
+
+
+.canvascontainer{
+    position: absolute;
+    z-index: 99;
+    left: 64px;
+    top: 4px;
+    width: calc(100%-60px);
+    height: 80%;
+    border: none;
+    
+}
+
+.canvas {
+    background-color: white;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.resize-handle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    z-index: 1;
+}
+
+.resize-handle.right {
+    
+    right: -4px;
+    top: 50%;
+    transform:translateY(-50%);
+    cursor: ew-resize;
+}
+
+.resize-handle.bottom {
+    
+    bottom: -6px;
+    left: 50%;
+    transform: translateY(-50%);
+    cursor: ns-resize;
+}
+
+.resize-handle.corner {
+    right: -4px;
+    bottom: -4px;
+    cursor: nwse-resize;
+}
+

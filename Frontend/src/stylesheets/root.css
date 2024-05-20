@@ -1,0 +1,21 @@
+:root {
+    --main-color: #bbbbbb;
+    --borderlight: rgb(238, 238, 238);
+    --borderdark: rgb(44, 44, 44);
+    --borderlighterdark: rgb(109, 109, 109);
+}
+
+
+@media screen and (min-width:720px){
+body {
+    padding: 0;
+    margin: 0;
+    width:100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
+    touch-action: none;
+    
+}}
