@@ -1,4 +1,6 @@
 @import "root.css";
+@import "container1.css";
+@import "container2.css";
 
 .container-3 {
     background-color: var(--main-color);

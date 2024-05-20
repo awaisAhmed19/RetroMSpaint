@@ -1,5 +1,6 @@
 @import "root.css";
-
+@import "container1.css";
+@import "container3.css";
 
 .container-2 {
     flex-grow: 55;
@@ -130,7 +131,6 @@
 
 .canvascontainer{
     position: absolute;
-    z-index: 99;
     left: 64px;
     top: 4px;
     width: calc(100%-60px);
