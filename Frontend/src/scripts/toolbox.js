@@ -73,7 +73,7 @@ function shouldSnapBack(dx, dy) {
 function backToPosition() {
     sidebarDrag.style.left = `${initialLeft}px`;
     sidebarDrag.style.top = `${initialTop}px`;
-    sidebarDrag.style.height = '85vh';
+    sidebarDrag.style.height = '100%';
     sidebarTop.style.display = 'none';
     sidebarDrag.classList.remove('floating');
     sidebarDrag.style.cursor = 'default';
