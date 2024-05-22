@@ -91,6 +91,7 @@
 }
 
 .tools {
+    display: flex;
     background-color: transparent;
     height: 26px;
     width: 26px; 
@@ -99,8 +100,8 @@
     border-top: 1px solid var(--borderlight);
     border-right: 1px solid var(--borderdark);
     border-left: 1px solid var(--borderlight);
-    background-position: center;
-    background-repeat: no-repeat;
+    align-content: center;
+    justify-content: center;
 }
 
 .tools:focus {

@@ -5,10 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>MSPaint.com</title>
-  <link rel="stylesheet" href="../stylesheets/root.css ">
-  <link rel="stylesheet" href="../stylesheets/container1.css ">
-  <link rel="stylesheet" href="../stylesheets/container2.css ">
-  <link rel="stylesheet" href="../stylesheets/container3.css ">
+  <link rel="stylesheet" href="{{url_for('static',filename='./css/root.css')}} ">
+<link rel="stylesheet" href="{{url_for('static',filename='./css/container1.css')}} ">
+  <link rel="stylesheet" href="{{url_for('static',filename='./css/container2.css')}}">
+  <link rel="stylesheet" href="{{url_for('static',filename='./css/container3.css')}} ">
+  <link rel="stylesheet" href="{{url_for('static',filename='./css/container4.css')}}">
   <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
   
 </head>
@@ -393,25 +394,29 @@
 
   <div class="container-2">
     <div class="sidebar" id="side-bar">
-      <div class="sidebar-floating-top" placeholder="Tools"><button class="sidebar-close-button"
-          style="background-image: url(../classic/sidebar-closeButton.png);"></button>Tools</div>
+      <div class="sidebar-floating-top" placeholder="Tools">
+        <button class="sidebar-close-button">
+          <img src="{{url_for('static',filename='./imgs/siderbar-closeButton.png')}}" alt="">
+        </button>
+        Tools
+      </div>
       <div class="toolbar">
-        <button class="tools" id="polygonlasso" style="background-image: url(../classic/polySelector.png);"></button>
-        <button class="tools" id="rectlasso" style="background-image: url(../classic/rectSelector.png);"></button>
-        <button class="tools" id="eraser" style="background-image: url(../classic/eraser.png); "></button>
-        <button class="tools" id="fill" style="background-image: url(../classic/fillBucket.png);"></button>
-        <button class="tools" id="eyedrop" style="background-image: url(../classic/dropSelector.png); "></button>
-        <button class="tools" id="zoom" style="background-image: url(../classic/zoom.png); "></button>
-        <button class="tools" id="pencil" style="background-image: url(../classic/pencil.png); "></button>
-        <button class="tools" id="brush" style="background-image: url(../classic/brush.png); "></button>
-        <button class="tools" id="airbrush" style="background-image: url(../classic/airBrush.png); "></button>
-        <button class="tools" id="text" style="background-image: url(../classic/textButton.png); "></button>
-        <button class="tools" id="line" style="background-image: url(../classic/line.png); "></button>
-        <button class="tools" id="curveline" style="background-image: url(../classic/curvedLines.png); "></button>
-        <button class="tools" id="rectshape" style="background-image: url(../classic/rectangle.png); "></button>
-        <button class="tools" id="polygonshape" style="background-image: url(../classic/polygon.png); "></button>
-        <button class="tools" id="elipse" style="background-image: url(../classic/elipse.png); "></button>
-        <button class="tools" id="rectelipse" style="background-image: url(../classic/squareElipse.png); "></button>
+        <button class="tools" id="polygonlasso"  ><img src="{{url_for('static',filename='./imgs/polySelector.png')}}" alt=""></button>
+        <button class="tools" id="rectlasso"  ><img src="{{url_for('static',filename='./imgs/rectSelector.png')}}" alt=""></button>
+        <button class="tools" id="eraser"  ><img src="{{url_for('static',filename='./imgs/eraser.png')}}" alt=""></button>
+        <button class="tools" id="fill"  ><img src="{{url_for('static',filename='./imgs/fillBucket.png')}}" alt=""></button>
+        <button class="tools" id="eyedrop"><img src="{{url_for('static',filename='./imgs/dropSelector.png')}}" alt=""></button>
+        <button class="tools" id="zoom"  ><img src="{{url_for('static',filename='./imgs/zoom.png')}}" alt=""></button>
+        <button class="tools" id="pencil"  ><img src="{{url_for('static',filename='./imgs/pencil.png')}}" alt=""></button>
+        <button class="tools" id="brush"  ><img src="{{url_for('static',filename='./imgs/brush.png')}}" alt=""></button>
+        <button class="tools" id="airbrush"><img src="{{url_for('static',filename='./imgs/airBrush.png')}}" alt=""></button>
+        <button class="tools" id="text"  ><img src="{{url_for('static',filename='./imgs/textButton.png')}}" alt=""></button>
+        <button class="tools" id="line"  ><img src="{{url_for('static',filename='./imgs/line.png')}}" alt=""></button>
+        <button class="tools" id="curveline"><img src="{{url_for('static',filename='./imgs/curvedLines.png')}}" alt=""></button>
+        <button class="tools" id="rectshape"  ><img src="{{url_for('static',filename='./imgs/rectangle.png')}}" alt=""></button>
+        <button class="tools" id="polygonshape"><img src="{{url_for('static',filename='./imgs/polygon.png')}}" alt=""></button>
+        <button class="tools" id="elipse"  ><img src="{{url_for('static',filename='./imgs/elipse.png')}}" alt=""></button>
+        <button class="tools" id="rectelipse"><img src="{{url_for('static',filename='./imgs/squareElipse.png')}}" alt=""></button>
       </div>
       <div class="optionWindow" id="optionWindow">
         <button id="choice1"></button>
@@ -426,9 +431,9 @@
       <div class="canvasbackcontainer" id="canvas-back-container">
         <div class="canvascontainer" id="canvas-container">
           <canvas id="canvas" class="canvas"></canvas>
-          <img src="../classic/point.png" class="resize-handle right" alt="right handle">
-          <img src="../classic/point.png" class="resize-handle bottom" alt="bottom handle">
-          <img src="../classic/point.png" class="resize-handle corner" alt="corner handle">
+          <img src="{{url_for('static',filename='./imgs/point.png')}}" class="resize-handle right" alt="right handle">
+          <img src="{{url_for('static',filename='./imgs/point.png')}}" class="resize-handle bottom" alt="bottom handle">
+          <img src="{{url_for('static',filename='./imgs/point.png')}}" class="resize-handle corner" alt="corner handle">
         </div>
           
         <div class="scrollBar scroll-vertical">
@@ -488,9 +493,9 @@
     <div class="extra"></div>
 
   </div>
-  <script type="module"  src="../scripts/Index.js"></script>
-  <script type="module"  src="../scripts/canvas.js"></script>
-  <script type="module"  src="../scripts/toolbox.js"></script>
+  <script type="module"  src="{{url_for('static',filename='./js/Index.js')}}"></script>
+  <script type="module"  src="{{url_for('static',filename='./js/toolbox.js')}}"></script>
+  <script type="module"  src="{{url_for('static',filename='./js/canvas.js')}}"></script>
   
 </body>
 
