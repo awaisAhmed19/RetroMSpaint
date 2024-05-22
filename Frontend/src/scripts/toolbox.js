@@ -19,7 +19,6 @@ sidebarDrag.addEventListener('mousedown', onMouseDown);
 
 function onMouseDown(e) {
     if (e.target.closest('.toolbar') || e.target.closest('.tool')) return;
-
     e.preventDefault();
     initialMouseX = e.clientX;
     initialMouseY = e.clientY;
@@ -28,9 +27,9 @@ function onMouseDown(e) {
 
     holdTimeout = setTimeout(() => {
         floating = true;
-        sidebarDrag.style.height = '300px';
         sidebarDrag.classList.add('floating');
         sidebarTop.style.display = 'flex';
+        sidebarDrag.style.cursor = 'grabbing';
     }, 700); // 2-second hold
 
     document.addEventListener('mousemove', onMouseMove);
@@ -49,20 +48,21 @@ function onMouseMove(e) {
 }
 
 function onMouseUp(e) {
+    
     clearTimeout(holdTimeout);
-    document.removeEventListener('mousemove', onMouseMove);
-    document.removeEventListener('mouseup', onMouseUp);
-
     if (floating) {
         const dx = e.clientX - initialMouseX;
         const dy = e.clientY - initialMouseY;
-
+        
         if (shouldSnapBack(dx, dy)) {
             backToPosition();
         } else {
             sidebarDrag.style.cursor = 'grab';
         }
     }
+    
+    document.removeEventListener('mouseup', onMouseUp);
+    document.removeEventListener('mousemove', onMouseMove);
 }
 
 function shouldSnapBack(dx, dy) {
@@ -79,3 +79,5 @@ function backToPosition() {
     sidebarDrag.style.cursor = 'default';
     floating = false;
 }
+
+

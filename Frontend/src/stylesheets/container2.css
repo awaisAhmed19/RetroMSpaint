@@ -1,6 +1,7 @@
 @import "root.css";
 @import "container1.css";
 @import "container3.css";
+@import "container4.css";
 
 .container-2 {
     flex-grow: 55;
@@ -54,14 +55,15 @@
     border-bottom: 1px solid var(--borderlight);
 }
 .sidebar.floating{
-    height: 60%;
+    height: 50%;
+    z-index: 100;
 }
 
 .right-sidebar {
     background-color: var(--main-color);
     display: flex;
     position: relative;
-    width: 1px;
+    width: 2px;
     height: 100%;
     border-left: 1px solid var(--borderlight);
     box-sizing: border-box;
@@ -91,7 +93,8 @@
 .tools {
     background-color: transparent;
     height: 26px;
-    width: 26px;
+    width: 26px; 
+    /* box-shadow: 0 0 1px 1px rgb(0,0,0,0.5); */
     border-bottom: 1px solid var(--borderdark);
     border-top: 1px solid var(--borderlight);
     border-right: 1px solid var(--borderdark);
@@ -136,7 +139,7 @@
 .canvasbackcontainer{
     display: flex;
     position: relative;
-    flex-grow: 1;
+    flex-grow: 2;
     width: 100%;
     height: 100%;
     border:none; 
