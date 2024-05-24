@@ -49,13 +49,11 @@
     border-bottom: 1px solid var(--borderlight);
 }
 .selectedcolor{
-    background-color: black;
     top: 5px;
     left: 5px;
     z-index: 10;
 }
 .switchcolor{
-    background-color: white;
     right: 5px;
     bottom: 5px;
     z-index: 0;
@@ -65,10 +63,8 @@
 .selectedcolor{
     border-top: 1px solid var(--borderlight);
     border-left: 1px solid var(--borderlight);
-    border-right: 1px solid var(--borderdark);
-    border-bottom: 1px solid var(--borderdark);
-    padding: 1px;
-    border: none;
+    border-right: 1px solid rgb(164, 164, 164);
+    border-bottom: 1px solid rgb(164, 164, 164);
     width: 12px;
     height: 12px;
     position: absolute;

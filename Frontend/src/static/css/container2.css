@@ -94,7 +94,8 @@
     display: flex;
     background-color: transparent;
     height: 26px;
-    width: 26px; 
+    width: 26px;
+    padding-top:4px ; 
     /* box-shadow: 0 0 1px 1px rgb(0,0,0,0.5); */
     border-bottom: 1px solid var(--borderdark);
     border-top: 1px solid var(--borderlight);
@@ -104,7 +105,7 @@
     justify-content: center;
 }
 
-.tools:focus {
+.tools.pressed {
     background-color: rgb(233, 237, 240);
     border-top: 1px solid var(--borderdark);
     border-right: 1px solid var(--borderlight);
