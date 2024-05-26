@@ -39,6 +39,7 @@
     transform: translateY(-50%);
     width: 12px;
     height: 12px;
+    background-image: url('../imgs/sidebar-closeButton.png');
     background-position: center;
     background-repeat: no-repeat;
     background-color: var(--main-color);
@@ -55,7 +56,7 @@
     border-bottom: 1px solid var(--borderlight);
 }
 .sidebar.floating{
-    height: 50%;
+    height: 55%;
     z-index: 100;
 }
 
@@ -83,28 +84,46 @@
 .toolbar {
     background-color: transparent;
     position: relative;
-    width: 100%;
-    left: 5px;
-    display: grid;
-    grid-template-columns: repeat(2, 26px);
+    width: 50px;
+    height: 200px;
+    left: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    /* grid-template-columns: repeat(2, 26px); */
 
 }
 
 .tools {
     display: flex;
     background-color: transparent;
-    height: 26px;
-    width: 26px;
-    padding-top:4px ; 
-    /* box-shadow: 0 0 1px 1px rgb(0,0,0,0.5); */
+    height: 25px;
+    width: 25px;
+    background-image: url('../imgs/tools.png');
+    background-repeat: no-repeat;
+    background-size: 336px 16px;
     border-bottom: 1px solid var(--borderdark);
     border-top: 1px solid var(--borderlight);
     border-right: 1px solid var(--borderdark);
     border-left: 1px solid var(--borderlight);
-    align-content: center;
-    justify-content: center;
+     flex-shrink: 0;
 }
 
+#polygonlasso{background-position: 4px 4px ;}
+#rectlasso { background-position: -16px 4px }
+#eraser { background-position: -37px 4px; }
+#fill { background-position: -58px 4px; }
+#eyedrop { background-position: -78px 4px; }
+#zoom { background-position: -98px 4px; }
+#pencil { background-position: -118px 4px; }
+#brush { background-position: -140px 4px; }
+#airbrush { background-position: -159px 4px; }
+#text { background-position: -179px 4px; }
+#line { background-position: -201px 4px; }
+#curveline { background-position: -222px 4px; }
+#rectshape { background-position: -243px 4px; }
+#polygonshape { background-position: -264px 4px; }
+#elipse { background-position: -285px 4px; }
+#rectelipse { background-position: -306px 4px; }
 .tools.pressed {
     background-color: rgb(233, 237, 240);
     border-top: 1px solid var(--borderdark);
@@ -115,11 +134,11 @@
 
 .optionWindow {
     background-color: transparent;
-    height: 66px;
-    width: 43px;
     position: relative;
+    width: 42px;
+    height: 66px;
     top: 0.3vh;
-    left: 9px;
+    left: 10px;
     border-top: 1px solid grey;
     border-right: 1px solid var(--borderlight);
     border-left: 1px solid grey;
