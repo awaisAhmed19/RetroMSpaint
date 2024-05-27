@@ -1,3 +1,7 @@
+import colorPallete from "./colorPallete.js";
+
+const CP = new colorPallete('selected-color','switch-color','pallete-color');
+
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const tools = document.querySelectorAll('.tools');
@@ -7,7 +11,6 @@ let currentColor = selectedColor.style.backgroundColor;
 let cursorType;
 let isDrawing = false;
 
-//have to find a way to put thr tool icon images back in the css background-image rule
  
 
 tools.forEach((tool) => {

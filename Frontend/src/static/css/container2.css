@@ -84,8 +84,8 @@
 .toolbar {
     background-color: transparent;
     position: relative;
-    width: 50px;
-    height: 200px;
+    width: 85%;
+    height: 208px;
     left: 6px;
     display: flex;
     flex-wrap: wrap;
@@ -96,8 +96,8 @@
 .tools {
     display: flex;
     background-color: transparent;
-    height: 25px;
-    width: 25px;
+    width: 26px;
+    height: 26px;
     background-image: url('../imgs/tools.png');
     background-repeat: no-repeat;
     background-size: 336px 16px;
@@ -105,7 +105,10 @@
     border-top: 1px solid var(--borderlight);
     border-right: 1px solid var(--borderdark);
     border-left: 1px solid var(--borderlight);
-     flex-shrink: 0;
+    flex-grow: 0; /* Prevent resizing */
+    flex-shrink: 0; /* Prevent resizing */
+    flex-basis: 50%; 
+    margin-bottom: 0; 
 }
 
 #polygonlasso{background-position: 4px 4px ;}
