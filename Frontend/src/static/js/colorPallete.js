@@ -1,35 +1,23 @@
-export default class colorPallete{
-    constructor(currentColor, switchColorId, palleteColorClass){
-        this.currentColor = document.getElementById(currentColor);
-        this.switchColors = document.getElementById(switchColorId);
-        this.palleteColors = document.querySelectorAll(palleteColorClass);
-        this.temp = null;
-        this.init();
-    }
-    
-    init() {
-        window.onload =  () => {
-            this.currentColor.style.backgroundColor = 'black';
-            this.switchColors.style.backgroundColor = 'white';
-        };
-        this.addEventListener();
-    }
+let currentColor = document.getElementById('selected-color');
+const switchColor = document.getElementById('switch-color');
+const paletteColors = document.querySelectorAll('.pallete-color');
 
-    addEventListener() {
-        this.currentColor.addEventListener('click', () => { this.switchColor(); });
-        this.palleteColors.forEach((color) => { color.addEventListener('click', () => this.selectColor(color)) });
-    }
+window.onload = () => {
+    currentColor.style.backgroundColor = 'black';
+    switchColor.style.backgroundColor = 'white';
+};
 
-    switchColor() {
-        this.temp = this.switchColors.style.backgroundColor;
-        this.switchColors.style.backgroundColor = this.currentColor.style.backgroundColor;
-        this.currentColor.style.backgroundColor = this.temp;
-        return this.currentColor.backgroundColor;
-    }
+currentColor.addEventListener('click', switchColorHandler( currentColor, switchColor));
+paletteColors.forEach((color) => {
+    color.addEventListener('click', () => {
+        currentColor.style.backgroundColor = color.style.backgroundColor;
+    });
+});
 
-    selectColor(color) {
-        this.currentColor.style.backgroundColor = color.style.backgroundColor;
-    }
+function switchColorHandler(currentColor, switchColor) {
+    const temp = switchColor.style.backgroundColor;
+    switchColor.style.backgroundColor = currentColor.style.backgroundColor;
+    currentColor.style.backgroundColor = temp;
 }
 
 

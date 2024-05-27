@@ -4,14 +4,24 @@ const toolsButton = document.querySelectorAll(".toolbar");
 const footNote = document.getElementById("foot-note");
 const toolsClass = document.querySelectorAll(".tools");
 const menuRow = document.querySelectorAll(".menu-row");
+const canvasContainer = document.querySelector('.canvascontainer');
 const elementFootNotesclasses = [...toolsClass, ...menuRow];
-window.addEventListener('load', defaultFootNote);
-document.onkeydown=function(event){
+
+
+window.addEventListener('load', () => {
+  defaultFootNote();
+  canvasContainer.style.width = '900px';
+  canvasContainer.style.height = '500px';
+  
+});
+
+//to prevent zooming of the browser window
+document.onkeydown = function (event) {
   if((event.ctrlKey && event.key==='+')||( event.ctrlKey && event.key==='-')){
     event.preventDefault();
   }
 };
-
+//list of footnote messages
 const footNoteMessageList = {
   polygonlasso: "Selects a free-form of the picture to move, copy, or edit.",
   rectlasso: "Selects a rectanglar part of the picture to move, copy or edit.",
@@ -128,6 +138,5 @@ document.documentElement.addEventListener("click", () => {
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     closeDropdownMenu();
-    console.log("pressed");
   }
 });

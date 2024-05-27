@@ -118,7 +118,7 @@
 #eyedrop { background-position: -78px 4px; }
 #zoom { background-position: -98px 4px; }
 #pencil { background-position: -118px 4px; }
-#brush { background-position: -140px 4px; }
+#brush { background-position: -139px 4px; }
 #airbrush { background-position: -159px 4px; }
 #text { background-position: -179px 4px; }
 #line { background-position: -201px 4px; }
@@ -127,6 +127,7 @@
 #polygonshape { background-position: -264px 4px; }
 #elipse { background-position: -285px 4px; }
 #rectelipse { background-position: -306px 4px; }
+
 .tools.pressed {
     background-color: rgb(233, 237, 240);
     border-top: 1px solid var(--borderdark);
@@ -172,8 +173,6 @@
 .canvascontainer{
     display: flex;
     position: absolute;
-    width: 500px;
-    height: 500px;
     border:none; 
 }
 .canvas {

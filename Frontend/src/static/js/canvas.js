@@ -3,30 +3,29 @@ window.addEventListener('load', () => {
     const container = document.getElementById('canvas-container');
     const ctx = canvas.getContext('2d');
     const resizeHandles = document.querySelectorAll('.resize-handle');
-
+    const tools = document.querySelectorAll('.tools');
     let isResizing = false;
     let currentHandle = null;
-
     function resizeCanvas() {
         canvas.width = container.clientWidth;
         canvas.height = container.clientHeight;
         
     }
+    document.getElementById('pencil').classList.add('pressed');
 
     resizeCanvas();
     
     resizeHandles.forEach(handle => {
         handle.addEventListener('mousedown', startResize); 
-    });
-
-
+});
 
 function startResize(e) {
     isResizing = true;
     currentHandle = e.target;
     document.addEventListener('mousemove', resize);
     document.addEventListener('mouseup', stopResize);
-}
+    }
+    
 
 function resize(e) {
     if (!isResizing) return;
