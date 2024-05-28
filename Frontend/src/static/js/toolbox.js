@@ -30,7 +30,7 @@ function onMouseDown(e) {
         sidebarDrag.classList.add('floating');
         sidebarTop.style.display = 'flex';
         sidebarDrag.style.cursor = 'grabbing';
-    }, 700); // 2-second hold
+    }, 700); 
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);

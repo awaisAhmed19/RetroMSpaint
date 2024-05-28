@@ -12,7 +12,6 @@ window.addEventListener('load', () => {
         
     }
     document.getElementById('pencil').classList.add('pressed');
-
     resizeCanvas();
     
     resizeHandles.forEach(handle => {
