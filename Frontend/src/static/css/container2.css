@@ -112,7 +112,7 @@
 }
 
 #polygonlasso{background-position: 4px 4px ;}
-#rectlasso { background-position: -16px 4px }
+#rectlasso { background-position: -16px 4px; }
 #eraser { background-position: -37px 4px; }
 #fill { background-position: -58px 4px; }
 #eyedrop { background-position: -78px 4px; }

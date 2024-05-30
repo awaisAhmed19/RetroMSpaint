@@ -85,28 +85,30 @@ function stopLineDrawing(e) {
         isDrawing = false;
 }
 
-function drawLine(X1,Y1,X2,Y2) {
+function drawLine(X1, Y1, X2, Y2) {
+    const cursor_imagepaddingX = 14;
+    const cursor_imagepaddingY = 19;
     ctx.beginPath();
     ctx.strokeStyle = currentColor;
     ctx.lineWidth = 1;
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
-    ctx.moveTo(X1, Y1);
-    ctx.lineTo(X2, Y2);
+    ctx.moveTo(X1+cursor_imagepaddingX, Y1+cursor_imagepaddingY);
+    ctx.lineTo(X2+cursor_imagepaddingX, Y2+cursor_imagepaddingY);
     ctx.closePath();
     ctx.stroke();
 }
 
 function colorChecker(e) {
-    const colorData = ctx.getImageData(e.clientX, e.clientY, 1, 1).data;
+    const colorData = ctx.getImageData(e.clientX-canvas.getBoundingClientRect().left, e.clientY-canvas.getBoundingClientRect().top, 1, 1).data;
     const red = colorData[0];
     const green = colorData[1];
     const blue = colorData[2];
-    const alpha = colorData[3];
+    const alpha = colorData[3]/255;
     currentColor = `rgba(${red},${green},${blue},${alpha})`;
     console.log(currentColor);
 }
-//need to solve this....
+//TODO: need to solve this....
 function eyeDropper(canvas, cursor) {
     
     canvas.style.cursor = cursor;

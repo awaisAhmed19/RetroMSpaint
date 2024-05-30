@@ -7,7 +7,7 @@ window.onload = () => {
     switchColor.style.backgroundColor = 'white';
 };
 
-currentColor.addEventListener('click', switchColorHandler( currentColor, switchColor));
+currentColor.addEventListener('click',()=> switchColorHandler( currentColor, switchColor));
 paletteColors.forEach((color) => {
     color.addEventListener('click', () => {
         currentColor.style.backgroundColor = color.style.backgroundColor;
@@ -15,7 +15,7 @@ paletteColors.forEach((color) => {
 });
 
 function switchColorHandler(currentColor, switchColor) {
-    const temp = switchColor.style.backgroundColor;
+    let temp = switchColor.style.backgroundColor;
     switchColor.style.backgroundColor = currentColor.style.backgroundColor;
     currentColor.style.backgroundColor = temp;
 }

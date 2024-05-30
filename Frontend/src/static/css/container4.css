@@ -21,7 +21,6 @@
     font-size: 12px;
     position: relative;
     height: 80%;
-    bottom: 1px;
     border-top: 1px solid var(--borderdark);
     border-right: 1px solid var(--borderlight);
     border-left: 1px solid var(--borderdark);

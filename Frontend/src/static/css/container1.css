@@ -19,9 +19,9 @@
     background-color: var(--main-color);
     height: 100%;
     width: 100%;
-    align-content: center;
-    position: relative;
-    top: 0;
+    /* align-content: center; */
+    /* position: relative; */
+    /* top: 0; */
 }
 
 .menubar button {
@@ -36,7 +36,7 @@
     font-size: 13px;
 }
 .menubar button:hover {
-    background-color: var(--main-color);
+    /* background-color: var(--main-color); */
     border-top: 1px solid var(--borderlight);
     border-left: 1px solid var(--borderlight);
     border-right: 1px solid var(--borderdark);
@@ -45,7 +45,7 @@
 
 
 .menubar button:focus {
-    background-color: var(--main-color);
+    /* background-color: var(--main-color); */
     border-top: 1px solid var(--borderdark);
     border-right: 1px solid var(--borderlight);
     border-left: 1px solid var(--borderdark);
