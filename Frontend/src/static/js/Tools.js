@@ -1,12 +1,13 @@
 const canvas = document.getElementById('canvas');
-const tools = document.querySelectorAll('.tools');
 const ctx = canvas.getContext('2d');
+
+const tools = document.querySelectorAll('.tools');
 const palleteColors = document.querySelectorAll('.pallete-color');
-canvas.willReadFrequently = true;
+
 let currentColor = 'black';
 let isDrawing = false;
 let activeTool = null;
-let startPos = null;
+
 let x = 0;
 let y = 0;
 
@@ -70,34 +71,7 @@ function eraser(canvas, e) {
     ctx.stroke();
 }
 
-function startLineDrawing(e){
-    isDrawing = true;
-    startPos = getMousePos(canvas, e);
-}
-function lineOnMove(e) {
-    if (!isDrawing) return;
-    drawLine(startPos.x, startPos.y, e.offsetX, e.offsetY);
-}
 
-function stopLineDrawing(e) {
-    if (!isDrawing) return;
-        drawLine(e.offsetX, e.offsetY, startPos.x, startPos.y);
-        isDrawing = false;
-}
-
-function drawLine(X1, Y1, X2, Y2) {
-    const cursor_imagepaddingX = 14;
-    const cursor_imagepaddingY = 19;
-    ctx.beginPath();
-    ctx.strokeStyle = currentColor;
-    ctx.lineWidth = 1;
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
-    ctx.moveTo(X1+cursor_imagepaddingX, Y1+cursor_imagepaddingY);
-    ctx.lineTo(X2+cursor_imagepaddingX, Y2+cursor_imagepaddingY);
-    ctx.closePath();
-    ctx.stroke();
-}
 
 function colorChecker(e) {
     const colorData = ctx.getImageData(e.clientX-canvas.getBoundingClientRect().left, e.clientY-canvas.getBoundingClientRect().top, 1, 1).data;
@@ -153,24 +127,67 @@ const ToolsInstance = {
     brush: () => setupTool(canvas, brushDraw, 'url(/static/cursors/precise-dotted.png), auto'),
     eraser: () => setupTool(canvas, eraser, 'url(/static/cursors/eraser.png), auto'),
     line: () => {
-        const startLineHandler = (e) => startLineDrawing(e);
-        const drawLineHandler = (e) => lineOnMove(canvas, e,);
-        const stopLineHandler = (e) => stopLineDrawing(e);
+        const bufferCanvas = document.getElementById('canvasbuffer');
+        const bufferCtx = bufferCanvas.getContext('2d');
+        isDrawing = false;
+        let startPosX = 0;
+        let startPosY = 0;
+        let lastPosX = 0;
+        let lastPosY = 0;
+        const cursorOffsetX = 16;
+        const cursorOffsetY = 16;
+        const rec = bufferCanvas.getBoundingClientRect();
+        bufferCanvas.width = canvas.width;
+        bufferCanvas.height = canvas.height;
+
         canvas.style.cursor = 'url(/static/cursors/precise.png), auto';
-        canvas.addEventListener('mousedown', startLineDrawing);
-        canvas.addEventListener('mousemove', drawLineHandler);
-        canvas.addEventListener('mouseup', stopLineHandler);
+        bufferCanvas.style.cursor = 'url(/static/cursors/precise.png), auto';
+
+        const startLineHandler = (e) => {
+            startPosX = e.clientX - rec.left;
+            startPosY = e.clientY - rec.top;
+           isDrawing = true;
+        }
+
+        const drawLineHandler = (e) => {
+            if (!isDrawing) return;
+            lastPosX = e.clientX - rec.left;
+            lastPosY = e.clientY - rec.top;
+            bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+            bufferCtx.beginPath();
+            bufferCtx.moveTo(startPosX+cursorOffsetX, startPosY+cursorOffsetY);
+            bufferCtx.lineTo(lastPosX+cursorOffsetX, lastPosY+cursorOffsetY);
+            bufferCtx.stroke();
+        }
+
+        const stopLineHandler = (e) => {
+            if (!isDrawing) return;
+            isDrawing = false;
+            ctx.strokeStyle = currentColor;
+            ctx.beginPath();
+            ctx.moveTo(startPosX+cursorOffsetX, startPosY+cursorOffsetY);
+            ctx.lineTo(lastPosX+cursorOffsetX, lastPosY+cursorOffsetY);
+            ctx.stroke();
+
+            bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+        }
+
+        bufferCanvas.addEventListener('mousedown', startLineHandler);
+        bufferCanvas.addEventListener('mousemove', drawLineHandler);
+        bufferCanvas.addEventListener('mouseup', stopLineHandler);
+
         return {
             removeEvents: () => {
-                canvas.removeEventListener('mousedown', startLineHandler);
-                canvas.removeEventListener('mousemove', drawLineHandler);
-                canvas.removeEventListener('mouseup', stopLineHandler);
+                bufferCanvas.removeEventListener('mousedown', startLineHandler);
+                bufferCanvas.removeEventListener('mousemove', drawLineHandler);
+                bufferCanvas.removeEventListener('mouseup', stopLineHandler);
             },
             changeColor: (color) => {
                 currentColor = color;
             }
         };
     },
+
     eyedrop: () => eyeDropper(canvas, 'url(/static/cursors/eye-dropper.png), auto')
 };
 

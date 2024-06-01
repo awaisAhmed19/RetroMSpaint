@@ -1,14 +1,16 @@
 window.addEventListener('load', () => {
     const canvas = document.getElementById('canvas');
     const container = document.getElementById('canvas-container');
-    const ctx = canvas.getContext('2d');
+    const bufferCanvas = document.getElementById('canvasbuffer');
+    //const ctx = canvas.getContext('2d');
     const resizeHandles = document.querySelectorAll('.resize-handle');
-    const tools = document.querySelectorAll('.tools');
+    //const tools = document.querySelectorAll('.tools');
     let isResizing = false;
     let currentHandle = null;
     function resizeCanvas() {
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
+        
+        canvas.width = bufferCanvas.width = container.clientWidth;
+        canvas.height = bufferCanvas.height = container.clientHeight;
         
     }
     document.getElementById('pencil').classList.add('pressed');
