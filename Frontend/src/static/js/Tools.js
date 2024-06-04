@@ -194,6 +194,84 @@ const ToolsInstance = {
             }
         };
     },
+//TODO: need to solve the pullingpart;
+  curveline: () => {
+    const bufferCanvas = document.getElementById('canvasbuffer');
+    const bufferCtx = bufferCanvas.getContext('2d');
+    const rec = bufferCanvas.getBoundingClientRect();
+    let isCurving = false;
+    let cp1x = 0;
+    let cp1y = 0;
+    let cp2x = 0;
+    let cp2y = 0;
+
+    bufferCanvas.style.display = 'none';
+    bufferCanvas.width = canvas.width;
+    bufferCanvas.height = canvas.height;
+
+    const customCursorUrl = '/static/cursors/precise.png';
+    const cursorHotspotX = -45; // Adjust to center the cursor image
+    const cursorHotspotY = -5; // Adjust to center the cursor image
+
+    canvas.style.cursor = `url(${customCursorUrl}), auto`;
+    bufferCanvas.style.cursor = `url(${customCursorUrl}), auto`;
+
+    const startCurvingHandler = (e) => {
+        cp1x = e.clientX - rec.left;
+        cp1y = e.clientY - rec.top;
+        isCurving = true;
+    };
+
+    const curveHandler = (e) => {
+        if (!isCurving) return;
+        cp2x = e.clientX - rec.left;
+        cp2y = e.clientY - rec.top;
+        bufferCtx.strokeStyle = currentColor;
+        bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+        bufferCtx.beginPath();
+        bufferCtx.moveTo(cp1x + cursorHotspotX, cp1y + cursorHotspotY);
+        bufferCtx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, cp2x + cursorHotspotX, cp2y + cursorHotspotY);
+        bufferCtx.stroke();
+    };
+
+    const stopCurvingHandler = () => {
+        if (!isCurving) return;
+        isCurving = false;
+        // Draw the curve on the main canvas
+        ctx.strokeStyle = currentColor;
+        ctx.beginPath();
+        ctx.moveTo(cp1x + cursorHotspotX, cp1y + cursorHotspotY);
+        ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, cp2x + cursorHotspotX, cp2y + cursorHotspotY);
+        ctx.stroke();
+        bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+    };
+
+    const activateTool = () => {
+        bufferCanvas.style.display = 'flex';
+        bufferCanvas.addEventListener('mousedown', startCurvingHandler);
+        bufferCanvas.addEventListener('mousemove', curveHandler);
+        bufferCanvas.addEventListener('mouseup', stopCurvingHandler);
+    };
+
+    const deactivateTool = () => {
+        bufferCanvas.style.display = 'none';
+        bufferCanvas.removeEventListener('mousedown', startCurvingHandler);
+        bufferCanvas.removeEventListener('mousemove', curveHandler);
+        bufferCanvas.removeEventListener('mouseup', stopCurvingHandler);
+    };
+
+    activateTool();
+
+    return {
+        removeEvents: () => {
+            deactivateTool();
+        },
+        changeColor: (color) => {
+            currentColor = color;
+        }
+    };
+},
+
 
     rectshape: () => {
         const bufferCanvas = document.getElementById('canvasbuffer');
