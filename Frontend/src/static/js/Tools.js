@@ -270,9 +270,346 @@ const ToolsInstance = {
             currentColor = color;
         }
     };
+    },
+  
+    polygonshape :() =>{
+            const bufferCanvas = document.getElementById('canvasbuffer');
+            const bufferCtx = bufferCanvas.getContext('2d');
+            const closeThreshold = 30;
+            let points = [];
+            let isDrawing = false;
+            let isPolygonComplete = false;
+
+            bufferCanvas.style.display = 'none';
+            bufferCanvas.width = canvas.width;
+            bufferCanvas.height = canvas.height;
+
+            const customCursorUrl = '/static/cursors/precise.png';
+            const cursorHotspotX = 20; 
+            const cursorHotspotY = 15; 
+
+            canvas.style.cursor = `url(${customCursorUrl}), auto`;
+            bufferCanvas.style.cursor = `url(${customCursorUrl}), auto`;
+
+            const startPolygonHandler = (e) => {
+                if (isPolygonComplete) {
+                    points = [];
+                    isPolygonComplete = false;
+                }
+
+                const mousePos = getMousePos(bufferCanvas, e);
+                points.push(mousePos);
+                isDrawing = true;
+
+                if (points.length > 1) {
+                    drawLine(points[points.length - 2], mousePos);
+                }
+
+                if (points.length > 2 && isCloseToStart(mousePos, points[0])) {
+                    completePolygon();
+                }
+            }
+
+            const drawLine = (start, end) => {
+                ctx.strokeStyle = currentColor;
+                ctx.beginPath();
+                ctx.moveTo(start.x + cursorHotspotX, start.y + cursorHotspotY);
+                ctx.lineTo(end.x + cursorHotspotX, end.y + cursorHotspotY);
+                ctx.stroke();
+            }
+
+            const drawBufferLine = (e) => {
+                if (!isDrawing) return;
+
+                const mousePos = getMousePos(bufferCanvas, e);
+                bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+                const lastPoint = points[points.length - 1];
+                bufferCtx.strokeStyle = currentColor;
+                bufferCtx.beginPath();
+                bufferCtx.moveTo(lastPoint.x + cursorHotspotX, lastPoint.y + cursorHotspotY);
+                bufferCtx.lineTo(mousePos.x + cursorHotspotX, mousePos.y + cursorHotspotY);
+                bufferCtx.stroke();
+            }
+
+            const getMousePos = (canvas, e) => {
+                const rect = canvas.getBoundingClientRect();
+                return {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+            }
+
+            const isCloseToStart = (currentPoint, startPoint) => {
+                const distance = Math.sqrt(
+                    Math.pow(currentPoint.x - startPoint.x, 2) +
+                    Math.pow(currentPoint.y - startPoint.y, 2)
+                );
+                return distance < closeThreshold;
+            }
+
+            const stopLineHandler = () => {
+                isDrawing = false;
+            }
+
+            const completePolygon = () => {
+                if (points.length < 3) return;
+                drawLine(points[points.length - 1], points[0]);
+                isPolygonComplete = true;
+                bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+                points = [];
+            }
+
+            const activateTool = () => {
+                bufferCanvas.style.display = 'flex';
+                bufferCanvas.addEventListener('mousedown', startPolygonHandler);
+                bufferCanvas.addEventListener('mousemove', drawBufferLine);
+                bufferCanvas.addEventListener('mouseup', stopLineHandler);
+            }
+
+            const deactivateTool = () => {
+                bufferCanvas.style.display = 'none';
+                bufferCanvas.removeEventListener('mousedown', startPolygonHandler);
+                bufferCanvas.removeEventListener('mousemove', drawBufferLine);
+                bufferCanvas.removeEventListener('mouseup', stopLineHandler);
+            }
+
+            activateTool();
+
+            return {
+                removeEvents: () => {
+                    deactivateTool();
+                },
+                changeColor: (color) => {
+                    currentColor = color;
+                }
+            };
+        },
+
+    
+text: () => { //TODO:Need to work on this
+    const bufferCanvas = document.getElementById('canvasbuffer');
+    const bufferCtx = bufferCanvas.getContext('2d');
+    const rect = bufferCanvas.getBoundingClientRect();
+    let isDrawing = false;
+    let startPosX = 0;
+    let startPosY = 0;
+    let rectWidth = 0;
+    let rectHeight = 0;
+    let draggingAnchor = null;
+    const pointSize = 3; 
+    let currentColor = 'black';
+    let currentState = 'drawing'; // 'drawing', 'resizing', 'text'
+
+    bufferCanvas.style.display = 'none';
+    bufferCanvas.width = canvas.width;
+    bufferCanvas.height = canvas.height;
+
+    const customCursorUrl = '/static/cursors/precise.png';
+
+    canvas.style.cursor = `url(${customCursorUrl}), auto`;
+    bufferCanvas.style.cursor = `url(${customCursorUrl}), auto`;
+
+    const getMousePos = (canvas, e) => {
+        const rect = canvas.getBoundingClientRect();
+        return {
+            x: e.clientX - rect.left+15,
+            y: e.clientY - rect.top+15
+        };
+    };
+
+    const startRectHandler = (e) => {
+        if (currentState !== 'drawing') return;
+        isDrawing = true;
+        const mousePos = getMousePos(bufferCanvas, e);
+        startPosX = mousePos.x;
+        startPosY = mousePos.y;
+    };
+
+    const drawRectHandler = (e) => {
+        if (!isDrawing) return;
+        const mousePos = getMousePos(bufferCanvas, e);
+        rectWidth = mousePos.x - startPosX;
+        rectHeight = mousePos.y - startPosY;
+        bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+        bufferCtx.strokeStyle = currentColor;
+        bufferCtx.strokeRect(startPosX, startPosY, rectWidth, rectHeight);
+    };
+
+    const stopRectHandler = (e) => {
+        if (!isDrawing) return;
+        isDrawing = false;
+        ctx.strokeStyle = currentColor;
+        ctx.setLineDash([10, 5]);
+        ctx.strokeRect(startPosX, startPosY, rectWidth, rectHeight);
+        setResizingPoints();
+        resizeRect();
+        bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+        //currentState = 'text';
+    };
+
+    const setResizingPoints = () => {
+        const points = [
+            { x: startPosX, y: startPosY }, // Top-left corner
+            { x: startPosX + rectWidth, y: startPosY }, // Top-right corner
+            { x: startPosX, y: startPosY + rectHeight }, // Bottom-left corner
+            { x: startPosX + rectWidth, y: startPosY + rectHeight }, // Bottom-right corner
+            { x: startPosX + rectWidth / 2, y: startPosY }, // Top-middle
+            { x: startPosX + rectWidth / 2, y: startPosY + rectHeight }, // Bottom-middle
+            { x: startPosX, y: startPosY + rectHeight / 2 }, // Left-middle
+            { x: startPosX + rectWidth, y: startPosY + rectHeight / 2 } // Right-middle
+        ];
+
+        ctx.fillStyle = 'black';
+
+        points.forEach(point => {
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, pointSize, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        return points;
+    };
+
+    const isMouseOnPoint = (mousePos, point) => {
+        return (
+            mousePos.x >= point.x - pointSize &&
+            mousePos.x <= point.x + pointSize &&
+            mousePos.y >= point.y - pointSize &&
+            mousePos.y <= point.y + pointSize
+        );
+    };
+
+    const resizeRect = () => {
+        //if (currentState !== 'resizing') return;
+
+        canvas.addEventListener('mousedown', (e) => {
+            const mousePos = getMousePos(canvas, e);
+            const points = setResizingPoints();
+
+            points.forEach((point, index) => {
+                if (isMouseOnPoint(mousePos, point)) {
+                    draggingAnchor = index;
+                    currentState = 'resizing';
+                }
+            });
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (draggingAnchor === null) return;
+
+            const mousePos = getMousePos(canvas, e);
+
+            switch (draggingAnchor) {
+                case 0: // Top-left
+                    rectWidth += startPosX - mousePos.x;
+                    rectHeight += startPosY - mousePos.y;
+                    startPosX = mousePos.x;
+                    startPosY = mousePos.y;
+                    break;
+                case 1: // Top-right
+                    rectWidth = mousePos.x - startPosX;
+                    rectHeight += startPosY - mousePos.y;
+                    startPosY = mousePos.y;
+                    break;
+                case 2: // Bottom-left
+                    rectWidth += startPosX - mousePos.x;
+                    startPosX = mousePos.x;
+                    rectHeight = mousePos.y - startPosY;
+                    break;
+                case 3: // Bottom-right
+                    rectWidth = mousePos.x - startPosX;
+                    rectHeight = mousePos.y - startPosY;
+                    break;
+                case 4: // Top-middle
+                    rectHeight += startPosY - mousePos.y;
+                    startPosY = mousePos.y;
+                    break;
+                case 5: // Bottom-middle
+                    rectHeight = mousePos.y - startPosY;
+                    break;
+                case 6: // Left-middle
+                    rectWidth += startPosX - mousePos.x;
+                    startPosX = mousePos.x;
+                    break;
+                case 7: // Right-middle
+                    rectWidth = mousePos.x - startPosX;
+                    break;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeRect(startPosX, startPosY, rectWidth, rectHeight);
+            setResizingPoints();
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            draggingAnchor = null;
+            currentState = 'text';
+        });
+    };
+
+    const handleMouseMove = (e) => {
+        const mousePos = getMousePos(canvas, e);
+        const points = setResizingPoints();
+        let cursor = 'default';
+
+        points.forEach((point, index) => {
+            if (isMouseOnPoint(mousePos, point)) {
+                cursor = 'pointer';
+                currentState = 'resizing';
+            }
+        });
+
+        canvas.style.cursor = cursor;
+    };
+
+    const handleTextMode = (e) => {
+        const mousePos = getMousePos(canvas, e);
+        if (
+            mousePos.x >= startPosX && mousePos.x <= startPosX + rectWidth &&
+            mousePos.y >= startPosY && mousePos.y <= startPosY + rectHeight
+        ) {
+            // Inside the rectangle: Text writing mode
+            // You can add logic to enable text input here
+            console.log("Text writing mode");
+        } else {
+            // Outside the rectangle: Switch back to drawing mode
+            currentState = 'drawing';
+            console.log("Switched to drawing mode");
+        }
+    };
+
+    const activateTool = () => {
+        bufferCanvas.style.display = 'flex';
+        bufferCanvas.addEventListener('mousedown', startRectHandler);
+        bufferCanvas.addEventListener('mousemove', drawRectHandler);
+        bufferCanvas.addEventListener('mouseup', stopRectHandler);
+        canvas.addEventListener('mousemove', handleMouseMove);
+        canvas.addEventListener('mousedown', handleTextMode);
+    };
+
+    const deactivateTool = () => {
+        bufferCanvas.style.display = 'none';
+        bufferCanvas.removeEventListener('mousedown', startRectHandler);
+        bufferCanvas.removeEventListener('mousemove', drawRectHandler);
+        bufferCanvas.removeEventListener('mouseup', stopRectHandler);
+        canvas.removeEventListener('mousemove', handleMouseMove);
+        canvas.removeEventListener('mousedown', handleTextMode);
+    };
+
+    activateTool();
+    resizeRect();
+
+    return {
+        removeEvents: () => {
+            deactivateTool();
+        },
+        changeColor: (color) => {
+            currentColor = color;
+        }
+    };
 },
 
 
+    
     rectshape: () => {
         const bufferCanvas = document.getElementById('canvasbuffer');
         const bufferCtx = bufferCanvas.getContext('2d');
@@ -531,12 +868,7 @@ rectelipse: () => {
         }
     };
     },
-
-
-
 };
-
-
 
 tools.forEach((tool) => {
     tool.addEventListener('click', (e) => {
