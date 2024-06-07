@@ -176,13 +176,24 @@
     border:none; 
 }
 .canvas {
-    background-color: white;
+    background-color: rgb(255, 255, 255);
     position: inherit;
     top: 3px;
     left: 3px;
     width: 100%;
     height:100%;
     border: none;
+}
+#textarea {
+    position: relative;
+    z-index: 99;
+    border: none;
+    resize: both;
+    overflow: hidden;
+}
+
+.hidden{
+    display:none;
 }
 
 .resize-handle {

@@ -1,24 +1,59 @@
+/**
+ * @type HTMLCanvasElement
+ */
+
 const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+const ctx = canvas.getContext('2d', { willReadFrequently: true }); // Set willReadFrequently to true
 
 const tools = document.querySelectorAll('.tools');
-const palleteColors = document.querySelectorAll('.pallete-color');
+let currentColorDisplay = document.getElementById('selected-color');
+let switchColor = document.getElementById('switch-color');
+const paletteColors = document.querySelectorAll('.pallete-color');
 
-let currentColor = 'black';
+let currentColor = 'black'; // Default color
+let switchColorValue = 'white'; // Default switch color
+
+window.onload = () => {
+    currentColorDisplay.style.backgroundColor = currentColor;
+    switchColor.style.backgroundColor = switchColorValue;
+};
+
+// Switching colors and assigning colors
+currentColorDisplay.addEventListener('click', () => switchColorHandler());
+
+paletteColors.forEach((color) => {
+    color.addEventListener('click', (e) => {
+        currentColor = e.target.getAttribute('value');
+        console.log('Color changed to:', currentColor); // Added debug message
+        currentColorDisplay.style.backgroundColor = color.style.backgroundColor;
+        if (activeTool) {
+            activeTool.changeColor(currentColor);
+        }
+    });
+});
+
+function switchColorHandler() {
+    let temp = switchColor.style.backgroundColor;
+    switchColor.style.backgroundColor = currentColorDisplay.style.backgroundColor;
+    currentColorDisplay.style.backgroundColor = temp;
+
+    // Swap the color values
+    let tempColor = currentColor;
+    currentColor = switchColorValue;
+    switchColorValue = tempColor;
+
+    if (activeTool) {
+        activeTool.changeColor(currentColor);
+    }
+}
+
+
 let isDrawing = false;
 let activeTool = null;
 
 let x = 0;
 let y = 0;
 
-palleteColors.forEach((color) => {
-    color.addEventListener('click', (e) => {
-        currentColor = e.target.getAttribute('value');
-        if (activeTool) {
-            activeTool.changeColor(currentColor);
-        }
-    });
-});
 
 function getMousePos(canvas, e) {
     const rect = canvas.getBoundingClientRect();
@@ -45,7 +80,7 @@ function pencilDraw(canvas, e) {
     ctx.lineWidth = 1;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.lineTo(pos.x + 14, pos.y + 24);
+    ctx.lineTo(pos.x + 15, pos.y + 24);
     ctx.stroke();
 }
 
@@ -117,7 +152,54 @@ const ToolsInstance = {
     pencil: () => setupTool(canvas, pencilDraw, 'url(/static/cursors/pencil.png), auto'),
     brush: () => setupTool(canvas, brushDraw, 'url(/static/cursors/precise-dotted.png), auto'),
     eraser: () => setupTool(canvas, eraser, 'url(/static/cursors/eraser.png), auto'),
-    airbrush:()=>setupTool(canvas, airBrush,'url(/static/cursors/airbrushCursor.png),auto'),
+    airbrush: () => setupTool(canvas, airBrush, 'url(/static/cursors/airbrushCursor.png),auto'),
+    eyedrop: () => {
+        const eyeDrop = document.getElementById('eyedrop');
+        const brush = document.getElementById('brush');
+        const rect = canvas.getBoundingClientRect()
+        const customCursorUrl = '/static/cursors/eye-dropper.png';
+        const cursorHotspotX = 15;
+        const cursorHotspotY = 24; 
+        canvas.style.cursor = `url(${customCursorUrl}), auto`;
+        const handleEyeClick = (e) => {
+            const mouseX = e.clientX - rect.left - cursorHotspotX;
+            const mouseY = e.clientY - rect.top - cursorHotspotY;
+
+            const pixelColor = getColorAtPosition(mouseX, mouseY);
+            
+            currentColorDisplay.style.backgroundColor = pixelColor;
+            currentColor = pixelColor;
+
+            deactivateTool();
+            ToolsInstance['brush']();
+
+        }
+
+        function getColorAtPosition(x, y) {
+            let pxData = ctx.getImageData(x,y,1,1);
+        return("rgb("+pxData.data[0]+","+pxData.data[1]+","+pxData.data[2]+")");
+        }
+        const activateTool = () => {
+            
+            canvas.addEventListener('mousedown', handleEyeClick);
+
+        }
+        const deactivateTool = () => {
+            
+            canvas.removeEventListener('mousedown', handleEyeClick);
+            eyeDrop.classList.remove('pressed');
+            brush.classList.add('pressed');
+            canvas.style.cursor = 'url(/static/cursors/precise-dotted.png), auto';
+        }
+        
+        activateTool();
+
+        return {
+            removeEvents: () => {
+                deactivateTool();
+            },
+        };
+    },
     line: () => {
         const bufferCanvas = document.getElementById('canvasbuffer');
         const bufferCtx = bufferCanvas.getContext('2d');
@@ -133,10 +215,10 @@ const ToolsInstance = {
 
 
         const customCursorUrl = '/static/cursors/precise.png';
-        const cursorHotspotX = -45; // Adjust this value to center the cursor image
-        const cursorHotspotY = -5; // Adjust this value to center the cursor image
+        const cursorHotspotX = -45;
+        const cursorHotspotY = -5; 
 
-        // Apply custom cursor with hotspot
+        
         canvas.style.cursor = `url(${customCursorUrl}), auto`;
         bufferCanvas.style.cursor = `url(${customCursorUrl}) , auto`;
 
@@ -376,7 +458,7 @@ const ToolsInstance = {
             activateTool();
 
             return {
-                removeEvents: () => {
+                removeEvents: () => { 
                     deactivateTool();
                 },
                 changeColor: (color) => {
@@ -386,226 +468,135 @@ const ToolsInstance = {
         },
 
     
-text: () => { //TODO:Need to work on this
-    const bufferCanvas = document.getElementById('canvasbuffer');
-    const bufferCtx = bufferCanvas.getContext('2d');
-    const rect = bufferCanvas.getBoundingClientRect();
-    let isDrawing = false;
-    let startPosX = 0;
-    let startPosY = 0;
-    let rectWidth = 0;
-    let rectHeight = 0;
-    let draggingAnchor = null;
-    const pointSize = 3; 
-    let currentColor = 'black';
-    let currentState = 'drawing'; // 'drawing', 'resizing', 'text'
+    text: () => {
+        const bufferCanvas = document.getElementById('canvasbuffer');
+        const bufferCtx = bufferCanvas.getContext('2d');
+        const textarea = document.getElementById('textarea');
+        const canvas = document.getElementById('canvas'); // Ensure main canvas is defined
+        const ctx = canvas.getContext('2d'); // Ensure the context for the main canvas is defined
+        const rect = bufferCanvas.getBoundingClientRect();
+        const customCursorUrl = '/static/cursors/precise.png';
+        const cursorHotspotX = -45;
+        const cursorHotspotY = -5; 
 
-    bufferCanvas.style.display = 'none';
-    bufferCanvas.width = canvas.width;
-    bufferCanvas.height = canvas.height;
-
-    const customCursorUrl = '/static/cursors/precise.png';
-
-    canvas.style.cursor = `url(${customCursorUrl}), auto`;
-    bufferCanvas.style.cursor = `url(${customCursorUrl}), auto`;
-
-    const getMousePos = (canvas, e) => {
-        const rect = canvas.getBoundingClientRect();
-        return {
-            x: e.clientX - rect.left+15,
-            y: e.clientY - rect.top+15
-        };
-    };
-
-    const startRectHandler = (e) => {
-        if (currentState !== 'drawing') return;
-        isDrawing = true;
-        const mousePos = getMousePos(bufferCanvas, e);
-        startPosX = mousePos.x;
-        startPosY = mousePos.y;
-    };
-
-    const drawRectHandler = (e) => {
-        if (!isDrawing) return;
-        const mousePos = getMousePos(bufferCanvas, e);
-        rectWidth = mousePos.x - startPosX;
-        rectHeight = mousePos.y - startPosY;
-        bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-        bufferCtx.strokeStyle = currentColor;
-        bufferCtx.strokeRect(startPosX, startPosY, rectWidth, rectHeight);
-    };
-
-    const stopRectHandler = (e) => {
-        if (!isDrawing) return;
-        isDrawing = false;
-        ctx.strokeStyle = currentColor;
-        ctx.setLineDash([10, 5]);
-        ctx.strokeRect(startPosX, startPosY, rectWidth, rectHeight);
-        setResizingPoints();
-        resizeRect();
-        bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-        //currentState = 'text';
-    };
-
-    const setResizingPoints = () => {
-        const points = [
-            { x: startPosX, y: startPosY }, // Top-left corner
-            { x: startPosX + rectWidth, y: startPosY }, // Top-right corner
-            { x: startPosX, y: startPosY + rectHeight }, // Bottom-left corner
-            { x: startPosX + rectWidth, y: startPosY + rectHeight }, // Bottom-right corner
-            { x: startPosX + rectWidth / 2, y: startPosY }, // Top-middle
-            { x: startPosX + rectWidth / 2, y: startPosY + rectHeight }, // Bottom-middle
-            { x: startPosX, y: startPosY + rectHeight / 2 }, // Left-middle
-            { x: startPosX + rectWidth, y: startPosY + rectHeight / 2 } // Right-middle
-        ];
-
-        ctx.fillStyle = 'black';
-
-        points.forEach(point => {
-            ctx.beginPath();
-            ctx.arc(point.x, point.y, pointSize, 0, Math.PI * 2);
-            ctx.fill();
-        });
-        return points;
-    };
-
-    const isMouseOnPoint = (mousePos, point) => {
-        return (
-            mousePos.x >= point.x - pointSize &&
-            mousePos.x <= point.x + pointSize &&
-            mousePos.y >= point.y - pointSize &&
-            mousePos.y <= point.y + pointSize
-        );
-    };
-
-    const resizeRect = () => {
-        //if (currentState !== 'resizing') return;
-
-        canvas.addEventListener('mousedown', (e) => {
-            const mousePos = getMousePos(canvas, e);
-            const points = setResizingPoints();
-
-            points.forEach((point, index) => {
-                if (isMouseOnPoint(mousePos, point)) {
-                    draggingAnchor = index;
-                    currentState = 'resizing';
-                }
-            });
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            if (draggingAnchor === null) return;
-
-            const mousePos = getMousePos(canvas, e);
-
-            switch (draggingAnchor) {
-                case 0: // Top-left
-                    rectWidth += startPosX - mousePos.x;
-                    rectHeight += startPosY - mousePos.y;
-                    startPosX = mousePos.x;
-                    startPosY = mousePos.y;
-                    break;
-                case 1: // Top-right
-                    rectWidth = mousePos.x - startPosX;
-                    rectHeight += startPosY - mousePos.y;
-                    startPosY = mousePos.y;
-                    break;
-                case 2: // Bottom-left
-                    rectWidth += startPosX - mousePos.x;
-                    startPosX = mousePos.x;
-                    rectHeight = mousePos.y - startPosY;
-                    break;
-                case 3: // Bottom-right
-                    rectWidth = mousePos.x - startPosX;
-                    rectHeight = mousePos.y - startPosY;
-                    break;
-                case 4: // Top-middle
-                    rectHeight += startPosY - mousePos.y;
-                    startPosY = mousePos.y;
-                    break;
-                case 5: // Bottom-middle
-                    rectHeight = mousePos.y - startPosY;
-                    break;
-                case 6: // Left-middle
-                    rectWidth += startPosX - mousePos.x;
-                    startPosX = mousePos.x;
-                    break;
-                case 7: // Right-middle
-                    rectWidth = mousePos.x - startPosX;
-                    break;
-            }
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeRect(startPosX, startPosY, rectWidth, rectHeight);
-            setResizingPoints();
-        });
-
-        canvas.addEventListener('mouseup', () => {
-            draggingAnchor = null;
-            currentState = 'text';
-        });
-    };
-
-    const handleMouseMove = (e) => {
-        const mousePos = getMousePos(canvas, e);
-        const points = setResizingPoints();
-        let cursor = 'default';
-
-        points.forEach((point, index) => {
-            if (isMouseOnPoint(mousePos, point)) {
-                cursor = 'pointer';
-                currentState = 'resizing';
-            }
-        });
-
-        canvas.style.cursor = cursor;
-    };
-
-    const handleTextMode = (e) => {
-        const mousePos = getMousePos(canvas, e);
-        if (
-            mousePos.x >= startPosX && mousePos.x <= startPosX + rectWidth &&
-            mousePos.y >= startPosY && mousePos.y <= startPosY + rectHeight
-        ) {
-            // Inside the rectangle: Text writing mode
-            // You can add logic to enable text input here
-            console.log("Text writing mode");
-        } else {
-            // Outside the rectangle: Switch back to drawing mode
-            currentState = 'drawing';
-            console.log("Switched to drawing mode");
-        }
-    };
-
-    const activateTool = () => {
-        bufferCanvas.style.display = 'flex';
-        bufferCanvas.addEventListener('mousedown', startRectHandler);
-        bufferCanvas.addEventListener('mousemove', drawRectHandler);
-        bufferCanvas.addEventListener('mouseup', stopRectHandler);
-        canvas.addEventListener('mousemove', handleMouseMove);
-        canvas.addEventListener('mousedown', handleTextMode);
-    };
-
-    const deactivateTool = () => {
         bufferCanvas.style.display = 'none';
-        bufferCanvas.removeEventListener('mousedown', startRectHandler);
-        bufferCanvas.removeEventListener('mousemove', drawRectHandler);
-        bufferCanvas.removeEventListener('mouseup', stopRectHandler);
-        canvas.removeEventListener('mousemove', handleMouseMove);
-        canvas.removeEventListener('mousedown', handleTextMode);
-    };
+        bufferCanvas.width = canvas.width;
+        bufferCanvas.height = canvas.height;
+        bufferCanvas.style.background = 'transparent';
 
-    activateTool();
-    resizeRect();
+        let startPosX, startPosY, textBoxX, textBoxY, textBoxWidth, textBoxHeight;
+        let isDrawing = false;
+        let isEditing = false;
 
-    return {
-        removeEvents: () => {
-            deactivateTool();
-        },
-        changeColor: (color) => {
-            currentColor = color;
+
+        // Apply custom cursor with hotspot
+        canvas.style.cursor = `url(${customCursorUrl}) , auto`;
+        bufferCanvas.style.cursor = `url(${customCursorUrl}) , auto`;
+
+        const startTextBox = (e) => {
+            startPosX = e.clientX - rect.left + cursorHotspotX;
+            startPosY = e.clientY - rect.top + cursorHotspotY;
+
+            if (!isEditing) {
+                isDrawing = true;
+                textBoxX = startPosX;
+                textBoxY = startPosY;
+            } else {
+                saveTextToCanvas();
+                isEditing = false;
+            }
+        };
+
+        const writeTextBox = (e) => {
+            if (!isDrawing) return;
+            const mouseX = e.clientX - rect.left + cursorHotspotX;
+            const mouseY = e.clientY - rect.top + cursorHotspotY;
+
+            textBoxWidth = mouseX - startPosX;
+            textBoxHeight = mouseY - startPosY;
+
+            draw();
+        };
+
+        const stopTextBox = () => {
+            if (!isDrawing) return;
+            isDrawing = false;
+            isEditing = true;
+            textarea.style.border = 'none';
+            textarea.style.left = `${textBoxX}px`;
+            textarea.style.top = `${textBoxY}px`;
+            textarea.style.width = `${textBoxWidth}px`;
+            textarea.style.height = `${textBoxHeight}px`;
+            textarea.value = '';
+            textarea.classList.remove('hidden');
+            textarea.focus();
+            bufferCtx.clearRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
+        };
+
+        const onBlur = () => {
+            saveTextToCanvas();
+            isEditing = false;
+            bufferCtx.clearRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight)
+        };
+
+        const onKeyPress = (e) => {
+            if (e.key === 'Enter') {
+                saveTextToCanvas();
+                isEditing = false;
+            } else if (e.key === 'Escape') {
+                textarea.classList.add('hidden');
+                isEditing = false;
+            }
+        };
+
+        function draw() {
+            bufferCtx.clearRect(0, 0, canvas.width, canvas.height);
+            bufferCtx.strokeStyle = 'black';
+            bufferCtx.strokeRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
         }
-    };
+
+        function saveTextToCanvas() {
+            const text = textarea.value;
+            if (text) {
+                ctx.font = '16px Arial';
+                ctx.fillStyle = currentColor;
+                const lines = text.split('\n');
+                for (let i = 0; i < lines.length; i++) {
+                    ctx.fillText(lines[i], textBoxX + 5, textBoxY + 20 + (i * 20));
+                }
+            }
+            textarea.classList.add('hidden');
+            bufferCtx.clearRect(0, 0, canvas.width, canvas.height);            
+        }
+
+        const activateTool = () => {
+            bufferCanvas.style.display = 'flex';
+            bufferCanvas.addEventListener('mousedown', startTextBox);
+            bufferCanvas.addEventListener('mousemove', writeTextBox);
+            bufferCanvas.addEventListener('mouseup', stopTextBox);
+            textarea.addEventListener('blur', onBlur);
+            textarea.addEventListener('keypress', onKeyPress);
+        };
+
+        const deactivateTool = () => {
+            bufferCanvas.style.display = 'none';
+            bufferCanvas.removeEventListener('mousedown', startTextBox);
+            bufferCanvas.removeEventListener('mousemove', writeTextBox);
+            bufferCanvas.removeEventListener('mouseup', stopTextBox);
+            textarea.removeEventListener('blur', onBlur);
+            textarea.removeEventListener('keypress', onKeyPress);
+        };
+
+        activateTool();
+
+        return {
+            removeEvents: () => {
+                deactivateTool();
+            },
+            changeColor: (color) => {
+                currentColor = color;
+            }
+        };
 },
 
 
