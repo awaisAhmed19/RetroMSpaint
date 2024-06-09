@@ -2,16 +2,19 @@
  * @type HTMLCanvasElement
  */
 
+
+
 const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d', { willReadFrequently: true }); // Set willReadFrequently to true
+const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
 const tools = document.querySelectorAll('.tools');
 let currentColorDisplay = document.getElementById('selected-color');
 let switchColor = document.getElementById('switch-color');
 const paletteColors = document.querySelectorAll('.pallete-color');
 
-let currentColor = 'black'; // Default color
-let switchColorValue = 'white'; // Default switch color
+let currentColor = JSON.parse(currentColorDisplay.getAttribute('value')); 
+let switchColorValue = JSON.parse(switchColor.getAttribute('value'));
+
 
 window.onload = () => {
     currentColorDisplay.style.backgroundColor = currentColor;
@@ -22,15 +25,16 @@ window.onload = () => {
 currentColorDisplay.addEventListener('click', () => switchColorHandler());
 
 paletteColors.forEach((color) => {
-    color.addEventListener('click', (e) => {
-        currentColor = e.target.getAttribute('value');
-        console.log('Color changed to:', currentColor); // Added debug message
+    color.addEventListener('click', () => {
+        currentColor = JSON.parse(color.value);
+        console.log('Color changed to:', currentColor); 
         currentColorDisplay.style.backgroundColor = color.style.backgroundColor;
         if (activeTool) {
             activeTool.changeColor(currentColor);
         }
     });
 });
+
 
 function switchColorHandler() {
     let temp = switchColor.style.backgroundColor;
@@ -200,6 +204,98 @@ const ToolsInstance = {
             },
         };
     },
+
+ floodfill: () => {
+    const customCursorUrl = '/static/cursors/fill-bucket.png';
+    const cursorHotspotX = 15;
+    const cursorHotspotY = 15;
+    canvas.style.cursor = `url(${customCursorUrl}), auto`;
+
+    function floodFill(ctx, x, y, fillColor, range = 1) {
+        const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+        const width = imageData.width;
+        const height = imageData.height;
+        const visited = new Uint8Array(width * height);
+
+        const stack = [];
+        stack.push(x, y);
+
+        const targetColor = getPixel(imageData, x, y);
+        const rangeSq = range * range;
+
+        while (stack.length > 0) {
+            const cy = stack.pop();
+            const cx = stack.pop();
+
+            if (!visited[cy * width + cx] && colorsMatch(getPixel(imageData, cx, cy), targetColor, rangeSq)) {
+                setPixel(imageData, cx, cy, fillColor);
+                visited[cy * width + cx] = 1;
+
+                if (cx > 0) stack.push(cx - 1, cy);
+                if (cx < width - 1) stack.push(cx + 1, cy);
+                if (cy > 0) stack.push(cx, cy - 1);
+                if (cy < height - 1) stack.push(cx, cy + 1);
+            }
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+    }
+
+    function getPixel(imageData, x, y) {
+        const offset = (y * imageData.width + x) * 4;
+        return [
+            imageData.data[offset],
+            imageData.data[offset + 1],
+            imageData.data[offset + 2],
+            imageData.data[offset + 3]
+        ];
+    }
+
+    function setPixel(imageData, x, y, color) {
+        const offset = (y * imageData.width + x) * 4;
+        imageData.data[offset] = color[0];
+        imageData.data[offset + 1] = color[1];
+        imageData.data[offset + 2] = color[2];
+        imageData.data[offset + 3] = color[3];
+    }
+
+    function colorsMatch(a, b, rangeSq) {
+        const dr = a[0] - b[0];
+        const dg = a[1] - b[1];
+        const db = a[2] - b[2];
+        const da = a[3] - b[3];
+        return dr * dr + dg * dg + db * db + da * da < rangeSq;
+    }
+
+    const handleMouseDown = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const MouseX = Math.floor(e.clientX - rect.left + cursorHotspotX);
+        const MouseY = Math.floor(e.clientY - rect.top + cursorHotspotY);
+        floodFill(ctx, MouseX, MouseY, currentColor, 10);
+    };
+
+    const activateTool = () => {
+        canvas.addEventListener('mousedown', handleMouseDown);
+    };
+
+    const deactivateTool = () => {
+        canvas.removeEventListener('mousedown', handleMouseDown);
+    };
+
+    activateTool();
+
+    return {
+        removeEvents: () => {
+            deactivateTool();
+        },
+        changeColor: (color) => {
+            currentColor = color;
+        }
+    };
+},
+
+
+
     line: () => {
         const bufferCanvas = document.getElementById('canvasbuffer');
         const bufferCtx = bufferCanvas.getContext('2d');

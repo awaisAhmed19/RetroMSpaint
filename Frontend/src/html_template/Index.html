@@ -402,7 +402,7 @@
     <button class="tools" id="polygonlasso"></button>
     <button class="tools" id="rectlasso"></button>
     <button class="tools" id="eraser"></button>
-    <button class="tools" id="fill"></button>
+    <button class="tools" id="floodfill"></button>
     <button class="tools" id="eyedrop"></button>
     <button class="tools" id="zoom"></button>
     <button class="tools" id="pencil"></button>
@@ -453,38 +453,66 @@
   </div>
   <div class="container-3">
     <div class="pallete-preview">
-      <div class="selectedcolor" id="selected-color" value="black"></div>
-      <div class="switchcolor" id="switch-color" value="white"></div>
+      <div class="selectedcolor" id="selected-color" value="[0, 0, 0, 255]" style="background-color: rgb(0, 0, 0);"></div>
+      <div class="switchcolor" id="switch-color" value="[255, 255, 255, 255]" style="background-color: rgb(255, 255, 255);"></div>
     </div>
   <div class="pallete-layout">
-    <button class="pallete-color" id="black-button" value="black" style="background-color: black;"></button>
-    <button class="pallete-color" id="grey-button" value="grey" style="background-color: grey;"></button>
-    <button class="pallete-color" id="maroon-button" value="maroon" style="background-color: maroon;"></button>
-    <button class="pallete-color" id="dirty-yellow-button" value="rgb(185, 155, 20)"style="background-color: rgb(185, 155, 20);"></button>
-    <button class="pallete-color" id="green-button" value="green" style="background-color: green;"></button>
-    <button class="pallete-color" id="teal-button" value="teal" style="background-color: teal;"></button>
-    <button class="pallete-color" id="navyblue-button" value="navy" style="background-color: navy;"></button>
-    <button class="pallete-color" id="purple-button" value="purple" style="background-color: purple;"></button>
-    <button class="pallete-color" id="dirty-yellowish-button" value="rgb(199, 151, 61)"style="background-color: rgb(199, 151, 61);"></button>
-    <button class="pallete-color" id="greenish-blue-button" value="#003f3f" style="background-color: #003f3f;"></button>
-    <button class="pallete-color" id="lightseagreen-button" value="lightseagreen" style="background-color: lightseagreen;"></button>
-    <button class="pallete-color" id="royal-blue-button" value="rgb(0, 65, 129)" style="background-color: rgb(0, 65, 129);"></button>
-    <button class="pallete-color" id="deep-blue-button" value="rgb(64, 0, 255)" style="background-color: rgb(64, 0, 255);"></button>
-    <button class="pallete-color" id="brown-button" value="rgb(128, 65, 1)" style="background-color: rgb(128, 65, 1);"></button>
-    <button class="pallete-color" id="white-button" value="white" style="background-color: white;"></button>
-    <button class="pallete-color" id="lightgray-button" value="lightgray" style="background-color: lightgray;"></button>
-    <button class="pallete-color" id="red-button" value="red" style="background-color: red;"></button>
-    <button class="pallete-color" id="yellow-button" value="yellow" style="background-color: yellow;"></button>
-    <button class="pallete-color" id="lightgreen-button" value="lightgreen" style="background-color: lightgreen;"></button>
-    <button class="pallete-color" id="lightblue-button" value="lightblue" style="background-color: lightblue;"></button>
-    <button class="pallete-color" id="blue-button" value="blue" style="background-color: blue;"></button>
-    <button class="pallete-color" id="pink-button" value="pink" style="background-color: pink;"></button>
-    <button class="pallete-color" id="beige-button" value="beige" style="background-color: beige;"></button>
-    <button class="pallete-color" id="sea-green-button" value="rgb(1, 255, 129)" style="background-color: rgb(1, 255, 129);"></button>
-    <button class="pallete-color" id="cyan-button" value="cyan" style="background-color: cyan;"></button>
-    <button class="pallete-color" id="dull-blue-button" value="rgb(128, 128, 255)" style="background-color: rgb(128, 128, 255);"></button>
-    <button class="pallete-color" id="darkpink-button" value="rgb(255, 0, 128)" style="background-color: rgb(255, 0, 128);"></button>
-    <button class="pallete-color" id="mud-orange-button" value="rgb(255, 129, 65)" style="background-color: rgb(255, 129, 65);"></button>
+  <button class="pallete-color" id="black-button" value="[0, 0, 0, 255]" style="background-color: rgb(0, 0, 0);"></button>
+  <button class="pallete-color" id="grey-button" value="[128, 128, 128, 255]"
+    style="background-color: rgb(128, 128, 128);"></button>
+  <button class="pallete-color" id="maroon-button" value="[128, 0, 0, 255]"
+    style="background-color: rgb(128, 0, 0);"></button>
+  <button class="pallete-color" id="dirty-yellow-button" value="[185, 155, 20, 255]"
+    style="background-color: rgb(185, 155, 20);"></button>
+  <button class="pallete-color" id="green-button" value="[0, 128, 0, 255]"
+    style="background-color: rgb(0, 128, 0);"></button>
+  <button class="pallete-color" id="teal-button" value="[0, 128, 128, 255]"
+    style="background-color: rgb(0, 128, 128);"></button>
+  <button class="pallete-color" id="navyblue-button" value="[0, 0, 128, 255]"
+    style="background-color: rgb(0, 0, 128);"></button>
+  <button class="pallete-color" id="purple-button" value="[128, 0, 128, 255]"
+    style="background-color: rgb(128, 0, 128);"></button>
+  <button class="pallete-color" id="dirty-yellowish-button" value="[199, 151, 61, 255]"
+    style="background-color: rgb(199, 151, 61);"></button>
+  <button class="pallete-color" id="greenish-blue-button" value="[0, 63, 63, 255]"
+    style="background-color: rgb(0, 63, 63);"></button>
+  <button class="pallete-color" id="lightseagreen-button" value="[32, 178, 170, 255]"
+    style="background-color: rgb(32, 178, 170);"></button>
+  <button class="pallete-color" id="royal-blue-button" value="[0, 65, 129, 255]"
+    style="background-color: rgb(0, 65, 129);"></button>
+  <button class="pallete-color" id="deep-blue-button" value="[64, 0, 255, 255]"
+    style="background-color: rgb(64, 0, 255);"></button>
+  <button class="pallete-color" id="brown-button" value="[128, 65, 1, 255]"
+    style="background-color: rgb(128, 65, 1);"></button>
+  <button class="pallete-color" id="white-button" value="[255, 255, 255, 255]"
+    style="background-color: rgb(255, 255, 255);"></button>
+  <button class="pallete-color" id="lightgray-button" value="[211, 211, 211, 255]"
+    style="background-color: rgb(211, 211, 211);"></button>
+  <button class="pallete-color" id="red-button" value="[255, 0, 0, 255]"
+    style="background-color: rgb(255, 0, 0);"></button>
+  <button class="pallete-color" id="yellow-button" value="[255, 255, 0, 255]"
+    style="background-color: rgb(255, 255, 0);"></button>
+  <button class="pallete-color" id="lightgreen-button" value="[144, 238, 144, 255]"
+    style="background-color: rgb(144, 238, 144);"></button>
+  <button class="pallete-color" id="lightblue-button" value="[173, 216, 230, 255]"
+    style="background-color: rgb(173, 216, 230);"></button>
+  <button class="pallete-color" id="blue-button" value="[0, 0, 255, 255]"
+    style="background-color: rgb(0, 0, 255);"></button>
+  <button class="pallete-color" id="pink-button" value="[255, 192, 203, 255]"
+    style="background-color: rgb(255, 192, 203);"></button>
+  <button class="pallete-color" id="beige-button" value="[245, 245, 220, 255]"
+    style="background-color: rgb(245, 245, 220);"></button>
+  <button class="pallete-color" id="sea-green-button" value="[1, 255, 129, 255]"
+    style="background-color: rgb(1, 255, 129);"></button>
+  <button class="pallete-color" id="cyan-button" value="[0, 255, 255, 255]"
+    style="background-color: rgb(0, 255, 255);"></button>
+  <button class="pallete-color" id="dull-blue-button" value="[128, 128, 255, 255]"
+    style="background-color: rgb(128, 128, 255);"></button>
+  <button class="pallete-color" id="darkpink-button" value="[255, 0, 128, 255]"
+    style="background-color: rgb(255, 0, 128);"></button>
+  <button class="pallete-color" id="mud-orange-button" value="[255, 129, 65, 255]"
+    style="background-color: rgb(255, 129, 65);"></button>
+
   </div>
 
   </div>

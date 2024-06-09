@@ -114,7 +114,7 @@
 #polygonlasso{background-position: 4px 4px ;}
 #rectlasso { background-position: -16px 4px; }
 #eraser { background-position: -37px 4px; }
-#fill { background-position: -58px 4px; }
+#floodfill { background-position: -58px 4px; }
 #eyedrop { background-position: -78px 4px; }
 #zoom { background-position: -98px 4px; }
 #pencil { background-position: -118px 4px; }
