@@ -159,170 +159,210 @@ const ToolsInstance = {
     airbrush: () => setupTool(canvas, airBrush, 'url(/static/cursors/airbrushCursor.png),auto'),
     polygonlasso: () => {
         
-},
-
-    rectlasso: () => { //functionality works 90% just need some more tuning 
-        const bufferCanvas = document.getElementById('canvasbuffer');
-        const selectionBuffer = document.getElementById('selectionBuffer');
-        const bufferCtx = bufferCanvas.getContext('2d');
-        const SBufferCtx = selectionBuffer.getContext('2d');
-
-        let isDragging = false;
-        let isDrawing = false;
-        let isSelected = false;
-        let rectWidth = 0;
-        let rectHeight = 0;
-        let startPosX = 0;
-        let startPosY = 0;
-        let currentX = 0;
-        let currentY = 0;
-        let offsetX = 0;
-        let offsetY = 0;
-        let CtxImageData = null;
+    const bufferCanvas = document.getElementById('canvasbuffer');
+    const bufferCtx = bufferCanvas.getContext('2d');
+    let isDrawing = false;
+    let points = [];
 
         bufferCanvas.width = canvas.width;
         bufferCanvas.height = canvas.height;
-        
+        bufferCanvas.style.display = 'flex';
+    // Function to start lasso selection
+    function startLassoSelection(e) {
+        isDrawing = true;
+        points = [];
+        points.push({ x: e.offsetX, y: e.offsetY });
 
-        const customCursorUrl = '/static/cursors/precise.png';
-        canvas.style.cursor = `url(${customCursorUrl}), auto`;
-        bufferCanvas.style.cursor = `url(${customCursorUrl}), auto`;
+        bufferCanvas.addEventListener('mousemove', drawLassoSelection);
+        bufferCanvas.addEventListener('mouseup', endLassoSelection);
+    }
 
-        const startPolyRectHandler = (e) => {
-            const rect = bufferCanvas.getBoundingClientRect();
-            bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-            startPosX = e.clientX - rect.left;
-            startPosY = e.clientY - rect.top;
+    // Function to draw lasso selection dynamically
+    function drawLassoSelection(e) {
+        if (!isDrawing) return;
+
+        points.push({ x: e.offsetX, y: e.offsetY });
+
+        bufferCtx.clearRect(0, 0, canvas.width, canvas.height);
+        // Draw original content (if needed)
+
+        // Draw lasso selection path
+        bufferCtx.beginPath();
+        bufferCtx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            bufferCtx.lineTo(points[i].x, points[i].y);
+        }
+        bufferCtx.closePath();
+        bufferCtx.lineWidth = 2;
+        bufferCtx.strokeStyle = 'black';
+        bufferCtx.stroke();
+    }
+
+    // Function to end lasso selection
+    function endLassoSelection() {
+        isDrawing = false;
+        bufferCanvas.removeEventListener('mousemove', drawLassoSelection);
+        bufferCanvas.removeEventListener('mouseup', endLassoSelection);
+
+        // Perform the clipping operation within the lasso polygon
+        const x_min = Math.min(...points.map(p => p.x));
+        const y_min = Math.min(...points.map(p => p.y));
+        const x_max = Math.max(...points.map(p => p.x));
+        const y_max = Math.max(...points.map(p => p.y));
+
+        const cutout_crop = copy_contents_within_polygon(canvas, points, x_min, y_min, x_max, y_max);
+
+        // Optionally, you can display or use `cutout_crop` canvas as needed
+        // Example: ctx.drawImage(cutout_crop, 0, 0);
+
+        // Reset canvas or continue with further operations
+        bufferCtx.clearRect(0, 0, canvas.width, canvas.height);
+        bufferCanvas.style.display = 'none';
+    }
+
+    // Event listener to start lasso selection on mousedown
+    bufferCanvas.addEventListener('mousedown', startLassoSelection);
+
+},
+
+
+rectlasso: () => {
+    const bufferCanvas = document.getElementById('canvasbuffer');
+    const selectionBuffer = document.getElementById('selectionbuffer');
+    const bufferCtx = bufferCanvas.getContext('2d');
+    const SBufferCtx = selectionBuffer.getContext('2d');
+
+    bufferCanvas.width = canvas.width;
+    bufferCanvas.height = canvas.height;
+    selectionBuffer.width = canvas.width;
+    selectionBuffer.height = canvas.height;
+
+    let isDrawing = false;
+    let isDragging = false;
+    let isSelected = false;
+    let startX, startY, endX, endY, selectedImageData = null;
+    let offsetX, offsetY;
+
+    const startPolyRectHandler = (e) => {
+        const rect = bufferCanvas.getBoundingClientRect();
+        isDrawing = true;
+        startX = e.clientX - rect.left;
+        startY = e.clientY - rect.top;
+    };
+
+    const drawPolyRectHandler = (e) => {
+        if (!isDrawing) return;
+        const rect = bufferCanvas.getBoundingClientRect();
+        endX = e.clientX - rect.left;
+        endY = e.clientY - rect.top;
+
+        bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+        bufferCtx.strokeStyle = 'black';
+        bufferCtx.setLineDash([5, 3]);
+        bufferCtx.strokeRect(startX, startY, endX - startX, endY - startY);
+    };
+
+    const stopPolyRectHandler = (e) => {
+        isDrawing = false;
+        isSelected = true;
+
+        const rect = bufferCanvas.getBoundingClientRect();
+        endX = e.clientX - rect.left;
+        endY = e.clientY - rect.top;
+        const width = endX - startX;
+        const height = endY - startY;
+        bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+        selectedImageData = ctx.getImageData(startX, startY, width, height);
+        ctx.clearRect(startX, startY, width, height);
+        SBufferCtx.clearRect(0, 0, selectionBuffer.width, selectionBuffer.height);
+        SBufferCtx.putImageData(selectedImageData, startX, startY);
+
+        bufferCanvas.style.display = 'none';
+        selectionBuffer.style.display = 'block';
+
+        selectionBuffer.addEventListener('mousedown', startDragHandler);
+    };
+
+    const startDragHandler = (e) => {
+        const rect = selectionBuffer.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        if (isInsideSelection(mouseX, mouseY)) {
+            isDragging = true;
+            offsetX = mouseX - startX;
+            offsetY = mouseY - startY;
+            selectionBuffer.addEventListener('mousemove', dragHandler);
+            selectionBuffer.addEventListener('mouseup', stopDragHandler);
             
-            isDrawing = true;
-
-            if (isSelected) {
-                activateSelection();
-                deactivateTool();
-            }
-            else {
-                deactivateSelection();
-                activateTool();
-            }
         }
-
-        const activateSelection = () => {
-            selectionBuffer.style.display = 'flex';
-            selectionBuffer.style.cursor = 'url(static/cursors/move.png)';
-            selectionBuffer.addEventListener('mousedown', startSelectionHandler);
-            selectionBuffer.addEventListener('mousemove', moveSelectedHandler);
-            selectionBuffer.addEventListener('mousedown', stopSelectionHandler);
-            
+        else {
+            stopDragHandler(e);
         }
+    };
 
-        const deactivateSelection = () => {
-            selectionBuffer.style.display = 'none';
-            selectionBuffer.removeEventListener('mousedown', startSelectionHandler);
-            selectionBuffer.removeEventListener('mousemove', moveSelectedHandler);
-            selectionBuffer.removeEventListener('mousedown', stopSelectionHandler);
-        }
+    const dragHandler = (e) => {
+        if (!isDragging) return;
+        const rect = selectionBuffer.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
 
-        
-        
-        const drawPolyRectHandler = (e) => {
-            if (isDrawing) {
-                const rect = bufferCanvas.getBoundingClientRect();
-                const currentX = e.clientX - rect.left;
-                const currentY = e.clientY - rect.top;
-                bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-                bufferCtx.strokeStyle='black';
-                bufferCtx.beginPath();
-                bufferCtx.setLineDash([5, 3]);
-                bufferCtx.strokeRect(startPosX, startPosY, currentX - startPosX, currentY - startPosY);
-                bufferCtx.closePath();
-            }
-        }
+        const dx = mouseX - offsetX;
+        const dy = mouseY - offsetY;
 
-        const stopPolyRectHandler = (e) => {
-            if (isDrawing) {
-                isDrawing = false;
-                isSelected = true;
+        SBufferCtx.clearRect(0, 0, selectionBuffer.width, selectionBuffer.height);
+        SBufferCtx.putImageData(selectedImageData, dx, dy);
 
-                const rect = bufferCanvas.getBoundingClientRect();
-                const endPosX = e.clientX - rect.left;
-                const endPosY = e.clientY - rect.top;
+        startX = dx;
+        startY = dy;
+    };
 
-                rectWidth = Math.abs(endPosX - startPosX);
-                rectHeight = Math.abs(endPosY - startPosY);
+    const stopDragHandler = (e) => {
+        if (!isDragging) return;
+        isDragging = false;
 
-                CtxImageData = ctx.getImageData(startPosX, startPosY, rectWidth, rectHeight);
-                selectionBuffer.style.display = 'flex';
-                selectionBuffer.style.left = `${startPosX}px`;
-                selectionBuffer.style.top = `${startPosY}px`;
+        ctx.putImageData(selectedImageData, startX, startY);
+        SBufferCtx.clearRect(0, 0, selectionBuffer.width, selectionBuffer.height);
 
-                selectionBuffer.width = rectWidth;
-                selectionBuffer.height = rectHeight;
+        selectionBuffer.removeEventListener('mousemove', dragHandler);
+        selectionBuffer.removeEventListener('mouseup', stopDragHandler);
 
-                selectionBuffer.style.cursor = 'move';
-                SBufferCtx.clearRect(0, 0, selectionBuffer.width, selectionBuffer.height);
-                SBufferCtx.putImageData(CtxImageData, 0, 0);
-
-                ctx.clearRect(startPosX, startPosY, rectWidth, rectHeight);
-            }
-        }
-        
-        const startSelectionHandler = (e) => {
-            const rect = selectionBuffer.getBoundingClientRect();
-            const MouseX = e.clientX - rect.left;
-            const MouseY = e.clientY - rect.top;
-
-            if (MouseX >= 0 && MouseX <= rectWidth && MouseY >=0 && MouseY <=  rectHeight) {
-                bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-                isDragging = true;
-                offsetX = MouseX;
-                offsetY = MouseY;
-            }
-        }
-
-        const moveSelectedHandler = (e) => {
-            if (isDragging) {
-                const rect = canvas.getBoundingClientRect();
-                currentX = e.clientX - rect.left;
-                currentY = e.clientY - rect.top;
-                
-                selectionBuffer.style.left = `${currentX}px`;
-                selectionBuffer.style.top = `${currentX}px`;    
-            }
-        }
-
-        const stopSelectionHandler = (e) => {
-            if (isDragging) {
-                isDragging = false;
-                isSelected = false;
-
-                ctx.drawImage(selectionBuffer, currentX, currentY);
-                SBufferCtx.clearRect(0, 0, selectionBuffer.width, selectionBuffer.height);
-                selectionBuffer.style.display = 'none';
-
-                deactivateSelection();
-            }
-        }
-        const activateTool = () => {
-            bufferCanvas.style.display = 'flex';
-            bufferCanvas.addEventListener('mousedown', startPolyRectHandler);
-            bufferCanvas.addEventListener('mousemove', drawPolyRectHandler);
-            bufferCanvas.addEventListener('mouseup', stopPolyRectHandler);
-        }
-        const deactivateTool = () => {
-            bufferCanvas.style.display = 'none';
-            bufferCanvas.removeEventListener('mousedown', startPolyRectHandler);
-            bufferCanvas.removeEventListener('mousemove', drawPolyRectHandler);
-            bufferCanvas.removeEventListener('mouseup', stopPolyRectHandler);
-        }
-        
+        selectionBuffer.style.display = 'none';
+        bufferCanvas.style.display = 'none';
+        isSelected = false;
         activateTool();
+    };
 
-        return {
-            removeEvents: () => {
-                deactivateTool();
-            }
-        }; 
-    },
+    
+
+    const isInsideSelection = (x, y) => {
+        return x >= startX && x <= startX + selectedImageData.width && y >= startY && y <= startY + selectedImageData.height;
+    };
+
+    const activateTool = () => {
+        bufferCanvas.style.display = 'flex';
+        bufferCanvas.addEventListener('mousedown', startPolyRectHandler);
+        bufferCanvas.addEventListener('mousemove', drawPolyRectHandler);
+        bufferCanvas.addEventListener('mouseup', stopPolyRectHandler);
+    };
+
+    const deactivateTool = () => {
+        bufferCanvas.style.display = 'none';
+        selectionBuffer.style.display = 'none';
+        bufferCanvas.removeEventListener('mousedown', startPolyRectHandler);
+        bufferCanvas.removeEventListener('mousemove', drawPolyRectHandler);
+        bufferCanvas.removeEventListener('mouseup', stopPolyRectHandler);
+    };
+
+    activateTool();
+
+    return {
+        removeEvents: () => {
+            deactivateTool();
+        }
+    };
+},
+
 
     eyedrop: () => {
         const eyeDrop = document.getElementById('eyedrop');
@@ -948,8 +988,6 @@ const ToolsInstance = {
         bufferCanvas.style.display = 'none';
         bufferCanvas.width = canvas.width;
         bufferCanvas.height = canvas.height;
-        console.log('active');
-
 
         const customCursorUrl = '/static/cursors/precise.png';
         const cursorHotspotX = 45; // Adjust this value to center the cursor image
