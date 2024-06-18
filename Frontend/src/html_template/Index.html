@@ -399,31 +399,26 @@
         Tools
       </div>
   <div class="toolbar">
-    <button class="tools" id="polygonlasso"></button>
+    <!-- <button class="tools" id="polygonlasso"></button> -->
     <button class="tools" id="rectlasso"></button>
     <button class="tools" id="eraser"></button>
     <button class="tools" id="floodfill"></button>
     <button class="tools" id="eyedrop"></button>
-    <button class="tools" id="zoom"></button>
+    <!-- <button class="tools" id="zoom"></button> -->
     <button class="tools" id="pencil"></button>
     <button class="tools" id="brush"></button>
-    <button class="tools" id="airbrush"></button>
+    <button class="tools" hx-get="/AirBrushOptions.html" hx-target=".optionWindow"  id="airbrush"></button>
     <button class="tools" id="text"></button>
-    <button class="tools" id="line"></button>
-    <button class="tools" id="curveline"></button>
-    <button class="tools" id="rectshape"></button>
-    <button class="tools" id="polygonshape"></button>
-    <button class="tools" id="elipse"></button>
-    <button class="tools" id="rectelipse"></button>
+    <button class="tools" hx-get="/LineOptions.html" hx-target=".optionWindow" id="line"></button>
+    <button class="tools" hx-get="/CurvedLineOptions.html" hx-target=".optionWindow" id="curveline"></button>
+    <button class="tools" hx-get="/RectOptions.html" hx-target=".optionWindow" id="rectshape"></button>
+    <button class="tools" hx-get="/PolygonOptions.html" hx-target=".optionWindow" id="polygonshape"></button>
+    <button class="tools" hx-get="/ElipseTool.html" hx-target=".optionWindow" id="elipse"></button>
+    <button class="tools" hx-get="/RoundedRectTool.html" hx-target=".optionWindow" id="rectelipse"></button>
 </div>
 
       <div class="optionWindow" id="optionWindow">
-        <button id="choice1"></button>
-        <button id="choice2"></button>
-        <button id="choice3"></button>
-        <button id="choice4"></button>
-        <button id="choice5"></button>
-    
+        
       </div>
     </div>
     

@@ -85,7 +85,7 @@
     background-color: transparent;
     position: relative;
     width: 85%;
-    height: 208px;
+    height: 182px;
     left: 6px;
     display: flex;
     flex-wrap: wrap;
@@ -111,12 +111,12 @@
     margin-bottom: 0; 
 }
 
-#polygonlasso{background-position: 4px 4px ;}
+/* #polygonlasso{background-position: 4px 4px ;} */
 #rectlasso { background-position: -16px 4px; }
 #eraser { background-position: -37px 4px; }
 #floodfill { background-position: -58px 4px; }
 #eyedrop { background-position: -78px 4px; }
-#zoom { background-position: -98px 4px; }
+/* #zoom { background-position: -98px 4px; } */
 #pencil { background-position: -118px 4px; }
 #brush { background-position: -139px 4px; }
 #airbrush { background-position: -159px 4px; }
@@ -149,16 +149,101 @@
     border-bottom: 1px solid var(--borderlight);
 }
 
-.optionWindow button {
+.rectTool,
+.roundedrect-tool,
+.elipsetool,
+.polygontool,
+.CurvedLineOptions,
+.LineOptions{
     background-color: transparent;
+    width:100%;
+    height:100%;
     border: none;
-
+    display: flex;
+    flex-direction: column;
 }
 
-.optionWindow button:hover {
-    background-color: blue;
+.AirBrushOptions{
+    background-color: transparent;
+    width:100%;
+    height:100%;
+    border: none;
+    display: grid;
+    grid-template-rows: 1fr 1fr; /* Two rows, each taking up 50% of the height */
+    grid-template-columns: 1fr 1fr;
+     gap: 0;
+}
+.rectTool button,
+.roundedrect-tool button,
+.elipsetool button,
+.polygontool button{
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-image:url('../imgs/optionsSelection.png') ;
+    background-repeat: no-repeat;
+    background-size: 240px 16px;
 }
 
+#rectborder,#polygonborder,#elipseborder,#roundedrect-border{background-position: -4px 4px ;}
+#filledrectborder,#filledelipseborder,#filled-roundedrect-border,#filledpolygonborder{background-position: -98px 4px ;}
+#filledrect,#filledpolygon,#filled-roundedrect,#filledelipse{background-position: -188px 4px ;}
+
+.CurvedLineOptions button,
+.LineOptions button{
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-image:url('../imgs/lineOptions.png') ;
+    background-repeat: no-repeat;
+    background-size: 422px 13px;
+}
+
+#Line1px{ background-position: 0px 0px ;}
+#Line2px{ background-position: -43px 0px ;}
+#Line3px{ background-position: -85px 0px ;}
+#Line4px{ background-position: -127px -1px ;}
+#Line5px{ background-position: -170px -1px ;}
+
+#Line1px:hover{background-color: navy; background-position: -212px 0px ;}
+#Line2px:hover{background-color: navy; background-position: -254px 0px ;}
+#Line3px:hover{background-color: navy; background-position: -296px 0px ;}
+#Line4px:hover{background-color: navy; background-position: -338px -1px ;}
+#Line5px:hover{background-color: navy; background-position: -380px -1px ;}
+
+
+
+.AirBrushOptions button{
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-image:url('../imgs/options-airbrush-size.png') ;
+    background-repeat: no-repeat;
+    background-size: 72px 24px;
+}
+
+#AirB1px{
+    grid-row: 1;
+    grid-column: 1;
+    background-position: 0px 2px;
+}
+
+
+#AirB2px{
+    grid-row: 1;
+    grid-column: 2;
+    background-position: -20px 2px;
+}
+
+
+#AirB3px{
+    grid-row: 2 / span 1;
+    grid-column: 1 / span 2;
+    background-position: -38px 2px;
+}
 
 
 .canvasbackcontainer{
