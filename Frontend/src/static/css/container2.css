@@ -242,7 +242,7 @@
 #filledrect,#filledpolygon,#filled-roundedrect,#filledelipse{background-position: -188px 4px ;}
 
 .CurvedLineOptions button,
-.LineOptions button{
+.Loptions{
     background-color: transparent;
     width: 100%;
     height: 100%;
@@ -252,17 +252,19 @@
     background-size: 422px 13px;
 }
 
-#Line1px{ background-position: 0px 0px ;}
-#Line2px{ background-position: -43px 0px ;}
-#Line3px{ background-position: -85px 0px ;}
-#Line4px{ background-position: -127px -1px ;}
-#Line5px{ background-position: -170px -1px ;}
+#Line1px { background-position: 0px 0px; }
+#Line2px { background-position: -43px 0px; }
+#Line3px { background-position: -85px 0px; }
+#Line4px { background-position: -127px -1px; }
+#Line5px { background-position: -170px -1px; }
 
-#Line1px.pressed{background-color: navy; background-position: -212px 0px ;}
-#Line2px.pressed{background-color: navy; background-position: -254px 0px ;}
-#Line3px.pressed{background-color: navy; background-position: -296px 0px ;}
-#Line4px.pressed{background-color: navy; background-position: -338px -1px ;}
-#Line5px.pressed{background-color: navy; background-position: -380px -1px ;}
+.Loptions.pressed { background-color: navy; }
+
+.Loptions#Line1px.pressed { background-position: -212px 0px; }
+.Loptions#Line2px.pressed { background-position: -254px 0px; }
+.Loptions#Line3px.pressed { background-position: -296px 0px; }
+.Loptions#Line4px.pressed { background-position: -338px -1px; }
+.Loptions#Line5px.pressed { background-position: -380px -1px; }
 
 .EraserOptions button{
     background-color: transparent;

@@ -437,16 +437,33 @@ rectlasso: () => {
     line: () => {
         const bufferCanvas = document.getElementById('canvasbuffer');
         const bufferCtx = bufferCanvas.getContext('2d');
+        const LineOptions = document.querySelectorAll('.Loptions');
         const rec = bufferCanvas.getBoundingClientRect();
         isDrawing = false;
         let startPosX = 0;
         let startPosY = 0;
         let lastPosX = 0;
         let lastPosY = 0;
+        let linewidth = 1;
         bufferCanvas.style.display = 'none';
         bufferCanvas.width = canvas.width;
         bufferCanvas.height = canvas.height;
 
+        console.log('LineOptions:', LineOptions);
+
+        LineOptions.forEach((Opt) => {
+            Opt.addEventListener('click', (e) => {
+                console.log('Button clicked:', e.target);
+                LineOptions.forEach((O) => O.classList.remove('pressed'));
+                    
+                e.target.classList.add('pressed');
+                    
+                linewidth = parseInt(e.target.getAttribute('value'), 10);
+                console.log('Line width:', linewidth);
+                ctx.lineWidth = linewidth;
+                bufferCtx.lineWidth = linewidth;
+            });
+        });
 
         const customCursorUrl = '/static/cursors/precise.png';
         const cursorHotspotX = -45;
