@@ -33,9 +33,21 @@ def template4():
 def template5():
     return render_template('CurvedLineOptions.html')
 
-@app.route('/AirBrushOptions.html')
+@app.route('/BrushOptions.html')
 def template6():
+    return render_template('BrushOptions.html')
+
+@app.route('/clear',methods=['GET'])
+def template7():
+    return ''
+
+@app.route('/AirBrushOptions.html')
+def template8():
     return render_template('AirBrushOptions.html')
+
+@app.route('/EraserOptions.html')
+def template9():
+    return render_template('EraserOptions.html')
 
 if __name__ == '__main__':
     app.run(debug=True,use_reloader=True)

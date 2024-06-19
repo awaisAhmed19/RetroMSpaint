@@ -149,12 +149,62 @@
     border-bottom: 1px solid var(--borderlight);
 }
 
+.BrushOptions{
+    background-color: transparent;
+    margin:3px 2px 2px 2px;
+    width:100%;
+    height:100%;
+    border: none;
+    display: grid;
+    grid-template-rows: repeat(4, 12px); 
+    grid-template-columns: repeat(3, 12px);
+    gap: 1px;
+    row-gap: 4px;
+}
+
+.BrushOptions button{
+    background-image: url('../imgs/brushOptions.png');
+    background-repeat: no-repeat;
+    width: 12px;
+    height: 12px;
+    background-color: transparent;
+    border: none;
+}
+
+#BrushOption1{background-position: -6px 0px;}
+#BrushOption2{background-position: -24px 0px;}
+#BrushOption3{background-position: -42px 0px;}
+#BrushOption4{background-position: -60px 0px;}
+#BrushOption5{background-position: -78px 0px;}
+#BrushOption6{background-position: -96px 0px;}
+#BrushOption7{background-position: -114px 0px;}
+#BrushOption8{background-position: -132px 0px;}
+#BrushOption9{background-position: -150px 0px;}
+#BrushOption10{background-position: -168px 0px;}
+#BrushOption11{background-position: -186px 0px;}
+#BrushOption12{background-position: -204px 0px;}
+
+#BrushOption1.pressed{background-color: navy; background-position: -222px 0px;}
+#BrushOption2.pressed{background-color: navy; background-position: -240px 0px;}
+#BrushOption3.pressed{background-color: navy; background-position: -258px 0px;}
+#BrushOption4.pressed{background-color: navy; background-position: -276px 0px;}
+#BrushOption5.pressed{background-color: navy; background-position: -294px 0px;}
+#BrushOption6.pressed{background-color: navy; background-position: -312px 0px;}
+#BrushOption7.pressed{background-color: navy; background-position: -330px 0px;}
+#BrushOption8.pressed{background-color: navy; background-position: -348px 0px;}
+#BrushOption9.pressed{background-color: navy; background-position: -366px 0px;}
+#BrushOption10.pressed{background-color: navy; background-position: -384px 0px;}
+#BrushOption11.pressed{background-color: navy; background-position: -402px 0px;}
+#BrushOption12.pressed{background-color: navy; background-position: -420px 0px;}
+
+
 .rectTool,
 .roundedrect-tool,
 .elipsetool,
 .polygontool,
 .CurvedLineOptions,
-.LineOptions{
+.LineOptions,
+.EraserOptions{
     background-color: transparent;
     width:100%;
     height:100%;
@@ -162,6 +212,7 @@
     display: flex;
     flex-direction: column;
 }
+
 
 .AirBrushOptions{
     background-color: transparent;
@@ -171,7 +222,7 @@
     display: grid;
     grid-template-rows: 1fr 1fr; /* Two rows, each taking up 50% of the height */
     grid-template-columns: 1fr 1fr;
-     gap: 0;
+    gap: 0;
 }
 .rectTool button,
 .roundedrect-tool button,
@@ -207,13 +258,31 @@
 #Line4px{ background-position: -127px -1px ;}
 #Line5px{ background-position: -170px -1px ;}
 
-#Line1px:hover{background-color: navy; background-position: -212px 0px ;}
-#Line2px:hover{background-color: navy; background-position: -254px 0px ;}
-#Line3px:hover{background-color: navy; background-position: -296px 0px ;}
-#Line4px:hover{background-color: navy; background-position: -338px -1px ;}
-#Line5px:hover{background-color: navy; background-position: -380px -1px ;}
+#Line1px.pressed{background-color: navy; background-position: -212px 0px ;}
+#Line2px.pressed{background-color: navy; background-position: -254px 0px ;}
+#Line3px.pressed{background-color: navy; background-position: -296px 0px ;}
+#Line4px.pressed{background-color: navy; background-position: -338px -1px ;}
+#Line5px.pressed{background-color: navy; background-position: -380px -1px ;}
 
+.EraserOptions button{
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-image:url('../imgs/EraserOptions.png') ;
+    background-repeat: no-repeat;
+    background-size: 340px 16px;
+}
 
+#Eraser1px{background-position: 0px 0px;}
+#Eraser2px{background-position: -40px 0px;}
+#Eraser3px{background-position: -79px 0px;}
+#Eraser4px{background-position: -121px 0px;}
+
+#Eraser1px.pressed{background-color: navy; background-position: -172px 0px;}
+#Eraser2px.pressed{background-color: navy; background-position: -211px 0px;}
+#Eraser3px.pressed{background-color: navy; background-position: -250px 0px;}
+#Eraser4px.pressed{background-color: navy; background-position: -292px 0px;}
 
 .AirBrushOptions button{
     background-color: transparent;
