@@ -120,12 +120,11 @@ function brushDraw(canvas, e) {
 function eraser(canvas, e) {
     if (!isDrawing) return;
     const pos = getMousePos(canvas, e);
-    ctx.strokeStyle = 'white';
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.lineTo(pos.x + 15, pos.y + 16);
-    ctx.stroke();
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.beginPath();
+    ctx.strokeRect(pos.x,pos.y,2,2);
+    ctx.fill();
+    ctx.closePath();
 }
 
 

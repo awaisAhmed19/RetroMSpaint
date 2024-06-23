@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 
-app=Flask(__name__,template_folder='./Frontend/src/html_template',static_folder='./Frontend/src/static')
+app=Flask(__name__,template_folder='./Frontend/html_template',static_folder='./Frontend/static')
 
 
 
