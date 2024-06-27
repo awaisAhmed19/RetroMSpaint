@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="{{url_for('static',filename='./css/container2.css')}}">
   <link rel="stylesheet" href="{{url_for('static',filename='./css/container3.css')}}">
   <link rel="stylesheet" href="{{url_for('static',filename='./css/container4.css')}}">
-  <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+  <!-- <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
 </head>
 
@@ -398,28 +398,24 @@
         <button class="sidebar-close-button"></button>
         Tools
       </div>
-  <div class="toolbar">
-    <!-- <button class="tools" id="polygonlasso"></button> -->
-    <button class="tools" hx-get="/clear" hx-target=".optionWindow" id="rectlasso"></button>
-    <button class="tools" hx-get="/EraserOptions.html" hx-target=".optionWindow" id="eraser"></button>
-    <button class="tools" hx-get="/clear" hx-target=".optionWindow" id="floodfill"></button>
-    <button class="tools" hx-get="/clear" hx-target=".optionWindow" id="eyedrop"></button>
-    <!-- <button class="tools" id="zoom"></button> -->
-    <button class="tools" hx-get="/clear" hx-target=".optionWindow" id="pencil"></button>
-    <button class="tools" hx-get="/BrushOptions.html" hx-target=".optionWindow" id="brush"></button>
-    <button class="tools" hx-get="/AirBrushOptions.html" hx-target=".optionWindow"  id="airbrush"></button>
-    <button class="tools" hx-get="/clear" hx-target=".optionWindow" id="text"></button>
-    <button class="tools" hx-get="/LineOptions.html" hx-target=".optionWindow" id="line"></button>
-    <button class="tools" hx-get="/CurvedLineOptions.html" hx-target=".optionWindow" id="curveline"></button>
-    <button class="tools" hx-get="/RectOptions.html" hx-target=".optionWindow" id="rectshape"></button>
-    <button class="tools" hx-get="/PolygonOptions.html" hx-target=".optionWindow" id="polygonshape"></button>
-    <button class="tools" hx-get="/ElipseTool.html" hx-target=".optionWindow" id="elipse"></button>
-    <button class="tools" hx-get="/RoundedRectTool.html" hx-target=".optionWindow" id="rectelipse"></button>
-</div>
+    <div class="toolbar">
+      <button class="tools" hx-get="/clear" hx-target=".optionWindow" hx-swap="innerHTML" id="rectlasso"></button>
+      <button class="tools" hx-get="/EraserOptions.html" hx-target=".optionWindow" hx-swap="innerHTML" id="eraser"></button>
+      <button class="tools" hx-get="/clear" hx-target=".optionWindow" hx-swap="innerHTML" id="floodfill"></button>
+      <button class="tools" hx-get="/clear" hx-target=".optionWindow" hx-swap="innerHTML" id="eyedrop"></button>
+      <button class="tools" hx-get="/clear" hx-target=".optionWindow" hx-swap="innerHTML" id="pencil"></button>
+      <button class="tools" hx-get="/BrushOptions.html" hx-target=".optionWindow" hx-swap="innerHTML" id="brush"></button>
+      <button class="tools" hx-get="/AirBrushOptions.html" hx-target=".optionWindow" hx-swap="innerHTML" id="airbrush"></button>
+      <button class="tools" hx-get="/clear" hx-target=".optionWindow" hx-swap="innerHTML" id="text"></button>
+      <button class="tools" hx-get="/LineOptions.html" hx-target=".optionWindow" hx-swap="innerHTML" id="line"></button>
+      <button class="tools" hx-get="/CurvedLineOptions.html" hx-target=".optionWindow" hx-swap="innerHTML" id="curveline"></button>
+      <button class="tools" hx-get="/RectOptions.html" hx-target=".optionWindow" hx-swap="innerHTML" id="rectshape"></button>
+      <button class="tools" hx-get="/PolygonOptions.html" hx-target=".optionWindow" hx-swap="innerHTML" id="polygonshape"></button>
+      <button class="tools" hx-get="/ElipseTool.html" hx-target=".optionWindow" hx-swap="innerHTML" id="elipse"></button>
+      <button class="tools" hx-get="/RoundedRectTool.html" hx-target=".optionWindow" hx-swap="innerHTML" id="rectelipse"></button>
+    </div>
 
-      <div class="optionWindow" id="optionWindow">
-        
-      </div>
+      <div class="optionWindow" id="optionWindow"></div>
     </div>
     
       <div class="canvasbackcontainer" id="canvas-back-container">
@@ -519,6 +515,7 @@
     <div class="extra"></div>
 
   </div>
+    <script src="https://unpkg.com/htmx.org@1.5.0"></script>
     <script type="module" src="{{ url_for('static', filename='js/Index.js') }}"></script>
     <script type="module" src="{{ url_for('static', filename='js/Tools.js') }}"></script>
     <script type="module" src="{{ url_for('static', filename='js/toolbox.js') }}"></script>

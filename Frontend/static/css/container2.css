@@ -241,6 +241,10 @@
 #filledrectborder,#filledelipseborder,#filled-roundedrect-border,#filledpolygonborder{background-position: -98px 4px ;}
 #filledrect,#filledpolygon,#filled-roundedrect,#filledelipse{background-position: -188px 4px ;}
 
+#rectborder.pressed,#polygonborder.pressed,#elipseborder.pressed,#roundedrect-border.pressed{background-color: navy; background-position: -51px 4px ;}
+#filledrectborder.pressed,#filledelipseborder.pressed,#filled-roundedrect-border.pressed,#filledpolygonborder.pressed{background-color: navy; background-position: -145px 98 4px ;}
+#filledrect.pressed,#filledpolygon.pressed,#filled-roundedrect.pressed,#filledelipse.pressed{background-color: navy; background-position: -188px 4px ;}
+
 .CurvedLineOptions button,
 .Loptions{
     background-color: transparent;
@@ -258,13 +262,13 @@
 #Line4px { background-position: -127px -1px; }
 #Line5px { background-position: -170px -1px; }
 
-.Loptions.pressed { background-color: navy; }
+/* .Loptions.pressed { background-color: navy; } */
 
-.Loptions#Line1px.pressed { background-position: -212px 0px; }
-.Loptions#Line2px.pressed { background-position: -254px 0px; }
-.Loptions#Line3px.pressed { background-position: -296px 0px; }
-.Loptions#Line4px.pressed { background-position: -338px -1px; }
-.Loptions#Line5px.pressed { background-position: -380px -1px; }
+.Loptions#Line1px.pressed { background-color: navy; background-position: -212px 0px; }
+.Loptions#Line2px.pressed { background-color: navy; background-position: -254px 0px; }
+.Loptions#Line3px.pressed { background-color: navy; background-position: -296px 0px; }
+.Loptions#Line4px.pressed { background-color: navy; background-position: -338px -1px; }
+.Loptions#Line5px.pressed { background-color: navy; background-position: -380px -1px; }
 
 .EraserOptions button{
     background-color: transparent;
