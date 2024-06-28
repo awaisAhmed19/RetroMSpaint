@@ -2,9 +2,6 @@
  * @type HTMLCanvasElement
  */
 
-
-
-
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
@@ -92,8 +89,6 @@ function pencilDraw(canvas, e) {
 
 function airBrush(canvas, e) {
     if (!isDrawing) return;
-    
-    bufferCtx.lineWidth = 1;
     ctx.lineWidth = 1;
     const density = 10;
     const radius = 3;
@@ -349,7 +344,7 @@ const ToolsInstance = {
         };
     },
 
- floodfill : () => {
+floodfill: () => {
     const customCursorUrl = '/static/cursors/fill-bucket.png';
     const cursorHotspotX = 15;
     const cursorHotspotY = 15;
@@ -413,8 +408,9 @@ const ToolsInstance = {
 
     const handleMouseDown = (e) => {
         const rect = canvas.getBoundingClientRect();
-        const MouseX = Math.floor(e.clientX - rect.left + cursorHotspotX);
-        const MouseY = Math.floor(e.clientY - rect.top + cursorHotspotY);
+        const MouseX = Math.floor(e.clientX - rect.left);
+        const MouseY = Math.floor(e.clientY - rect.top);
+        console.log(`MouseX: ${MouseX}, MouseY: ${MouseY}`);
         floodFill(ctx, MouseX, MouseY, currentColor, 10);
     };
 
@@ -437,6 +433,7 @@ const ToolsInstance = {
         }
     };
 },
+
 
 
 
@@ -633,120 +630,153 @@ line: () => {
         };
     },
   
-    polygonshape :() =>{
-            const bufferCanvas = document.getElementById('canvasbuffer');
-            const bufferCtx = bufferCanvas.getContext('2d');
-            const closeThreshold = 30;
-            let points = [];
-            let isDrawing = false;
-            let isPolygonComplete = false;
+    polygonshape: () => {
+        const bufferCanvas = document.getElementById('canvasbuffer');
+        const bufferCtx = bufferCanvas.getContext('2d');
+        const closeThreshold = 50;
+        let POptions = 1;
+        let points = [];
+        let isDrawing = false;
+        let isPolygonComplete = false;
 
-            bufferCanvas.style.display = 'none';
-            bufferCanvas.width = canvas.width;
-            bufferCanvas.height = canvas.height;
+        bufferCanvas.style.display = 'none';
+        bufferCanvas.width = canvas.width;
+        bufferCanvas.height = canvas.height;
 
-            const customCursorUrl = '/static/cursors/precise.png';
-            const cursorHotspotX = 20; 
-            const cursorHotspotY = 15; 
+        const customCursorUrl = '/static/cursors/precise.png';
+        const cursorHotspotX = 20;
+        const cursorHotspotY = 15;
 
-            canvas.style.cursor = `url(${customCursorUrl}), auto`;
-            bufferCanvas.style.cursor = `url(${customCursorUrl}), auto`;
+        canvas.style.cursor = `url(${customCursorUrl}), auto`;
+        bufferCanvas.style.cursor = `url(${customCursorUrl}), auto`;
 
         bufferCtx.lineWidth = 1;
         ctx.lineWidth = 1;
-            const startPolygonHandler = (e) => {
-                if (isPolygonComplete) {
-                    points = [];
-                    isPolygonComplete = false;
-                }
 
-                const mousePos = getMousePos(bufferCanvas, e);
-                points.push(mousePos);
-                isDrawing = true;
-
-                if (points.length > 1) {
-                    drawLine(points[points.length - 2], mousePos);
-                }
-
-                if (points.length > 2 && isCloseToStart(mousePos, points[0])) {
-                    completePolygon();
-                }
+        document.addEventListener('htmx:afterSwap', function (e) {
+            const PolyOptions = e.detail.target.querySelectorAll('.polygontool button');
+            if (PolyOptions && PolyOptions.length > 0) {
+                PolyOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        PolyOptions.forEach(opt => opt.classList.remove('pressed'));
+                        option.classList.add('pressed');
+                        POptions = parseInt(option.value, 10);
+                        deactivateTool();
+                        activateTool();
+                    });
+                });
             }
+        });
 
-            const drawLine = (start, end) => {
-                ctx.strokeStyle = currentColor;
-                ctx.beginPath();
-                ctx.moveTo(start.x + cursorHotspotX, start.y + cursorHotspotY);
-                ctx.lineTo(end.x + cursorHotspotX, end.y + cursorHotspotY);
-                ctx.stroke();
-            }
-
-            const drawBufferLine = (e) => {
-                if (!isDrawing) return;
-
-                const mousePos = getMousePos(bufferCanvas, e);
-                bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-                const lastPoint = points[points.length - 1];
-                bufferCtx.strokeStyle = currentColor;
-                bufferCtx.beginPath();
-                bufferCtx.moveTo(lastPoint.x + cursorHotspotX, lastPoint.y + cursorHotspotY);
-                bufferCtx.lineTo(mousePos.x + cursorHotspotX, mousePos.y + cursorHotspotY);
-                bufferCtx.stroke();
-            }
-
-            const getMousePos = (canvas, e) => {
-                const rect = canvas.getBoundingClientRect();
-                return {
-                    x: e.clientX - rect.left,
-                    y: e.clientY - rect.top
-                };
-            }
-
-            const isCloseToStart = (currentPoint, startPoint) => {
-                const distance = Math.sqrt(
-                    Math.pow(currentPoint.x - startPoint.x, 2) +
-                    Math.pow(currentPoint.y - startPoint.y, 2)
-                );
-                return distance < closeThreshold;
-            }
-
-            const stopLineHandler = () => {
-                isDrawing = false;
-            }
-
-            const completePolygon = () => {
-                if (points.length < 3) return;
-                drawLine(points[points.length - 1], points[0]);
-                isPolygonComplete = true;
-                bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-                points = [];
-            }
-
-            const activateTool = () => {
-                bufferCanvas.style.display = 'flex';
-                bufferCanvas.addEventListener('mousedown', startPolygonHandler);
-                bufferCanvas.addEventListener('mousemove', drawBufferLine);
-                bufferCanvas.addEventListener('mouseup', stopLineHandler);
-            }
-
-            const deactivateTool = () => {
-                bufferCanvas.style.display = 'none';
-                bufferCanvas.removeEventListener('mousedown', startPolygonHandler);
-                bufferCanvas.removeEventListener('mousemove', drawBufferLine);
-                bufferCanvas.removeEventListener('mouseup', stopLineHandler);
-            }
-
-            activateTool();
-
+        const getMousePos = (canvas, e) => {
+            const rect = canvas.getBoundingClientRect();
             return {
-                removeEvents: () => { 
-                    deactivateTool();
-                },
-                changeColor: (color) => {
-                    currentColor = color;
-                }
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
             };
-        },
+        }
+
+        const isCloseToStart = (currentPoint, startPoint) => {
+            const distance = Math.sqrt(
+                Math.pow(currentPoint.x - startPoint.x, 2) +
+                Math.pow(currentPoint.y - startPoint.y, 2)
+            );
+            return distance < closeThreshold;
+        }
+
+        const completePolygon = () => {
+            if (points.length < 3) return;
+            drawLine(points[points.length - 1], points[0]);
+            isPolygonComplete = true;
+            bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+            if (POptions === 2) {
+                ctx.fillStyle = 'white';
+                fillPolygon();
+            } else if (POptions === 3) {
+                ctx.fillStyle = currentColor;
+                fillPolygon();
+            }
+            points = [];
+        }
+
+        const startPolygonHandler = (e) => {
+            if (isPolygonComplete) {
+                points = [];
+                isPolygonComplete = false;
+            }
+            const mousePos = getMousePos(bufferCanvas, e);
+            points.push(mousePos);
+            isDrawing = true;
+
+            if (points.length > 1) {
+                drawLine(points[points.length - 2], mousePos);
+            }
+
+            if (points.length > 2 && isCloseToStart(mousePos, points[0])) {
+                completePolygon();
+            }
+        }
+
+        const drawLine = (start, end) => {
+            ctx.strokeStyle = currentColor;
+            ctx.beginPath();
+            ctx.moveTo(start.x + cursorHotspotX, start.y + cursorHotspotY);
+            ctx.lineTo(end.x + cursorHotspotX, end.y + cursorHotspotY);
+            ctx.stroke();
+        }
+
+        const drawBufferLine = (e) => {
+            if (!isDrawing) return;
+
+            const mousePos = getMousePos(bufferCanvas, e);
+            bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+            const lastPoint = points[points.length - 1];
+            bufferCtx.strokeStyle = currentColor;
+            bufferCtx.beginPath();
+            bufferCtx.moveTo(lastPoint.x + cursorHotspotX, lastPoint.y + cursorHotspotY);
+            bufferCtx.lineTo(mousePos.x + cursorHotspotX, mousePos.y + cursorHotspotY);
+            bufferCtx.stroke();
+        }
+
+        const stopLineHandler = () => {
+            isDrawing = false;
+        }
+
+        const fillPolygon = () => {
+            ctx.beginPath();
+            ctx.moveTo(points[0].x + cursorHotspotX, points[0].y + cursorHotspotY);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x + cursorHotspotX, points[i].y + cursorHotspotY);
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        const activateTool = () => {
+            bufferCanvas.style.display = 'block';
+            bufferCanvas.addEventListener('mousedown', startPolygonHandler);
+            bufferCanvas.addEventListener('mousemove', drawBufferLine);
+            bufferCanvas.addEventListener('mouseup', stopLineHandler);
+        }
+
+        const deactivateTool = () => {
+            bufferCanvas.style.display = 'none';
+            bufferCanvas.removeEventListener('mousedown', startPolygonHandler);
+            bufferCanvas.removeEventListener('mousemove', drawBufferLine);
+            bufferCanvas.removeEventListener('mouseup', stopLineHandler);
+        }
+
+        activateTool();
+
+        return {
+            removeEvents: () => {
+                deactivateTool();
+            },
+            changeColor: (color) => {
+                currentColor = color;
+            }
+        };
+    },
 
     
     text: () => {
@@ -970,8 +1000,8 @@ line: () => {
             const rectWidth = e.clientX - startPosX;
             const rectHeight = e.clientY - startPosY;
             ctx.beginPath();
-            ctx.strokeStyle = 'black'; 
             if (OptValue === 1) {
+                ctx.strokeStyle = currentColor; 
                 ctx.strokeRect(startPosX - cursorHotspotX, startPosY - cursorHotspotY, rectWidth, rectHeight);
             } else if (OptValue === 2) {
                 ctx.fillStyle = 'white';   
@@ -1026,6 +1056,7 @@ line: () => {
         isDrawing = false;
         let startPosX = 0;
         let startPosY = 0;
+        let EOptValue = 1;
         bufferCanvas.style.display = 'none';
         bufferCanvas.width = canvas.width;
         bufferCanvas.height = canvas.height;
@@ -1034,30 +1065,74 @@ line: () => {
         ctx.lineWidth = 1;
         const customCursorUrl = '/static/cursors/precise.png';
         const cursorHotspotX = 45;
-        const cursorHotspotY = 5; 
+        const cursorHotspotY = 5;
 
         // Apply custom cursor with hotspot
         canvas.style.cursor = `url(${customCursorUrl}), auto`;
-        bufferCanvas.style.cursor = `url(${customCursorUrl}) , auto`;
+        bufferCanvas.style.cursor = `url(${customCursorUrl}), auto`;
+
+        document.addEventListener('htmx:afterSwap', function (e) {
+            const ElipseOptions = e.detail.target.querySelectorAll('.elipsetool button');
+
+            if (ElipseOptions && ElipseOptions.length > 0) {
+                ElipseOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        ElipseOptions.forEach(opt => opt.classList.remove('pressed'));
+                        option.classList.add('pressed');
+                        EOptValue = parseInt(option.value, 10);
+                        deactivateTool();
+                        activateTool();
+                    });
+                });
+            }
+        });
 
         const startCircleHandler = (e) => {
             startPosX = e.clientX - rect.left;
             startPosY = e.clientY - rect.top;
             isDrawing = true;
-        }
+        };
 
         const drawCircleHandler = (e) => {
             if (!isDrawing) return;
             const currentX = e.clientX - rect.left;
             const currentY = e.clientY - rect.top;
             const radius = Math.sqrt((currentX - startPosX) ** 2 + (currentY - startPosY) ** 2);
-        
-            bufferCtx.strokeStyle = currentColor
+
+            bufferCtx.strokeStyle = currentColor;
             bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
             bufferCtx.beginPath();
-            bufferCtx.arc(startPosX-cursorHotspotX, startPosY-cursorHotspotY, radius, 0, Math.PI * 2, false);
+            bufferCtx.arc(startPosX - cursorHotspotX, startPosY - cursorHotspotY, radius, 0, Math.PI * 2, false);
             bufferCtx.stroke();
-        }
+        };
+
+        const drawFilledStrokeElipseHandler = (e) => {
+            if (!isDrawing) return;
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            const radius = Math.sqrt((currentX - startPosX) ** 2 + (currentY - startPosY) ** 2);
+            bufferCtx.strokeStyle = currentColor;
+            bufferCtx.fillStyle = 'white';
+
+            bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+            bufferCtx.beginPath();
+            bufferCtx.arc(startPosX - cursorHotspotX, startPosY - cursorHotspotY, radius, 0, Math.PI * 2, false);
+            bufferCtx.fill();
+            bufferCtx.stroke();
+        };
+
+        const drawFilledElipseHandler = (e) => {
+            if (!isDrawing) return;
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            const radius = Math.sqrt((currentX - startPosX) ** 2 + (currentY - startPosY) ** 2);
+            bufferCtx.strokeStyle = currentColor;
+            bufferCtx.fillStyle = currentColor;
+            bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+            bufferCtx.beginPath();
+            bufferCtx.arc(startPosX - cursorHotspotX, startPosY - cursorHotspotY, radius, 0, Math.PI * 2, false);
+            bufferCtx.fill();
+        };
 
         const stopCircleHandler = (e) => {
             if (!isDrawing) return;
@@ -1065,28 +1140,52 @@ line: () => {
             const currentX = e.clientX - rect.left;
             const currentY = e.clientY - rect.top;
             const radius = Math.sqrt((currentX - startPosX) ** 2 + (currentY - startPosY) ** 2);
-        
-            ctx.strokeStyle = currentColor
-            //ctx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-            ctx.beginPath();
-            ctx.arc(startPosX-cursorHotspotX, startPosY-cursorHotspotY, radius, 0, Math.PI * 2, false);
-            ctx.stroke();
+
+            if (EOptValue === 1) {
+                ctx.strokeStyle = currentColor;
+                ctx.beginPath();
+                ctx.arc(startPosX - cursorHotspotX, startPosY - cursorHotspotY, radius, 0, Math.PI * 2, false);
+                ctx.stroke();
+            } else if (EOptValue === 2) {
+                ctx.strokeStyle = currentColor;
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(startPosX - cursorHotspotX, startPosY - cursorHotspotY, radius, 0, Math.PI * 2, false);
+                ctx.fill();
+                ctx.stroke();
+            } else if (EOptValue === 3) {
+                ctx.strokeStyle = currentColor;
+                ctx.fillStyle = currentColor;
+                ctx.beginPath();
+                ctx.arc(startPosX - cursorHotspotX, startPosY - cursorHotspotY, radius, 0, Math.PI * 2, false);
+                ctx.fill();
+                //ctx.stroke();
+            }
             bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-        }
+        };
 
         const activateTool = () => {
             bufferCanvas.style.display = 'flex';
             bufferCanvas.addEventListener('mousedown', startCircleHandler);
-            bufferCanvas.addEventListener('mousemove', drawCircleHandler);
+            if (EOptValue === 1) {
+                bufferCanvas.addEventListener('mousemove', drawCircleHandler);
+            } else if (EOptValue === 2) {
+                bufferCanvas.addEventListener('mousemove', drawFilledStrokeElipseHandler);
+            } else if (EOptValue === 3) {
+                bufferCanvas.addEventListener('mousemove', drawFilledElipseHandler);
+            }
             bufferCanvas.addEventListener('mouseup', stopCircleHandler);
-        }
+        };
+
         const deactivateTool = () => {
             bufferCanvas.style.display = 'none';
             bufferCanvas.removeEventListener('mousedown', startCircleHandler);
             bufferCanvas.removeEventListener('mousemove', drawCircleHandler);
+            bufferCanvas.removeEventListener('mousemove', drawFilledStrokeElipseHandler);
+            bufferCanvas.removeEventListener('mousemove', drawFilledElipseHandler);
             bufferCanvas.removeEventListener('mouseup', stopCircleHandler);
-        }
-        
+        };
+
         activateTool();
 
         return {
@@ -1098,113 +1197,135 @@ line: () => {
             }
         };
     },
-rectelipse: () => {
-    const bufferCanvas = document.getElementById('canvasbuffer');
-    const bufferCtx = bufferCanvas.getContext('2d');
-    const rect = bufferCanvas.getBoundingClientRect();
-    let isDrawing = false;
-    let startPosX = 0;
-    let startPosY = 0;
-    const fixedRadius = 10; // Fixed radius for rounded corners
+   
+    rectelipse: () => {
+        const bufferCanvas = document.getElementById('canvasbuffer');
+        const bufferCtx = bufferCanvas.getContext('2d');
+        const rect = bufferCanvas.getBoundingClientRect();
+        let isDrawing = false;
+        let startPosX = 0;
+        let startPosY = 0;
+        const fixedRadius = 10; // Fixed radius for rounded corners
+        let ROptions = 1; // Default option for stroke only
 
         bufferCtx.lineWidth = 1;
         ctx.lineWidth = 1;
-    bufferCanvas.style.display = 'none';
-    bufferCanvas.width = canvas.width;
-    bufferCanvas.height = canvas.height;
-
-    const customCursorUrl = '/static/cursors/precise.png';
-    const cursorHotspotX = 45; 
-    const cursorHotspotY = 5; 
-
-    // Apply custom cursor with hotspot
-    canvas.style.cursor = `url(${customCursorUrl}), auto`;
-    bufferCanvas.style.cursor = `url(${customCursorUrl}) , auto`;
-
-    const startRectHandler = (e) => {
-        startPosX = e.clientX - rect.left;
-        startPosY = e.clientY - rect.top;
-        isDrawing = true;
-    }
-
-    const drawRectHandler = (e) => {
-        if (!isDrawing) return;
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        const rectWidth = mouseX - startPosX;
-        const rectHeight = mouseY - startPosY;
-        const absWidth = Math.abs(rectWidth);
-        const absHeight = Math.abs(rectHeight);
-        const radius = Math.min(fixedRadius, Math.min(absWidth / 2, absHeight / 2));
-
-        bufferCtx.strokeStyle = currentColor;
-        bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-        bufferCtx.beginPath();
-        bufferCtx.moveTo(startPosX + radius, startPosY);
-        bufferCtx.lineTo(startPosX + absWidth - radius, startPosY);
-        bufferCtx.arcTo(startPosX + absWidth, startPosY, startPosX + absWidth, startPosY + radius, radius);
-        bufferCtx.lineTo(startPosX + absWidth, startPosY + absHeight - radius);
-        bufferCtx.arcTo(startPosX + absWidth, startPosY + absHeight, startPosX + absWidth - radius, startPosY + absHeight, radius);
-        bufferCtx.lineTo(startPosX + radius, startPosY + absHeight);
-        bufferCtx.arcTo(startPosX, startPosY + absHeight, startPosX, startPosY + absHeight - radius, radius);
-        bufferCtx.lineTo(startPosX, startPosY + radius);
-        bufferCtx.arcTo(startPosX, startPosY, startPosX + radius, startPosY, radius);
-        bufferCtx.closePath();
-        bufferCtx.stroke();
-    }
- 
-    const stopRectHandler = (e) => {
-        if (!isDrawing) return;
-        isDrawing = false;
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        const rectWidth = mouseX - startPosX;
-        const rectHeight = mouseY - startPosY;
-        const absWidth = Math.abs(rectWidth);
-        const absHeight = Math.abs(rectHeight);
-        const radius = Math.min(fixedRadius, Math.min(absWidth / 2, absHeight / 2));
-
-        ctx.strokeStyle = currentColor;
-        ctx.beginPath();
-        ctx.moveTo(startPosX + radius, startPosY);
-        ctx.lineTo(startPosX + absWidth - radius, startPosY);
-        ctx.arcTo(startPosX + absWidth, startPosY, startPosX + absWidth, startPosY + radius, radius);
-        ctx.lineTo(startPosX + absWidth, startPosY + absHeight - radius);
-        ctx.arcTo(startPosX + absWidth, startPosY + absHeight, startPosX + absWidth - radius, startPosY + absHeight, radius);
-        ctx.lineTo(startPosX + radius, startPosY + absHeight);
-        ctx.arcTo(startPosX, startPosY + absHeight, startPosX, startPosY + absHeight - radius, radius);
-        ctx.lineTo(startPosX, startPosY + radius);
-        ctx.arcTo(startPosX, startPosY, startPosX + radius, startPosY, radius);
-        ctx.closePath();
-        ctx.stroke();
-        bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-}
-
-    const activateTool = () => {
-        bufferCanvas.style.display = 'flex';
-        bufferCanvas.addEventListener('mousedown', startRectHandler);
-        bufferCanvas.addEventListener('mousemove', drawRectHandler);
-        bufferCanvas.addEventListener('mouseup', stopRectHandler);
-    }
-
-    const deactivateTool = () => {
         bufferCanvas.style.display = 'none';
-        bufferCanvas.removeEventListener('mousedown', startRectHandler);
-        bufferCanvas.removeEventListener('mousemove', drawRectHandler);
-        bufferCanvas.removeEventListener('mouseup', stopRectHandler);
+        bufferCanvas.width = canvas.width;
+        bufferCanvas.height = canvas.height;
+
+        const customCursorUrl = '/static/cursors/precise.png';
+        const cursorHotspotX = -5;
+        const cursorHotspotY = 5;
+
+        canvas.style.cursor = `url(${customCursorUrl}) ${cursorHotspotX} ${cursorHotspotY}, auto`;
+        bufferCanvas.style.cursor = `url(${customCursorUrl}) ${cursorHotspotX} ${cursorHotspotY}, auto`;
+
+        document.addEventListener('htmx:afterSwap', function (e) {
+            const RectElipseOptions = e.detail.target.querySelectorAll('.roundedrect-tool button');
+
+            if (RectElipseOptions && RectElipseOptions.length > 0) {
+                RectElipseOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        RectElipseOptions.forEach(opt => opt.classList.remove('pressed'));
+                        option.classList.add('pressed');
+                        ROptions = parseInt(option.value, 10);
+                        deactivateTool();
+                        activateTool();
+                    });
+                });
+            }
+        });
+
+        const startRectHandler = (e) => {
+            startPosX = e.clientX - rect.left;
+            startPosY = e.clientY - rect.top;
+            isDrawing = true;
+        }
+
+        const drawRectHandler = (e) => {
+            if (!isDrawing) return;
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            const rectWidth = mouseX - startPosX;
+            const rectHeight = mouseY - startPosY;
+        
+            bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+            drawRoundedRect(bufferCtx, startPosX, startPosY, rectWidth, rectHeight, fixedRadius, currentColor, ROptions);
+        }
+
+        const stopRectHandler = (e) => {
+            if (!isDrawing) return;
+            isDrawing = false;
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            const rectWidth = mouseX - startPosX;
+            const rectHeight = mouseY - startPosY;
+
+            drawRoundedRect(ctx, startPosX, startPosY, rectWidth, rectHeight, fixedRadius, currentColor, ROptions);
+            bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+        }
+
+        const drawRoundedRect = (context, x, y, width, height, radius, color, option) => {
+            const absWidth = Math.abs(width);
+            const absHeight = Math.abs(height);
+            const posX = width > 0 ? x : x + width;
+            const posY = height > 0 ? y : y + height;
+            const effectiveRadius = Math.min(radius, Math.min(absWidth / 2, absHeight / 2));
+
+            context.beginPath();
+            context.moveTo(posX + effectiveRadius, posY);
+            context.lineTo(posX + absWidth - effectiveRadius, posY);
+            context.arcTo(posX + absWidth, posY, posX + absWidth, posY + effectiveRadius, effectiveRadius);
+            context.lineTo(posX + absWidth, posY + absHeight - effectiveRadius);
+            context.arcTo(posX + absWidth, posY + absHeight, posX + absWidth - effectiveRadius, posY + absHeight, effectiveRadius);
+            context.lineTo(posX + effectiveRadius, posY + absHeight);
+            context.arcTo(posX, posY + absHeight, posX, posY + absHeight - effectiveRadius, effectiveRadius);
+            context.lineTo(posX, posY + effectiveRadius);
+            context.arcTo(posX, posY, posX + effectiveRadius, posY, effectiveRadius);
+            context.closePath();
+
+            if (option === 1) {
+                context.strokeStyle = currentColor;
+                context.stroke();
+            } else if (option === 2) {
+                context.strokeStyle = currentColor;
+                context.fillStyle = 'white';
+                context.fill();
+                context.stroke();
+            } else if (option === 3) {
+                context.fillStyle = currentColor;
+                context.fill();
+            }
+        }
+
+        const activateTool = () => {
+            bufferCanvas.style.display = 'flex';
+            bufferCanvas.addEventListener('mousedown', startRectHandler);
+            bufferCanvas.addEventListener('mousemove', drawRectHandler);
+            bufferCanvas.addEventListener('mouseup', stopRectHandler);
+        }
+
+        const deactivateTool = () => {
+            bufferCanvas.style.display = 'none';
+            bufferCanvas.removeEventListener('mousedown', startRectHandler);
+            bufferCanvas.removeEventListener('mousemove', drawRectHandler);
+            bufferCanvas.removeEventListener('mouseup', stopRectHandler);
+        }
+
+        activateTool();
+
+        return {
+            removeEvents: () => {
+                deactivateTool();
+            },
+            changeColor: (color) => {
+                currentColor = color;
+            }
+        };
     }
 
-    activateTool();
 
-    return {
-        removeEvents: () => {
-            deactivateTool();
-        },
-        changeColor: (color) => {
-            currentColor = color;
-        }
-    };
-    },
 };
 
 tools.forEach((tool) => {
