@@ -17,7 +17,7 @@
 <body>
   <div class="container-1">
     <div class="menubar">
-      <button class="menubar-btn" data-dropdown="file_toggle"  >File</button>
+      <button class="menubar-btn" data-dropdown="file_toggle">File</button>
       <button class="menubar-btn" data-dropdown="edit_toggle">Edit</button>
       <button class="menubar-btn" data-dropdown="view_toggle">View</button>
       <button class="menubar-btn" data-dropdown="layer_toggle">Layer</button>
@@ -56,7 +56,7 @@
           <hr class="menuhr">
         </td>
       </tr>
-      <tr class="menu-row" id="Load_from_URL">
+      <tr class="menu-row" id="Load_from_URL" hx-get="/loadBox" hx-trigger="click" hx-target="#load_box" hx-swap="outerHTML">
         <td class="tickspace"></td>
         <td class="menu-item-label">Load from URL</td>
         <td class="menu-item-shortcut"></td>
@@ -79,12 +79,12 @@
         <td class="menu-item-shortcut"></td>
         <td class="secondary-dialog-arrow"></td>
       </tr>
-      <tr class="div-line">
+      <!-- <tr class="div-line">
         <td colspan="4">
           <hr class="menuhr">
         </td>
-      </tr>
-      <tr class="menu-row" id="Set_as_WallpaperT">
+      </tr> -->
+      <!-- <tr class="menu-row" id="Set_as_WallpaperT">
         <td class="tickspace"></td>
         <td class="menu-item-label">Set as wallpaper(Tiled)</td>
         <td class="menu-item-shortcut"></td>
@@ -95,12 +95,12 @@
         <td class="menu-item-label">Set as Wallpaper(Centered)</td>
         <td class="menu-item-shortcut"></td>
         <td class="secondary-dialog-arrow"></td>
-      </tr>
-      <tr class="div-line">
+      </tr> -->
+      <!-- <tr class="div-line">
         <td colspan="4">
           <hr class="menuhr">
         </td>
-      </tr>
+      </tr> -->
       <tr class="menu-row" id="Recent_files">
         <td class="tickspace"></td>
         <td class="menu-item-label" style="text-shadow: 1px 1px 0px rgb(255, 255, 255);">Recent Files</td>
@@ -512,14 +512,17 @@
   <div class="container-4">
     <div class="footer-note" id="foot-note" ></div>
     <div id="coordinate_value" class="coordinates"></div>
-    <div class="extra"></div>
-
+    <div class="extra" id="dimensions"></div>
   </div>
+
+  <div class="load-box" id="load_box" style="display: none;"></div>
+
     <script src="https://unpkg.com/htmx.org@1.5.0"></script>
     <script type="module" src="{{ url_for('static', filename='js/Index.js') }}"></script>
     <script type="module" src="{{ url_for('static', filename='js/Tools.js') }}"></script>
     <script type="module" src="{{ url_for('static', filename='js/toolbox.js') }}"></script>
     <script type="module" src="{{ url_for('static', filename='js/canvas.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/Files.js') }}"></script>
   
 </body>
 

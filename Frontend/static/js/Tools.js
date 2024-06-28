@@ -4,7 +4,8 @@
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
+const dimen = document.getElementById('dimensions');
+const coords = document.getElementById('coordinate_value');
 const tools = document.querySelectorAll('.tools');
 let currentColorDisplay = document.getElementById('selected-color');
 let switchColor = document.getElementById('switch-color');
@@ -13,6 +14,10 @@ const paletteColors = document.querySelectorAll('.pallete-color');
 let currentColor = JSON.parse(currentColorDisplay.getAttribute('value')); 
 let switchColorValue = JSON.parse(switchColor.getAttribute('value'));
 
+let startX;
+let startY;
+let currentX, currentY;
+let isMouseDown = false;
 
 window.onload = () => {
     currentColorDisplay.style.backgroundColor = currentColor;
@@ -66,6 +71,64 @@ function getMousePos(canvas, e) {
     };
 }
 
+function coordFunc(canvas, e) {
+    const pos = getMousePos(canvas, e);
+    currentX = Math.floor(pos.x);  
+    currentY = Math.floor(pos.y);  
+    coords.innerHTML = `X: ${currentX}, Y: ${currentY}`;
+}
+
+function updateCoords(canvas) {
+    canvas.addEventListener('mousemove', (e) => {
+        coordFunc(canvas, e);
+    });
+    canvas.addEventListener('mousedown', (e) => {
+        isMouseDown = true;
+        const pos = getMousePos(canvas, e);
+        startX = Math.floor(pos.x); 
+        startY = Math.floor(pos.y); 
+        coordFunc(canvas, e);  
+    });
+    canvas.addEventListener('mousemove', (e) => {
+        if (!isMouseDown) return;
+        coordFunc(canvas, e);
+    });
+
+    canvas.addEventListener('mouseup', () => {
+        isMouseDown = false;
+    });
+    canvas.addEventListener('mouseout', () => {
+        coords.innerHTML = '';  
+    });
+}
+
+updateCoords(canvas);
+
+function updateDimens(canvas) {
+    canvas.addEventListener('mousedown', (e) => {
+        isMouseDown = true;
+        const pos = getMousePos(canvas, e);
+        startX = Math.floor(pos.x);
+        startY = Math.floor(pos.y);
+        dimen.innerHTML = `${0}x${0}`;
+    });
+    canvas.addEventListener('mouseup', () => {
+        isMouseDown = false;
+        dimen.innerHTML = '';
+    });
+    canvas.addEventListener('mousemove', (e) => {
+        if (!isMouseDown) return;
+        const pos = getMousePos(canvas, e);
+        const width = Math.floor(pos.x) - startX;
+        const height = Math.floor(pos.y) - startY;
+        dimen.innerHTML = `${width}x${height}`;
+    });
+
+    canvas.addEventListener('mouseout', () => {
+        dimen.innerHTML = '';
+    });
+}
+
 function startDrawing() {
     isDrawing = true;
     ctx.beginPath();
@@ -85,6 +148,7 @@ function pencilDraw(canvas, e) {
     ctx.lineJoin = 'round';
     ctx.lineTo(pos.x + 15, pos.y + 24);
     ctx.stroke();
+    updateCoords(canvas);
 }
 
 function airBrush(canvas, e) {
@@ -92,40 +156,20 @@ function airBrush(canvas, e) {
     ctx.lineWidth = 1;
     const density = 10;
     const radius = 3;
-    for (let i = 0; i < density; i++){
-    const pos = getMousePos(canvas, e);
-    const angle = Math.random() * Math.PI * 2;
-    const distance = radius * Math.random();
-    const x = pos.x + Math.cos(angle) * distance;
-    const y = pos.y + Math.sin(angle) * distance;
-    ctx.beginPath();
-    ctx.fillStyle = currentColor;
-    ctx.arc(x, y, 1, 0, Math.PI * 2, false);
-    ctx.fill();
+    for (let i = 0; i < density; i++) {
+        const pos = getMousePos(canvas, e);
+        const angle = Math.random() * Math.PI * 2;
+        const distance = radius * Math.random();
+        const x = pos.x + Math.cos(angle) * distance;
+        const y = pos.y + Math.sin(angle) * distance;
+        ctx.beginPath();
+        ctx.fillStyle = currentColor;
+        ctx.arc(x, y, 1, 0, Math.PI * 2, false);
+        ctx.fill();
+        
     }
+    updateCoords(canvas);
 }
-
-function brushDraw(canvas, e) {
-    if (!isDrawing) return;
-    const pos = getMousePos(canvas, e);
-    ctx.strokeStyle = currentColor;
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.lineTo(pos.x + 15, pos.y + 16);
-    ctx.stroke();
-}
-
-function eraser(canvas, e) {
-    if (!isDrawing) return;
-    const pos = getMousePos(canvas, e);
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.beginPath();
-    ctx.strokeRect(pos.x,pos.y,2,2);
-    ctx.fill();
-    ctx.closePath();
-}
-
 
 function setupTool(canvas, drawFunc, cursor) {
     const startHandler = () => startDrawing();
@@ -152,9 +196,272 @@ function setupTool(canvas, drawFunc, cursor) {
 
 const ToolsInstance = {
     pencil: () => setupTool(canvas, pencilDraw, 'url(/static/cursors/pencil.png), auto'),
-    brush: () => setupTool(canvas, brushDraw, 'url(/static/cursors/precise-dotted.png), auto'),
-    eraser: () => setupTool(canvas, eraser, 'url(/static/cursors/eraser.png), auto'),
     airbrush: () => setupTool(canvas, airBrush, 'url(/static/cursors/airbrushCursor.png),auto'),
+    
+    brush: () => {
+        const customCursorUrl = 'static/cursors/brush.png'; // Adjust cursor image URL
+        const cursorHotspotX = -45;
+        const cursorHotspotY = -5;
+        let old = null;
+        let brushSize = 1;
+        let lineLength = 10;
+        let angle = Math.PI / 4;
+
+        canvas.style.cursor = `url(${customCursorUrl}) ${cursorHotspotX} ${cursorHotspotY}, auto`;
+
+        document.addEventListener('htmx:afterSwap', function (e) {
+            const brushOptions = e.detail.target.querySelectorAll('.BrushOptions button');
+
+            if (brushOptions && brushOptions.length > 0) {
+                brushOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        brushOptions.forEach(opt => opt.classList.remove('pressed'));
+                        option.classList.add('pressed');
+                        brushSize = parseInt(option.value, 10);
+
+                        
+                        switch (brushSize) {
+                            case 7:
+                                lineLength = 9;
+                                angle = 3 * Math.PI / 4;
+                                break;
+                            case 8:
+                                lineLength = 6;
+                                angle = 3 * Math.PI / 4;
+                                break;
+                            case 9:
+                                lineLength = 3;
+                                angle = 3 * Math.PI / 4;
+                                break;
+                            case 10:
+                                lineLength = 9;
+                                angle = Math.PI / 4;
+                                break;
+                            case 11:
+                                lineLength = 6;
+                                angle = Math.PI / 4;
+                                break;
+                            case 12:
+                                lineLength = 3;
+                                angle = Math.PI / 4;
+                                break;
+                            default:
+                                ctx.lineWidth = 1;
+                                ctx.lineCap = 'round';
+                                ctx.lineJoin = 'round';
+                                break;
+                        }
+                    });
+                });
+            }
+        });
+
+        function getMousePos(canvas, e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+        }
+
+        function drawLine(x0, y0, x1, y1) {
+            const dx = Math.abs(x1 - x0);
+            const dy = Math.abs(y1 - y0);
+            const sx = (x0 < x1) ? 1 : -1;
+            const sy = (y0 < y1) ? 1 : -1;
+            let err = dx - dy;
+
+            while (true) {
+                ctx.beginPath();
+                ctx.moveTo(x0, y0);
+                ctx.lineTo(x0 + lineLength * Math.cos(angle), y0 + lineLength * Math.sin(angle));
+                ctx.stroke();
+
+                if (x0 === x1 && y0 === y1) break;
+                const e2 = 2 * err;
+                if (e2 > -dy) { err -= dy; x0 += sx; }
+                if (e2 < dx) { err += dx; y0 += sy; }
+            }
+        }
+
+        let isDrawing = false;
+
+        const draw = (e) => {
+            if (!isDrawing) return;
+
+            const pos = getMousePos(canvas, e);
+            ctx.strokeStyle = currentColor;
+
+            if (brushSize >= 7 && brushSize <= 12) {
+                drawLine(old.x, old.y, pos.x, pos.y);
+            } else {
+                ctx.beginPath();
+                ctx.moveTo(old.x, old.y);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            }
+
+            old = { x: pos.x, y: pos.y };
+        };
+
+        const startBrushDrawing = (e) => {
+            isDrawing = true;
+            old = getMousePos(canvas, e);
+
+            switch (brushSize) {
+                case 1:
+                    ctx.lineWidth = 3;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    break;
+                case 2:
+                    ctx.lineWidth = 2;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    break;
+                case 3:
+                    ctx.lineWidth = 1;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    break;
+                case 4:
+                    ctx.lineWidth = 3;
+                    ctx.lineCap = 'square';
+                    ctx.lineJoin = 'bevel';
+                    break;
+                case 5:
+                    ctx.lineWidth = 2;
+                    ctx.lineCap = 'square';
+                    ctx.lineJoin = 'bevel';
+                    break;
+                case 6:
+                    ctx.lineWidth = 1;
+                    ctx.lineCap = 'square';
+                    ctx.lineJoin = 'bevel';
+                    break;
+                default:
+                    ctx.lineWidth = 1;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    break;
+            }
+        };
+
+        const stopBrushDrawing = () => {
+            isDrawing = false;
+        };
+
+        const activateTool = () => {
+            canvas.addEventListener('mousedown', startBrushDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopBrushDrawing);
+        };
+
+        const deactivateTool = () => {
+            canvas.removeEventListener('mousedown', startBrushDrawing);
+            canvas.removeEventListener('mousemove', draw);
+            canvas.removeEventListener('mouseup', stopBrushDrawing);
+        };
+
+        activateTool();
+        updateCoords(canvas);
+        return {
+            removeEvents: () => {
+                deactivateTool();
+            },
+            changeColor: (color) => {
+                currentColor = color;
+            }
+        };
+    },
+
+
+
+    eraser: () => {
+        const customCursorUrl = 'static/cursors/eraser.png';
+        const cursorHotspotX = -45;
+        const cursorHotspotY = -5;
+        let old = null;
+        let eraserX = 3;
+
+        canvas.style.cursor = `url(${customCursorUrl}) ${cursorHotspotX} ${cursorHotspotY}, auto`;
+
+        document.addEventListener('htmx:afterSwap', function (e) {
+            const EOptions = e.detail.target.querySelectorAll('.EraserOptions button');
+
+            if (EOptions && EOptions.length > 0) {
+                EOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        EOptions.forEach(opt => opt.classList.remove('pressed'));
+                        option.classList.add('pressed');
+                        eraserX = parseInt(option.value, 10);
+                    });
+                });
+            }
+        });
+
+        function getMousePos(canvas, e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+        }
+
+        let isDrawing = false;
+
+        const erase = (e) => {
+            if (!isDrawing) return;
+
+            const pos = getMousePos(canvas, e);
+            ctx.globalCompositeOperation = 'destination-out';
+
+            // Draw a circle to erase
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, eraserX / 2, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Draw a line to erase
+            ctx.lineWidth = eraserX;
+            ctx.beginPath();
+            ctx.moveTo(old.x, old.y);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+
+            old = { x: pos.x, y: pos.y };
+        };
+
+        const startEraserDrawing = (e) => {
+            isDrawing = true;
+            old = getMousePos(canvas, e);
+        };
+
+        const stopEraserDrawing = () => {
+            isDrawing = false;
+        };
+
+        const activateTool = () => {
+            canvas.addEventListener('mousedown', startEraserDrawing);
+            canvas.addEventListener('mousemove', erase);
+            canvas.addEventListener('mouseup', stopEraserDrawing);
+        };
+
+        const deactivateTool = () => {
+            canvas.removeEventListener('mousedown', startEraserDrawing);
+            canvas.removeEventListener('mousemove', erase);
+            canvas.removeEventListener('mouseup', stopEraserDrawing);
+        };
+
+        activateTool();
+        updateCoords(canvas);
+        return {
+            removeEvents: () => {
+                deactivateTool();
+            }
+        };
+    },
+
+    
     rectlasso: () => {
         const bufferCanvas = document.getElementById('canvasbuffer');
         const selectionBuffer = document.getElementById('selectionbuffer');
@@ -287,7 +594,8 @@ const ToolsInstance = {
         };
 
         activateTool();
-
+        updateCoords(bufferCanvas);
+        updateDimens(bufferCanvas);
         return {
             removeEvents: () => {
                 deactivateTool();
@@ -302,7 +610,7 @@ const ToolsInstance = {
         const rect = canvas.getBoundingClientRect()
         const customCursorUrl = '/static/cursors/eye-dropper.png';
         const cursorHotspotX = 15;
-        const cursorHotspotY = 24; 
+        const cursorHotspotY = 24;
         canvas.style.cursor = `url(${customCursorUrl}), auto`;
         const handleEyeClick = (e) => {
             const mouseX = e.clientX - rect.left - cursorHotspotX;
@@ -319,8 +627,8 @@ const ToolsInstance = {
         }
 
         function getColorAtPosition(x, y) {
-            let pxData = ctx.getImageData(x,y,1,1);
-        return("rgb("+pxData.data[0]+","+pxData.data[1]+","+pxData.data[2]+")");
+            let pxData = ctx.getImageData(x, y, 1, 1);
+            return ("rgb(" + pxData.data[0] + "," + pxData.data[1] + "," + pxData.data[2] + ")");
         }
         const activateTool = () => {
             
@@ -336,7 +644,7 @@ const ToolsInstance = {
         }
         
         activateTool();
-
+        updateCoords(canvas);
         return {
             removeEvents: () => {
                 deactivateTool();
@@ -344,199 +652,201 @@ const ToolsInstance = {
         };
     },
 
-floodfill: () => {
-    const customCursorUrl = '/static/cursors/fill-bucket.png';
-    const cursorHotspotX = 15;
-    const cursorHotspotY = 15;
-    canvas.style.cursor = `url(${customCursorUrl}), auto`;
+    floodfill: () => {
+        const customCursorUrl = '/static/cursors/fill-bucket.png';
+        const cursorHotspotX = 15;
+        const cursorHotspotY = 15;
+        canvas.style.cursor = `url(${customCursorUrl}), auto`;
 
-    function floodFill(ctx, x, y, fillColor, range = 1) {
-        const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-        const width = imageData.width;
-        const height = imageData.height;
-        const visited = new Uint8Array(width * height);
+        
+        function floodFill(ctx, x, y, fillColor, range = 1) {
+            const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+            const width = imageData.width;
+            const height = imageData.height;
+            const visited = new Uint8Array(width * height);
 
-        const stack = [];
-        stack.push(x, y);
+            const stack = [];
+            stack.push(x, y);
 
-        const targetColor = getPixel(imageData, x, y);
-        const rangeSq = range * range;
+            const targetColor = getPixel(imageData, x, y);
+            const rangeSq = range * range;
 
-        while (stack.length > 0) {
-            const cy = stack.pop();
-            const cx = stack.pop();
+            while (stack.length > 0) {
+                const cy = stack.pop();
+                const cx = stack.pop();
 
-            if (!visited[cy * width + cx] && colorsMatch(getPixel(imageData, cx, cy), targetColor, rangeSq)) {
-                setPixel(imageData, cx, cy, fillColor);
-                visited[cy * width + cx] = 1;
+                if (!visited[cy * width + cx] && colorsMatch(getPixel(imageData, cx, cy), targetColor, rangeSq)) {
+                    setPixel(imageData, cx, cy, fillColor);
+                    visited[cy * width + cx] = 1;
 
-                if (cx > 0) stack.push(cx - 1, cy);
-                if (cx < width - 1) stack.push(cx + 1, cy);
-                if (cy > 0) stack.push(cx, cy - 1);
-                if (cy < height - 1) stack.push(cx, cy + 1);
+                    if (cx > 0) stack.push(cx - 1, cy);
+                    if (cx < width - 1) stack.push(cx + 1, cy);
+                    if (cy > 0) stack.push(cx, cy - 1);
+                    if (cy < height - 1) stack.push(cx, cy + 1);
+                }
             }
+
+            ctx.putImageData(imageData, 0, 0);
         }
 
-        ctx.putImageData(imageData, 0, 0);
-    }
-
-    function getPixel(imageData, x, y) {
-        const offset = (y * imageData.width + x) * 4;
-        return [
-            imageData.data[offset],
-            imageData.data[offset + 1],
-            imageData.data[offset + 2],
-            imageData.data[offset + 3]
-        ];
-    }
-
-    function setPixel(imageData, x, y, color) {
-        const offset = (y * imageData.width + x) * 4;
-        imageData.data[offset] = color[0];
-        imageData.data[offset + 1] = color[1];
-        imageData.data[offset + 2] = color[2];
-        imageData.data[offset + 3] = color[3];
-    }
-
-    function colorsMatch(a, b, rangeSq) {
-        const dr = a[0] - b[0];
-        const dg = a[1] - b[1];
-        const db = a[2] - b[2];
-        const da = a[3] - b[3];
-        return dr * dr + dg * dg + db * db + da * da < rangeSq;
-    }
-
-    const handleMouseDown = (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const MouseX = Math.floor(e.clientX - rect.left);
-        const MouseY = Math.floor(e.clientY - rect.top);
-        console.log(`MouseX: ${MouseX}, MouseY: ${MouseY}`);
-        floodFill(ctx, MouseX, MouseY, currentColor, 10);
-    };
-
-    const activateTool = () => {
-        canvas.addEventListener('mousedown', handleMouseDown);
-    };
-
-    const deactivateTool = () => {
-        canvas.removeEventListener('mousedown', handleMouseDown);
-    };
-
-    activateTool();
-
-    return {
-        removeEvents: () => {
-            deactivateTool();
-        },
-        changeColor: (color) => {
-            currentColor = color;
+        function getPixel(imageData, x, y) {
+            const offset = (y * imageData.width + x) * 4;
+            return [
+                imageData.data[offset],
+                imageData.data[offset + 1],
+                imageData.data[offset + 2],
+                imageData.data[offset + 3]
+            ];
         }
-    };
-},
+
+        function setPixel(imageData, x, y, color) {
+            const offset = (y * imageData.width + x) * 4;
+            imageData.data[offset] = color[0];
+            imageData.data[offset + 1] = color[1];
+            imageData.data[offset + 2] = color[2];
+            imageData.data[offset + 3] = 255; // Ensure full opacity
+        }
+
+        function colorsMatch(a, b, rangeSq) {
+            const dr = a[0] - b[0];
+            const dg = a[1] - b[1];
+            const db = a[2] - b[2];
+            const da = a[3] - b[3];
+            return dr * dr + dg * dg + db * db + da * da < rangeSq;
+        }
+
+        const handleMouseDown = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const MouseX = Math.floor(e.clientX - rect.left + cursorHotspotX);
+            const MouseY = Math.floor(e.clientY - rect.top + cursorHotspotY);
+            console.log(`MouseX: ${MouseX}, MouseY: ${MouseY}`);
+            floodFill(ctx, MouseX, MouseY, currentColor, 10);
+        };
+
+        const activateTool = () => {
+            canvas.addEventListener('mousedown', handleMouseDown);
+        };
+
+        const deactivateTool = () => {
+            canvas.removeEventListener('mousedown', handleMouseDown);
+        };
+
+        activateTool();
+        updateCoords(canvas);
+        return {
+            removeEvents: () => {
+                deactivateTool();
+            },
+            changeColor: (color) => {
+                currentColor = color;
+            }
+        };
+    },
 
 
 
 
-line: () => {
-    const bufferCanvas = document.getElementById('canvasbuffer');
-    const bufferCtx = bufferCanvas.getContext('2d');
-    let isDrawing = false;
-    let startPosX = 0;
-    let startPosY = 0;
-    let lastPosX = 0;
-    let lastPosY = 0;
-    let linewidth = 1;
-    const rec = bufferCanvas.getBoundingClientRect();
+    line: () => {
+        const bufferCanvas = document.getElementById('canvasbuffer');
+        const bufferCtx = bufferCanvas.getContext('2d');
+        let isDrawing = false;
+        let startPosX = 0;
+        let startPosY = 0;
+        let lastPosX = 0;
+        let lastPosY = 0;
+        let linewidth = 1;
+        const rec = bufferCanvas.getBoundingClientRect();
 
-    bufferCanvas.style.display = 'none';
-    bufferCanvas.width = canvas.width;
-    bufferCanvas.height = canvas.height;
+        bufferCanvas.style.display = 'none';
+        bufferCanvas.width = canvas.width;
+        bufferCanvas.height = canvas.height;
     
 
-    const customCursorUrl = '/static/cursors/precise.png';
-    const cursorHotspotX = -45;
-    const cursorHotspotY = -5;
+        const customCursorUrl = '/static/cursors/precise.png';
+        const cursorHotspotX = -45;
+        const cursorHotspotY = -5;
  
 
-    canvas.style.cursor = `url(${customCursorUrl}), auto`;
-    bufferCanvas.style.cursor = `url(${customCursorUrl}), auto`;
+        canvas.style.cursor = `url(${customCursorUrl}), auto`;
+        bufferCanvas.style.cursor = `url(${customCursorUrl}), auto`;
 
-    document.addEventListener('htmx:afterSwap', function (e) {
-        const LOptions = e.detail.target.querySelectorAll('.Loptions');
+        document.addEventListener('htmx:afterSwap', function (e) {
+            const LOptions = e.detail.target.querySelectorAll('.Loptions');
     
         
-        if (LOptions && LOptions.length > 0) {
-            LOptions.forEach(option => {
-                option.addEventListener('click', () => {
-                    LOptions.forEach(opt => opt.classList.remove('pressed'));
-                    option.classList.add('pressed');
-                    linewidth = parseInt(option.value, 10);
+            if (LOptions && LOptions.length > 0) {
+                LOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        LOptions.forEach(opt => opt.classList.remove('pressed'));
+                        option.classList.add('pressed');
+                        linewidth = parseInt(option.value, 10);
+                    });
                 });
-            });
+            }
+        });
+
+        const startLineHandler = (e) => {
+            startPosX = e.clientX - rec.left;
+            startPosY = e.clientY - rec.top;
+            isDrawing = true;
         }
-    });
 
-    const startLineHandler = (e) => {
-        startPosX = e.clientX - rec.left;
-        startPosY = e.clientY - rec.top;
-        isDrawing = true;
-    }
+        const drawLineHandler = (e) => {
+            if (!isDrawing) return;
+            lastPosX = e.clientX - rec.left;
+            lastPosY = e.clientY - rec.top;
+            bufferCtx.strokeStyle = currentColor;
+            bufferCtx.lineWidth = linewidth;
+            bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+            bufferCtx.beginPath();
+            bufferCtx.moveTo(startPosX + cursorHotspotX, startPosY + cursorHotspotY);
+            bufferCtx.lineTo(lastPosX + cursorHotspotX, lastPosY + cursorHotspotY);
+            bufferCtx.closePath();
+            bufferCtx.stroke();
 
-    const drawLineHandler = (e) => {
-        if (!isDrawing) return;
-        lastPosX = e.clientX - rec.left;
-        lastPosY = e.clientY - rec.top;
-        bufferCtx.strokeStyle = currentColor;
-        bufferCtx.lineWidth = linewidth;
-        bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-        bufferCtx.beginPath();
-        bufferCtx.moveTo(startPosX + cursorHotspotX, startPosY + cursorHotspotY);
-        bufferCtx.lineTo(lastPosX + cursorHotspotX, lastPosY + cursorHotspotY);
-        bufferCtx.closePath();
-        bufferCtx.stroke();
-
-    }
-
-    const stopLineHandler = (e) => {
-        if (!isDrawing) return;
-        isDrawing = false;
-        ctx.strokeStyle = currentColor;
-        ctx.lineWidth = linewidth;
-        ctx.beginPath();
-        ctx.moveTo(startPosX + cursorHotspotX, startPosY + cursorHotspotY);
-        ctx.lineTo(lastPosX + cursorHotspotX, lastPosY + cursorHotspotY);
-        ctx.closePath();
-        ctx.stroke();
-
-        bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-    }
-
-    const activateTool = () => {
-        bufferCanvas.style.display = 'flex';
-        bufferCanvas.addEventListener('mousedown', startLineHandler);
-        bufferCanvas.addEventListener('mousemove', drawLineHandler);
-        bufferCanvas.addEventListener('mouseup', stopLineHandler);
-    }
-
-    const deactivateTool = () => {
-        bufferCanvas.style.display = 'none';
-        bufferCanvas.removeEventListener('mousedown', startLineHandler);
-        bufferCanvas.removeEventListener('mousemove', drawLineHandler);
-        bufferCanvas.removeEventListener('mouseup', stopLineHandler);
-    }
-
-    activateTool();
-
-    return {
-        removeEvents: () => {
-            deactivateTool();
-        },
-        changeColor: (color) => {
-            currentColor = color;
         }
-    };
-},
-//TODO: need to solve the pullingpart;
+
+        const stopLineHandler = (e) => {
+            if (!isDrawing) return;
+            isDrawing = false;
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = linewidth;
+            ctx.beginPath();
+            ctx.moveTo(startPosX + cursorHotspotX, startPosY + cursorHotspotY);
+            ctx.lineTo(lastPosX + cursorHotspotX, lastPosY + cursorHotspotY);
+            ctx.closePath();
+            ctx.stroke();
+
+            bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+        }
+
+        const activateTool = () => {
+            bufferCanvas.style.display = 'flex';
+            bufferCanvas.addEventListener('mousedown', startLineHandler);
+            bufferCanvas.addEventListener('mousemove', drawLineHandler);
+            bufferCanvas.addEventListener('mouseup', stopLineHandler);
+        }
+
+        const deactivateTool = () => {
+            bufferCanvas.style.display = 'none';
+            bufferCanvas.removeEventListener('mousedown', startLineHandler);
+            bufferCanvas.removeEventListener('mousemove', drawLineHandler);
+            bufferCanvas.removeEventListener('mouseup', stopLineHandler);
+        }
+
+        activateTool();
+        updateCoords(bufferCanvas);
+        updateDimens(bufferCanvas);
+        return {
+            removeEvents: () => {
+                deactivateTool();
+            },
+            changeColor: (color) => {
+                currentColor = color;
+            }
+        };
+    },
+    //TODO: need to solve the pullingpart;
     curveline: () => {
         const bufferCanvas = document.getElementById('canvasbuffer');
         const bufferCtx = bufferCanvas.getContext('2d');
@@ -619,7 +929,8 @@ line: () => {
         };
 
         activateTool();
-
+        updateCoords(bufferCanvas);
+        updateDimens(bufferCanvas);
         return {
             removeEvents: () => {
                 deactivateTool();
@@ -767,7 +1078,8 @@ line: () => {
         }
 
         activateTool();
-
+        updateCoords(bufferCanvas);
+        updateDimens(bufferCanvas);
         return {
             removeEvents: () => {
                 deactivateTool();
@@ -788,7 +1100,7 @@ line: () => {
         const rect = bufferCanvas.getBoundingClientRect();
         const customCursorUrl = '/static/cursors/precise.png';
         const cursorHotspotX = -45;
-        const cursorHotspotY = -5; 
+        const cursorHotspotY = -5;
 
         
         bufferCtx.lineWidth = 1;
@@ -880,7 +1192,7 @@ line: () => {
                 }
             }
             textarea.classList.add('hidden');
-            bufferCtx.clearRect(0, 0, canvas.width, canvas.height);            
+            bufferCtx.clearRect(0, 0, canvas.width, canvas.height);
         }
 
         const activateTool = () => {
@@ -902,7 +1214,8 @@ line: () => {
         };
 
         activateTool();
-
+        updateCoords(bufferCanvas);
+        updateDimens(bufferCanvas);
         return {
             removeEvents: () => {
                 deactivateTool();
@@ -911,7 +1224,7 @@ line: () => {
                 currentColor = color;
             }
         };
-},
+    },
 
 
     
@@ -922,7 +1235,7 @@ line: () => {
         isDrawing = false;
         let startPosX = 0;
         let startPosY = 0;
-        let OptValue = 1; 
+        let OptValue = 1;
         bufferCanvas.style.display = 'none';
         bufferCanvas.width = canvas.width;
         bufferCanvas.height = canvas.height;
@@ -931,7 +1244,7 @@ line: () => {
         ctx.lineWidth = 1;
         const customCursorUrl = '/static/cursors/precise.png';
         const cursorHotspotX = 45;
-        const cursorHotspotY = 5; 
+        const cursorHotspotY = 5;
 
         
         canvas.style.cursor = `url(${customCursorUrl}), auto`;
@@ -948,7 +1261,7 @@ line: () => {
                         option.classList.add('pressed');
                         OptValue = parseInt(option.value, 10);
                         deactivateTool();
-                        activateTool(); 
+                        activateTool();
                     });
                 });
             }
@@ -976,8 +1289,8 @@ line: () => {
             const rectHeight = e.clientY - startPosY;
             bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
             bufferCtx.beginPath();
-            bufferCtx.strokeStyle = 'black'; 
-            bufferCtx.fillStyle = 'white';    
+            bufferCtx.strokeStyle = 'black';
+            bufferCtx.fillStyle = 'white';
             bufferCtx.rect(startPosX - cursorHotspotX, startPosY - cursorHotspotY, rectWidth, rectHeight);
             bufferCtx.fill();
             bufferCtx.stroke();
@@ -1001,15 +1314,15 @@ line: () => {
             const rectHeight = e.clientY - startPosY;
             ctx.beginPath();
             if (OptValue === 1) {
-                ctx.strokeStyle = currentColor; 
+                ctx.strokeStyle = currentColor;
                 ctx.strokeRect(startPosX - cursorHotspotX, startPosY - cursorHotspotY, rectWidth, rectHeight);
             } else if (OptValue === 2) {
-                ctx.fillStyle = 'white';   
+                ctx.fillStyle = 'white';
                 ctx.rect(startPosX - cursorHotspotX, startPosY - cursorHotspotY, rectWidth, rectHeight);
                 ctx.fill();
                 ctx.stroke();
             } else if (OptValue == 3) {
-                ctx.fillStyle = currentColor;   
+                ctx.fillStyle = currentColor;
                 ctx.fillRect(startPosX - cursorHotspotX, startPosY - cursorHotspotY, rectWidth, rectHeight);
                 ctx.stroke();
             }
@@ -1023,7 +1336,7 @@ line: () => {
                 bufferCanvas.addEventListener('mousemove', drawRectHandler);
             } else if (OptValue === 2) {
                 bufferCanvas.addEventListener('mousemove', drawFilledRectHandler);
-            }else if (OptValue === 3) {
+            } else if (OptValue === 3) {
                 bufferCanvas.addEventListener('mousemove', drawFilledStrokeRectHandler);
             }
             bufferCanvas.addEventListener('mouseup', stopRectHandler);
@@ -1038,7 +1351,8 @@ line: () => {
             bufferCanvas.removeEventListener('mouseup', stopRectHandler);
         }
         activateTool();
-
+        updateCoords(bufferCanvas);
+        updateDimens(bufferCanvas);
         return {
             removeEvents: () => {
                 deactivateTool();
@@ -1187,7 +1501,8 @@ line: () => {
         };
 
         activateTool();
-
+        updateCoords(bufferCanvas);
+        updateDimens(bufferCanvas);
         return {
             removeEvents: () => {
                 deactivateTool();
@@ -1314,7 +1629,8 @@ line: () => {
         }
 
         activateTool();
-
+        updateCoords(bufferCanvas);
+        updateDimens(bufferCanvas);
         return {
             removeEvents: () => {
                 deactivateTool();

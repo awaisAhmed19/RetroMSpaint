@@ -49,5 +49,9 @@ def template8():
 def template9():
     return render_template('EraserOptions.html')
 
+@app.route('/loadBox')
+def load_box():
+    return render_template('LoadBox.html')
+
 if __name__ == '__main__':
     app.run(debug=True,use_reloader=True)

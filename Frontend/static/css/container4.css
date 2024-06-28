@@ -6,6 +6,7 @@
     background-color: var(--main-color);
     display: flex;
     flex-grow: 1;
+    font-size: 13px;
     height: 25px;
     width: 100vw;
     bottom: 0;
@@ -18,7 +19,7 @@
     background-color: transparent;
     align-items:bottom;
     flex: 4 1 80%;
-    font-size: 12px;
+    /* font-size: 13px; */
     position: relative;
     height: 80%;
     border-top: 1px solid var(--borderdark);
@@ -30,9 +31,11 @@
 .coordinates {
     background-color: transparent;
     position: relative;
+    align-content: baseline;
+    /* font-size: 13px; */
     height: 80%;
     width: 9vw;
-    bottom: 1px;
+    bottom: 0;
     flex-basis: 1 1 10%;
     border-top: 1px solid var(--borderdark);
     border-right: 1px solid var(--borderlight);
@@ -45,7 +48,7 @@
     position: relative;
     height: 80%;
     width: 9vw;
-    bottom: 1px;
+    bottom: 0;
     border-top: 1px solid var(--borderdark);
     border-right: 1px solid var(--borderlight);
     border-left: 1px solid var(--borderdark);
