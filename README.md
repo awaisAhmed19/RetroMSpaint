@@ -4,7 +4,7 @@ Welcome to Retro MSPaint - Windows 98 Version!
 
 This web application aims to bring back the nostalgia of the classic Microsoft Paint experience from the Windows 98 era. With its familiar user interface and essential drawing tools, you can unleash your creativity and create pixel-perfect artworks just like in the good old days.
 
-![Paint Screenshot](/Frontend/cursor/imgs/mspaint-win98-reference.png)
+![Paint Screenshot](/Frontend/static/imgs/reference.jpg)
 
 
 # Features

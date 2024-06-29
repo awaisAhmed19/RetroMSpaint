@@ -135,7 +135,7 @@ function handleSaveAsFile() {
 
 // Function to handle Load from URL action (placeholder for future implementation)
 function handleLoadFromURL() {
-    
+    console.log('Upload to Imgur clicked');
 }
 
 // Function to handle Upload to Imgur action (placeholder for future implementation)
@@ -143,24 +143,13 @@ function handleUploadToImgur() {
     console.log('Upload to Imgur clicked');
     // Add your logic here for handling 'Upload to Imgur' action
 }
-
 // Function to handle Manage Storage action (placeholder for future implementation)
 function handleManageStorage() {
     console.log('Manage Storage clicked');
     // Add your logic here for handling 'Manage Storage' action
 }
 
-// Function to handle Set as Wallpaper (Tiled) action (placeholder for future implementation)
-function handleSetAsWallpaperTiled() {
-    console.log('Set as Wallpaper (Tiled) clicked');
-    // Add your logic here for handling 'Set as Wallpaper (Tiled)' action
-}
 
-// Function to handle Set as Wallpaper (Centered) action (placeholder for future implementation)
-function handleSetAsWallpaperCentered() {
-    console.log('Set as Wallpaper (Centered) clicked');
-    // Add your logic here for handling 'Set as Wallpaper (Centered)' action
-}
 
 // Function to handle Recent Files action (placeholder for future implementation)
 function handleRecentFiles() {
@@ -182,8 +171,6 @@ const eventHandlers = {
     'Load_from_URL': handleLoadFromURL,
     'Upload_to_Imgur': handleUploadToImgur,
     'Manage_storage': handleManageStorage,
-    'Set_as_WallpaperT': handleSetAsWallpaperTiled,
-    'Set_as_WallpaperC': handleSetAsWallpaperCentered,
     'Recent_files': handleRecentFiles,
     'Exit': handleExit
 };
