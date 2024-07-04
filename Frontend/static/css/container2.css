@@ -224,6 +224,8 @@
     grid-template-columns: 1fr 1fr;
     gap: 0;
 }
+
+
 .rectTool button,
 .roundedrect-tool button,
 .elipsetool button,
@@ -297,8 +299,12 @@
     border: none;
     background-image:url('../imgs/options-airbrush-size.png') ;
     background-repeat: no-repeat;
-    background-size: 72px 24px;
+    background-size: 200px 24px;
 }
+
+#AirB1px.pressed{ grid-row: 1; grid-column: 1;background-color: navy; background-position: -104px 2px;}
+#AirB2px.pressed{ grid-row: 1; grid-column: 2; background-color: navy;background-position: -133px 2px;}
+#AirB3px.pressed{ grid-row: 2 / span 1; grid-column: 1 / span 2;background-color: navy; background-position: -162px 2px;}
 
 #AirB1px{
     grid-row: 1;
@@ -310,14 +316,14 @@
 #AirB2px{
     grid-row: 1;
     grid-column: 2;
-    background-position: -20px 2px;
+    background-position: -30px 2px;
 }
 
 
 #AirB3px{
     grid-row: 2 / span 1;
     grid-column: 1 / span 2;
-    background-position: -38px 2px;
+    background-position: -57px 2px;
 }
 
 

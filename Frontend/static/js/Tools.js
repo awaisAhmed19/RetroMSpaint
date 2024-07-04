@@ -151,25 +151,6 @@ function pencilDraw(canvas, e) {
     updateCoords(canvas);
 }
 
-function airBrush(canvas, e) {
-    if (!isDrawing) return;
-    ctx.lineWidth = 1;
-    const density = 10;
-    const radius = 3;
-    for (let i = 0; i < density; i++) {
-        const pos = getMousePos(canvas, e);
-        const angle = Math.random() * Math.PI * 2;
-        const distance = radius * Math.random();
-        const x = pos.x + Math.cos(angle) * distance;
-        const y = pos.y + Math.sin(angle) * distance;
-        ctx.beginPath();
-        ctx.fillStyle = currentColor;
-        ctx.arc(x, y, 1, 0, Math.PI * 2, false);
-        ctx.fill();
-        
-    }
-    updateCoords(canvas);
-}
 
 function setupTool(canvas, drawFunc, cursor) {
     const startHandler = () => startDrawing();
@@ -196,7 +177,111 @@ function setupTool(canvas, drawFunc, cursor) {
 
 const ToolsInstance = {
     pencil: () => setupTool(canvas, pencilDraw, 'url(/static/cursors/pencil.png), auto'),
-    airbrush: () => setupTool(canvas, airBrush, 'url(/static/cursors/airbrushCursor.png),auto'),
+    //airbrush: () => setupTool(canvas, airBrush, 'url(/static/cursors/airbrushCursor.png),auto'),
+
+    airbrush: () => {
+    let isDrawing = false;
+    let airOpt = 1;
+    let prevX = 0;
+    let prevY = 0;
+    const airbrushSettings = {
+        1: { density: 30, radius: 1},
+        2: { density: 30, radius: 2 },
+        3: { density: 40, radius: 3 },
+    };
+
+    const customCursorUrl = '/static/cursors/airbrushCursor.png';
+    const cursorHotspotX = -45;
+    const cursorHotspotY = -5;
+
+    canvas.style.cursor = `url(${customCursorUrl}) auto`;
+
+    document.addEventListener('htmx:afterSwap', function (e) {
+        const airOptions = e.detail.target.querySelectorAll('.airOptions');
+        if (airOptions && airOptions.length > 0) {
+            airOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    airOptions.forEach(opt => opt.classList.remove('pressed'));
+                    option.classList.add('pressed');
+                    airOpt = parseInt(option.value, 10);
+                });
+            });
+        }
+    });
+
+    function startDrawing(e) {
+        isDrawing = true;
+        const rect = canvas.getBoundingClientRect();
+        prevX = e.clientX - rect.left;
+        prevY = e.clientY - rect.top;
+        ctx.beginPath();
+        updateCoords(canvas); // Ensuring coordinates are updated on start
+    }
+
+    function stopDrawing() {
+        isDrawing = false;
+        ctx.closePath();
+    }
+
+    function airBrush(e) {
+        if (!isDrawing) return;
+        const rect = canvas.getBoundingClientRect();
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
+        const { density, radius } = airbrushSettings[airOpt] || airbrushSettings[1];
+
+        const dist = Math.sqrt((x - prevX) ** 2 + (y - prevY) ** 2);
+        const step = Math.max(1 / dist, 0.05); 
+
+        for (let t = 0; t < 1; t += step) {
+            const interpolatedX = prevX + (x - prevX) * t;
+            const interpolatedY = prevY + (y - prevY) * t;
+
+            for (let i = 0; i < density / 5; i++) { 
+                const angle = Math.random() * Math.PI * 2;
+                const distance = radius * Math.random();
+                const dx = interpolatedX + Math.cos(angle) * distance;
+                const dy = interpolatedY + Math.sin(angle) * distance;
+                ctx.beginPath();
+                ctx.fillStyle = currentColor;
+                ctx.arc(dx, dy, radius, 0, Math.PI * 2, false);
+                ctx.fill();
+            }
+        }
+        prevX = x;
+        prevY = y;
+        updateCoords(canvas);
+    }
+
+    const activateTool = () => {
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', airBrush);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing); // Handle mouse leaving canvas
+    }
+
+    const deactivateTool = () => {
+        canvas.removeEventListener('mousedown', startDrawing);
+        canvas.removeEventListener('mousemove', airBrush);
+        canvas.removeEventListener('mouseup', stopDrawing);
+        canvas.removeEventListener('mouseout', stopDrawing); // Handle mouse leaving canvas
+    }
+
+    activateTool();
+    updateCoords(canvas);
+    updateDimens(canvas);
+
+    return {
+        removeEvents: () => {
+            deactivateTool();
+        },
+        changeColor: (color) => {
+            currentColor = color;
+        }
+    };
+},
+
+
     
     brush: () => {
         const customCursorUrl = 'static/cursors/brush.png'; // Adjust cursor image URL
@@ -1520,8 +1605,8 @@ const ToolsInstance = {
         let isDrawing = false;
         let startPosX = 0;
         let startPosY = 0;
-        const fixedRadius = 10; // Fixed radius for rounded corners
-        let ROptions = 1; // Default option for stroke only
+        const fixedRadius = 10; 
+        let ROptions = 1; 
 
         bufferCtx.lineWidth = 1;
         ctx.lineWidth = 1;
@@ -1566,7 +1651,7 @@ const ToolsInstance = {
             const rectHeight = mouseY - startPosY;
         
             bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-            drawRoundedRect(bufferCtx, startPosX, startPosY, rectWidth, rectHeight, fixedRadius, currentColor, ROptions);
+            drawRoundedRect(bufferCtx, startPosX, startPosY, rectWidth, rectHeight, fixedRadius, ROptions);
         }
 
         const stopRectHandler = (e) => {
@@ -1577,11 +1662,11 @@ const ToolsInstance = {
             const rectWidth = mouseX - startPosX;
             const rectHeight = mouseY - startPosY;
 
-            drawRoundedRect(ctx, startPosX, startPosY, rectWidth, rectHeight, fixedRadius, currentColor, ROptions);
+            drawRoundedRect(ctx, startPosX, startPosY, rectWidth, rectHeight, fixedRadius, ROptions);
             bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
         }
 
-        const drawRoundedRect = (context, x, y, width, height, radius, color, option) => {
+        const drawRoundedRect = (context, x, y, width, height, radius, option) => {
             const absWidth = Math.abs(width);
             const absHeight = Math.abs(height);
             const posX = width > 0 ? x : x + width;
