@@ -194,7 +194,7 @@ const ToolsInstance = {
     const cursorHotspotX = -45;
     const cursorHotspotY = -5;
 
-    canvas.style.cursor = `url(${customCursorUrl}) auto`;
+    canvas.style.cursor = `url(${customCursorUrl}) ${cursorHotspotX} ${cursorHotspotY}, auto`;
 
     document.addEventListener('htmx:afterSwap', function (e) {
         const airOptions = e.detail.target.querySelectorAll('.airOptions');
@@ -284,7 +284,7 @@ const ToolsInstance = {
 
     
     brush: () => {
-        const customCursorUrl = 'static/cursors/brush.png'; // Adjust cursor image URL
+        const customCursorUrl = 'static/cursors/brush.png'; 
         const cursorHotspotX = -45;
         const cursorHotspotY = -5;
         let old = null;
@@ -1607,7 +1607,7 @@ const ToolsInstance = {
         let startPosY = 0;
         const fixedRadius = 10; 
         let ROptions = 1; 
-
+        let color = "black";
         bufferCtx.lineWidth = 1;
         ctx.lineWidth = 1;
         bufferCanvas.style.display = 'none';
@@ -1694,8 +1694,9 @@ const ToolsInstance = {
                 context.fill();
                 context.stroke();
             } else if (option === 3) {
-                context.fillStyle = currentColor;
+                context.fillStyle = color;
                 context.fill();
+                color = currentColor;
             }
         }
 

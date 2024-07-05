@@ -6,24 +6,19 @@ window.addEventListener('load', () => {
     const bufferCtx = bufferCanvas.getContext('2d');
     const resizeHandles = document.querySelectorAll('.resize-handle');
     const dimen = document.getElementById('dimensions');
-    
 
     let isResizing = false;
     let currentHandle = null;
 
-
-
     function resizeCanvas() {
-        // Copy the current canvas content to the buffer canvas
+        
         bufferCanvas.width = canvas.width;
         bufferCanvas.height = canvas.height;
         bufferCtx.drawImage(canvas, 0, 0);
 
-        // Resize the main canvas
         canvas.width = container.clientWidth;
         canvas.height = container.clientHeight;
 
-        // Copy the content back from the buffer canvas to the main canvas
         ctx.drawImage(bufferCanvas, 0, 0);
     }
 
@@ -47,19 +42,22 @@ window.addEventListener('load', () => {
         const containerRect = container.getBoundingClientRect();
 
         if (currentHandle.classList.contains('right')) {
-            const newWidth = e.clientX - containerRect.left;
+            let newWidth = e.clientX - containerRect.left;
+            if (newWidth < 100) newWidth = 100; 
             container.style.width = `${newWidth}px`;
         } else if (currentHandle.classList.contains('bottom')) {
-            const newHeight = e.clientY - containerRect.top;
+            let newHeight = e.clientY - containerRect.top;
+            if (newHeight < 100) newHeight = 100;
             container.style.height = `${newHeight}px`;
         } else if (currentHandle.classList.contains('corner')) {
-            const newWidth = e.clientX - containerRect.left;
-            const newHeight = e.clientY - containerRect.top;
+            let newWidth = e.clientX - containerRect.left;
+            let newHeight = e.clientY - containerRect.top;
+            if (newWidth < 100) newWidth = 100; 
+            if (newHeight < 100) newHeight = 100; 
             container.style.width = `${newWidth}px`;
             container.style.height = `${newHeight}px`;
         }
 
-        // Update dimensions display
         const computedStyle = window.getComputedStyle(container);
         const width = parseInt(computedStyle.width, 10);
         const height = parseInt(computedStyle.height, 10);
@@ -74,6 +72,4 @@ window.addEventListener('load', () => {
         document.removeEventListener('mouseup', stopResize);
         dimen.innerHTML = '';
     }
-
-
 });
