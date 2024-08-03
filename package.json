@@ -2,5 +2,8 @@
   "dependencies": {
     "htmx": "^0.0.2",
     "p5": "^1.9.4"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3"
   }
 }
