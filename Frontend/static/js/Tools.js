@@ -129,7 +129,7 @@ function updateDimens(canvas) {
 const ToolsInstance = {
 	pencil: () => {
 		let isDrawing = false;
-		const customCursorUrl = "static/cursors/pencil.png";
+		const customCursorUrl = "/static/cursors/pencil.png";
 		let pos = null;
 		canvas.style.cursor = `url(${customCursorUrl})`;
 
@@ -285,7 +285,7 @@ const ToolsInstance = {
 	},
 
 	brush: () => {
-		const customCursorUrl = "static/cursors/brush.png";
+		const customCursorUrl = "/static/cursors/brush.png";
 		const cursorHotspotX = -45;
 		const cursorHotspotY = -5;
 		let old = null;
@@ -756,93 +756,71 @@ const ToolsInstance = {
 	},
 
 	floodfill: () => {
-		const customCursorUrl = "/static/cursors/fill-bucket.png";
-		const cursorHotspotX = 15;
-		const cursorHotspotY = 15;
-		canvas.style.cursor = `url(${customCursorUrl}), auto`;
+		let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+		//let pos=getMousePos(canvas,e);
+		function parseRGB(rgbString) {
+			let rgbArray = rgbString.match(/\d+/g).map(Number);
+			rgbArray.push(255);
+			return rgbArray;
+		}
+		function floodFill(x, y, fcolor) {
+			let fillStack = [];
+			fillStack.push([x, y]);
 
-		function floodFill(ctx, x, y, fillColor, range = 1) {
-			const imageData = ctx.getImageData(
-				0,
-				0,
-				ctx.canvas.width,
-				ctx.canvas.height
-			);
-			const width = imageData.width;
-			const height = imageData.height;
-			const visited = new Uint8Array(width * height);
-
-			const stack = [];
-			stack.push(x, y);
-
-			const targetColor = getPixel(imageData, x, y);
-			const rangeSq = range * range;
-
-			while (stack.length > 0) {
-				const cy = stack.pop();
-				const cx = stack.pop();
-
-				if (
-					!visited[cy * width + cx] &&
-					colorsMatch(getPixel(imageData, cx, cy), targetColor, rangeSq)
-				) {
-					setPixel(imageData, cx, cy, fillColor);
-					visited[cy * width + cx] = 1;
-
-					if (cx > 0) stack.push(cx - 1, cy);
-					if (cx < width - 1) stack.push(cx + 1, cy);
-					if (cy > 0) stack.push(cx, cy - 1);
-					if (cy < height - 1) stack.push(cx, cy + 1);
+			while (fillStack.length > 0) {
+				let [x, y] = fillStack.pop();
+				if (!valid(x, y)) {
+					continue;
 				}
+				if (ispixel(x, y)) {
+					continue;
+				}
+
+				setPixel(x, y, fcolor);
+
+				fillStack.push([x + 1, y]);
+				fillStack.push([x - 1, y]);
+				fillStack.push([x, y - 1]);
+				fillStack.push([x, y + 1]);
 			}
+		}
 
+		function setPixel(x, y, Scolor) {
+			let pixels = imageData.data;
+			let i = (y * canvas.width + x) * 4;
+			// console.log(Scolor);
+			pixels[i] = Scolor[0];
+			pixels[i + 1] = Scolor[1];
+			pixels[i + 2] = Scolor[2];
+			pixels[i + 3] = Scolor[3];
+		}
+		function valid(x, y) {
+			return x >= 0 && x < canvas.width - 1 && y >= 0 && y < canvas.height;
+		}
+
+		function ispixel(x, y) {
+			let pixels = imageData.data;
+			let i = (y * canvas.width + x) * 4;
+			return pixels[i + 3] > 0;
+		}
+		const mousedown = (e) => {
+			let pos = getMousePos(canvas, e);
+			let fillcolor = parseRGB(currentColor);
+			floodFill(Math.floor(pos.x), Math.floor(pos.y), fillcolor);
 			ctx.putImageData(imageData, 0, 0);
-		}
-
-		function getPixel(imageData, x, y) {
-			const offset = (y * imageData.width + x) * 4;
-			return [
-				imageData.data[offset],
-				imageData.data[offset + 1],
-				imageData.data[offset + 2],
-				imageData.data[offset + 3],
-			];
-		}
-
-		function setPixel(imageData, x, y, color) {
-			const offset = (y * imageData.width + x) * 4;
-			imageData.data[offset] = color[0];
-			imageData.data[offset + 1] = color[1];
-			imageData.data[offset + 2] = color[2];
-			imageData.data[offset + 3] = 255; // Ensure full opacity
-		}
-
-		function colorsMatch(a, b, rangeSq) {
-			const dr = a[0] - b[0];
-			const dg = a[1] - b[1];
-			const db = a[2] - b[2];
-			const da = a[3] - b[3];
-			return dr * dr + dg * dg + db * db + da * da < rangeSq;
-		}
-
-		const handleMouseDown = (e) => {
-			const rect = canvas.getBoundingClientRect();
-			const MouseX = Math.floor(e.clientX - rect.left + cursorHotspotX);
-			const MouseY = Math.floor(e.clientY - rect.top + cursorHotspotY);
-			console.log(`MouseX: ${MouseX}, MouseY: ${MouseY}`);
-			floodFill(ctx, MouseX, MouseY, currentColor, 10);
 		};
 
 		const activateTool = () => {
-			canvas.addEventListener("mousedown", handleMouseDown);
+			canvas.addEventListener("mousedown", mousedown);
 		};
 
 		const deactivateTool = () => {
-			canvas.removeEventListener("mousedown", handleMouseDown);
+			canvas.removeEventListener("mousedown", mousedown);
 		};
 
 		activateTool();
 		updateCoords(canvas);
+		updateDimens(canvas);
 		return {
 			removeEvents: () => {
 				deactivateTool();
