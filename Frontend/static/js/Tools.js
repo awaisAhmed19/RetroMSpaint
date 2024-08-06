@@ -31,7 +31,7 @@ paletteColors.forEach((color) => {
 	color.addEventListener("click", () => {
 		//currentColor = JSON.parse(color.value);
 		currentColorDisplay.style.backgroundColor = color.style.backgroundColor;
-		currentColor = color.style.backgroundColor;
+		currentColor = JSON.parse(color.getAttribute("value"));
 		//console.log('Color changed to:', currentColor);
 		if (activeTool) {
 			activeTool.changeColor(currentColor);
@@ -126,6 +126,18 @@ function updateDimens(canvas) {
 	});
 }
 
+function ToRgbString(rgbArray) {
+	if (rgbArray.length < 3) {
+		throw new Error("Invalid RGB array");
+	}
+
+	if (rgbArray.length === 4) {
+		return `rgba(${rgbArray[0]}, ${rgbArray[1]}, ${rgbArray[2]}, ${rgbArray[3] / 255})`;
+	} else {
+		return `rgb(${rgbArray[0]}, ${rgbArray[1]}, ${rgbArray[2]})`;
+	}
+}
+
 const ToolsInstance = {
 	pencil: () => {
 		let isDrawing = false;
@@ -197,7 +209,6 @@ const ToolsInstance = {
 		const cursorHotspotY = -5;
 
 		canvas.style.cursor = `url(${customCursorUrl}) ${cursorHotspotX} ${cursorHotspotY}, auto`;
-
 		document.addEventListener("htmx:afterSwap", function (e) {
 			const airOptions = e.detail.target.querySelectorAll(".airOptions");
 			if (airOptions && airOptions.length > 0) {
@@ -279,7 +290,9 @@ const ToolsInstance = {
 				deactivateTool();
 			},
 			changeColor: (color) => {
-				currentColor = color;
+				currentColor = ToRgbString(color);
+				console.log(currentColor);
+				console.log(ctx.fillStyle);
 			},
 		};
 	},
@@ -466,7 +479,7 @@ const ToolsInstance = {
 				deactivateTool();
 			},
 			changeColor: (color) => {
-				currentColor = color;
+				currentColor = ToRgbString(color);
 			},
 		};
 	},
@@ -756,58 +769,80 @@ const ToolsInstance = {
 	},
 
 	floodfill: () => {
-		let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-		//let pos=getMousePos(canvas,e);
-		function parseRGB(rgbString) {
-			let rgbArray = rgbString.match(/\d+/g).map(Number);
-			rgbArray.push(255);
-			return rgbArray;
-		}
-		function floodFill(x, y, fcolor) {
+		const customCursorUrl = "/static/cursors/fill-bucket.png";
+		const cursorHotspotX = 15;
+		const cursorHotspotY = 15;
+		canvas.style.cursor = `url(${customCursorUrl}) ${cursorHotspotX} ${cursorHotspotY}, auto`;
+
+		function floodFill(ctx, x, y, fcolor, range = 1) {
+			let imageData = ctx.getImageData(
+				0,
+				0,
+				ctx.canvas.width,
+				ctx.canvas.height
+			);
+			const width = imageData.width;
+			const height = imageData.height;
+			const visited = new Uint8Array(width * height);
+
 			let fillStack = [];
 			fillStack.push([x, y]);
 
+			const targetColor = getPixel(imageData, x, y);
+			const rangeSq = range * range;
+
 			while (fillStack.length > 0) {
-				let [x, y] = fillStack.pop();
-				if (!valid(x, y)) {
-					continue;
-				}
-				if (ispixel(x, y)) {
-					continue;
-				}
+				const [cx, cy] = fillStack.pop();
 
-				setPixel(x, y, fcolor);
+				if (
+					cx >= 0 &&
+					cx < width &&
+					cy >= 0 &&
+					cy < height &&
+					!visited[cy * width + cx] &&
+					colorsMatch(getPixel(imageData, cx, cy), targetColor, rangeSq)
+				) {
+					setPixel(imageData, cx, cy, fcolor);
+					visited[cy * width + cx] = 1;
 
-				fillStack.push([x + 1, y]);
-				fillStack.push([x - 1, y]);
-				fillStack.push([x, y - 1]);
-				fillStack.push([x, y + 1]);
+					fillStack.push([cx + 1, cy]);
+					fillStack.push([cx - 1, cy]);
+					fillStack.push([cx, cy + 1]);
+					fillStack.push([cx, cy - 1]);
+				}
 			}
+			ctx.putImageData(imageData, 0, 0);
 		}
 
-		function setPixel(x, y, Scolor) {
-			let pixels = imageData.data;
-			let i = (y * canvas.width + x) * 4;
-			// console.log(Scolor);
-			pixels[i] = Scolor[0];
-			pixels[i + 1] = Scolor[1];
-			pixels[i + 2] = Scolor[2];
-			pixels[i + 3] = Scolor[3];
-		}
-		function valid(x, y) {
-			return x >= 0 && x < canvas.width - 1 && y >= 0 && y < canvas.height;
+		function getPixel(imageData, x, y) {
+			const offset = (y * imageData.width + x) * 4;
+			return [
+				imageData.data[offset],
+				imageData.data[offset + 1],
+				imageData.data[offset + 2],
+				imageData.data[offset + 3],
+			];
 		}
 
-		function ispixel(x, y) {
-			let pixels = imageData.data;
-			let i = (y * canvas.width + x) * 4;
-			return pixels[i + 3] > 0;
+		function setPixel(imageData, x, y, Scolor) {
+			let i = (y * imageData.width + x) * 4;
+			imageData.data[i] = Scolor[0];
+			imageData.data[i + 1] = Scolor[1];
+			imageData.data[i + 2] = Scolor[2];
+			imageData.data[i + 3] = Scolor[3];
 		}
+
+		function colorsMatch(a, b, rangeSq) {
+			const dr = a[0] - b[0];
+			const dg = a[1] - b[1];
+			const db = a[2] - b[2];
+			const da = a[3] - b[3];
+			return dr * dr + dg * dg + db * db + da * da < rangeSq;
+		}
+
 		const mousedown = (e) => {
 			let pos = getMousePos(canvas, e);
-			let fillcolor = parseRGB(currentColor);
-			floodFill(Math.floor(pos.x), Math.floor(pos.y), fillcolor);
-			ctx.putImageData(imageData, 0, 0);
+			floodFill(ctx, Math.floor(pos.x), Math.floor(pos.y), currentColor, 10);
 		};
 
 		const activateTool = () => {
@@ -827,6 +862,7 @@ const ToolsInstance = {
 			},
 			changeColor: (color) => {
 				currentColor = color;
+				console.log(currentColor);
 			},
 		};
 	},
@@ -923,7 +959,7 @@ const ToolsInstance = {
 				deactivateTool();
 			},
 			changeColor: (color) => {
-				currentColor = color;
+				currentColor = ToRgbString(color);
 			},
 		};
 	},
@@ -1030,7 +1066,7 @@ const ToolsInstance = {
 				deactivateTool();
 			},
 			changeColor: (color) => {
-				currentColor = color;
+				currentColor = ToRgbString(color);
 			},
 		};
 	},
@@ -1187,7 +1223,7 @@ const ToolsInstance = {
 				deactivateTool();
 			},
 			changeColor: (color) => {
-				currentColor = color;
+				currentColor = ToRgbString(color);
 			},
 		};
 	},
@@ -1320,7 +1356,7 @@ const ToolsInstance = {
 				deactivateTool();
 			},
 			changeColor: (color) => {
-				currentColor = color;
+				currentColor = ToRgbString(color);
 			},
 		};
 	},
@@ -1486,7 +1522,7 @@ const ToolsInstance = {
 				deactivateTool();
 			},
 			changeColor: (color) => {
-				currentColor = color;
+				currentColor = ToRgbString(color);
 			},
 		};
 	},
@@ -1693,7 +1729,7 @@ const ToolsInstance = {
 				deactivateTool();
 			},
 			changeColor: (color) => {
-				currentColor = color;
+				currentColor = ToRgbString(color);
 			},
 		};
 	},
@@ -1861,7 +1897,7 @@ const ToolsInstance = {
 				deactivateTool();
 			},
 			changeColor: (color) => {
-				currentColor = color;
+				currentColor = ToRgbString(color);
 			},
 		};
 	},
