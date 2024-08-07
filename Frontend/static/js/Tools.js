@@ -138,6 +138,18 @@ function ToRgbString(rgbArray) {
 	}
 }
 
+function activateTool(canvas, start, draw, stop) {
+	canvas.addEventListener("mousedown", start);
+	canvas.addEventListener("mousemove", draw);
+	canvas.addEventListener("mouseup", stop);
+}
+
+function deactivateTool(canvas, start, draw, stop) {
+	canvas.removeEventListener("mousedown", start);
+	canvas.removeEventListener("mousemove", draw);
+	canvas.removeEventListener("mouseup", stop);
+}
+
 const ToolsInstance = {
 	pencil: () => {
 		let isDrawing = false;
@@ -168,27 +180,13 @@ const ToolsInstance = {
 			ctx.closePath();
 		};
 
-		const activateTool = () => {
-			canvas.addEventListener("mousedown", start);
-			canvas.addEventListener("mousemove", draw);
-			canvas.addEventListener("mouseup", stop);
-			canvas.addEventListener("mouseout", stop); // Handle mouse leaving canvas
-		};
-
-		const deactivateTool = () => {
-			canvas.removeEventListener("mousedown", start);
-			canvas.removeEventListener("mousemove", draw);
-			canvas.removeEventListener("mouseup", stop);
-			canvas.removeEventListener("mouseout", stop); // Handle mouse leaving canvas
-		};
-
-		activateTool();
+		activateTool(canvas, start, draw, stop);
 		updateCoords(canvas);
 		updateDimens(canvas);
 
 		return {
 			removeEvents: () => {
-				deactivateTool();
+				deactivateTool(canvas, start, draw, stop);
 			},
 		};
 	},
@@ -460,23 +458,11 @@ const ToolsInstance = {
 			isDrawing = false;
 		};
 
-		const activateTool = () => {
-			canvas.addEventListener("mousedown", startBrushDrawing);
-			canvas.addEventListener("mousemove", draw);
-			canvas.addEventListener("mouseup", stopBrushDrawing);
-		};
-
-		const deactivateTool = () => {
-			canvas.removeEventListener("mousedown", startBrushDrawing);
-			canvas.removeEventListener("mousemove", draw);
-			canvas.removeEventListener("mouseup", stopBrushDrawing);
-		};
-
-		activateTool();
+		activateTool(canvas, startBrushDrawing, draw, stopBrushDrawing);
 		updateCoords(canvas);
 		return {
 			removeEvents: () => {
-				deactivateTool();
+				deactivateTool(canvas, startBrushDrawing, draw, stopBrushDrawing);
 			},
 			changeColor: (color) => {
 				currentColor = ToRgbString(color);
@@ -549,23 +535,11 @@ const ToolsInstance = {
 			isDrawing = false;
 		};
 
-		const activateTool = () => {
-			canvas.addEventListener("mousedown", startEraserDrawing);
-			canvas.addEventListener("mousemove", erase);
-			canvas.addEventListener("mouseup", stopEraserDrawing);
-		};
-
-		const deactivateTool = () => {
-			canvas.removeEventListener("mousedown", startEraserDrawing);
-			canvas.removeEventListener("mousemove", erase);
-			canvas.removeEventListener("mouseup", stopEraserDrawing);
-		};
-
-		activateTool();
+		activateTool(canvas, startEraserDrawing, erase, stopEraserDrawing);
 		updateCoords(canvas);
 		return {
 			removeEvents: () => {
-				deactivateTool();
+				deactivateTool(canvas, startEraserDrawing, erase, stopEraserDrawing);
 			},
 		};
 	},
@@ -679,7 +653,13 @@ const ToolsInstance = {
 			selectionBuffer.style.display = "none";
 			bufferCanvas.style.display = "none";
 			isSelected = false;
-			activateTool();
+			activateTool(
+				bufferCanvas,
+				startPolyRectHandler,
+				drawPolyRectHandler,
+				stopPolyRectHandler
+			);
+			bufferCanvas.style.display = "flex";
 		};
 
 		const isInsideSelection = (x, y) => {
@@ -691,27 +671,25 @@ const ToolsInstance = {
 			);
 		};
 
-		const activateTool = () => {
-			bufferCanvas.style.display = "flex";
-			bufferCanvas.addEventListener("mousedown", startPolyRectHandler);
-			bufferCanvas.addEventListener("mousemove", drawPolyRectHandler);
-			bufferCanvas.addEventListener("mouseup", stopPolyRectHandler);
-		};
-
-		const deactivateTool = () => {
-			bufferCanvas.style.display = "none";
-			selectionBuffer.style.display = "none";
-			bufferCanvas.removeEventListener("mousedown", startPolyRectHandler);
-			bufferCanvas.removeEventListener("mousemove", drawPolyRectHandler);
-			bufferCanvas.removeEventListener("mouseup", stopPolyRectHandler);
-		};
-
-		activateTool();
+		activateTool(
+			bufferCanvas,
+			startPolyRectHandler,
+			drawPolyRectHandler,
+			stopPolyRectHandler
+		);
+		bufferCanvas.style.display = "flex";
 		updateCoords(bufferCanvas);
 		updateDimens(bufferCanvas);
 		return {
 			removeEvents: () => {
-				deactivateTool();
+				bufferCanvas.style.display = "none";
+				selectionBuffer.style.display = "none";
+				deactivateTool(
+					bufferCanvas,
+					startPolyRectHandler,
+					drawPolyRectHandler,
+					stopPolyRectHandler
+				);
 			},
 		};
 	},
@@ -862,7 +840,6 @@ const ToolsInstance = {
 			},
 			changeColor: (color) => {
 				currentColor = color;
-				console.log(currentColor);
 			},
 		};
 	},
@@ -937,26 +914,24 @@ const ToolsInstance = {
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 		};
 
-		const activateTool = () => {
-			bufferCanvas.style.display = "flex";
-			bufferCanvas.addEventListener("mousedown", startLineHandler);
-			bufferCanvas.addEventListener("mousemove", drawLineHandler);
-			bufferCanvas.addEventListener("mouseup", stopLineHandler);
-		};
-
-		const deactivateTool = () => {
-			bufferCanvas.style.display = "none";
-			bufferCanvas.removeEventListener("mousedown", startLineHandler);
-			bufferCanvas.removeEventListener("mousemove", drawLineHandler);
-			bufferCanvas.removeEventListener("mouseup", stopLineHandler);
-		};
-
-		activateTool();
+		bufferCanvas.style.display = "flex";
+		activateTool(
+			bufferCanvas,
+			startLineHandler,
+			drawLineHandler,
+			stopLineHandler
+		);
 		updateCoords(bufferCanvas);
 		updateDimens(bufferCanvas);
 		return {
 			removeEvents: () => {
-				deactivateTool();
+				bufferCanvas.style.display = "none";
+				deactivateTool(
+					bufferCanvas,
+					startLineHandler,
+					drawLineHandler,
+					stopLineHandler
+				);
 			},
 			changeColor: (color) => {
 				currentColor = ToRgbString(color);
@@ -1044,26 +1019,24 @@ const ToolsInstance = {
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 		};
 
-		const activateTool = () => {
-			bufferCanvas.style.display = "flex";
-			bufferCanvas.addEventListener("mousedown", startCurvingHandler);
-			bufferCanvas.addEventListener("mousemove", curveHandler);
-			bufferCanvas.addEventListener("mouseup", stopCurvingHandler);
-		};
-
-		const deactivateTool = () => {
-			bufferCanvas.style.display = "none";
-			bufferCanvas.removeEventListener("mousedown", startCurvingHandler);
-			bufferCanvas.removeEventListener("mousemove", curveHandler);
-			bufferCanvas.removeEventListener("mouseup", stopCurvingHandler);
-		};
-
-		activateTool();
+		bufferCanvas.style.display = "flex";
+		activateTool(
+			bufferCanvas,
+			startCurvingHandler,
+			curveHandler,
+			stopCurvingHandler
+		);
 		updateCoords(bufferCanvas);
 		updateDimens(bufferCanvas);
 		return {
 			removeEvents: () => {
-				deactivateTool();
+				bufferCanvas.style.display = "none";
+				deactivateTool(
+					bufferCanvas,
+					startCurvingHandler,
+					curveHandler,
+					stopCurvingHandler
+				);
 			},
 			changeColor: (color) => {
 				currentColor = ToRgbString(color);
@@ -1201,26 +1174,24 @@ const ToolsInstance = {
 			ctx.fill();
 		};
 
-		const activateTool = () => {
-			bufferCanvas.style.display = "block";
-			bufferCanvas.addEventListener("mousedown", startPolygonHandler);
-			bufferCanvas.addEventListener("mousemove", drawBufferLine);
-			bufferCanvas.addEventListener("mouseup", stopLineHandler);
-		};
-
-		const deactivateTool = () => {
-			bufferCanvas.style.display = "none";
-			bufferCanvas.removeEventListener("mousedown", startPolygonHandler);
-			bufferCanvas.removeEventListener("mousemove", drawBufferLine);
-			bufferCanvas.removeEventListener("mouseup", stopLineHandler);
-		};
-
-		activateTool();
+		bufferCanvas.style.display = "block";
+		activateTool(
+			bufferCanvas,
+			startPolygonHandler,
+			drawBufferLine,
+			stopLineHandler
+		);
 		updateCoords(bufferCanvas);
 		updateDimens(bufferCanvas);
 		return {
 			removeEvents: () => {
-				deactivateTool();
+				bufferCanvas.style.display = "none";
+				deactivateTool(
+					bufferCanvas,
+					startPolygonHandler,
+					drawBufferLine,
+					stopLineHandler
+				);
 			},
 			changeColor: (color) => {
 				currentColor = ToRgbString(color);
@@ -1768,8 +1739,21 @@ const ToolsInstance = {
 						RectElipseOptions.forEach((opt) => opt.classList.remove("pressed"));
 						option.classList.add("pressed");
 						ROptions = parseInt(option.value, 10);
-						deactivateTool();
-						activateTool();
+						bufferCanvas.style.display = "none";
+						deactivateTool(
+							bufferCanvas,
+							startRectHandler,
+							drawRectHandler,
+							stopRectHandler
+						);
+
+						bufferCanvas.style.display = "flex";
+						activateTool(
+							bufferCanvas,
+							startRectHandler,
+							drawRectHandler,
+							stopRectHandler
+						);
 					});
 				});
 			}
@@ -1875,26 +1859,24 @@ const ToolsInstance = {
 			}
 		};
 
-		const activateTool = () => {
-			bufferCanvas.style.display = "flex";
-			bufferCanvas.addEventListener("mousedown", startRectHandler);
-			bufferCanvas.addEventListener("mousemove", drawRectHandler);
-			bufferCanvas.addEventListener("mouseup", stopRectHandler);
-		};
-
-		const deactivateTool = () => {
-			bufferCanvas.style.display = "none";
-			bufferCanvas.removeEventListener("mousedown", startRectHandler);
-			bufferCanvas.removeEventListener("mousemove", drawRectHandler);
-			bufferCanvas.removeEventListener("mouseup", stopRectHandler);
-		};
-
-		activateTool();
+		bufferCanvas.style.display = "flex";
+		activateTool(
+			bufferCanvas,
+			startRectHandler,
+			drawRectHandler,
+			stopRectHandler
+		);
 		updateCoords(bufferCanvas);
 		updateDimens(bufferCanvas);
 		return {
 			removeEvents: () => {
-				deactivateTool();
+				bufferCanvas.style.display = "none";
+				deactivateTool(
+					bufferCanvas,
+					startRectHandler,
+					drawRectHandler,
+					stopRectHandler
+				);
 			},
 			changeColor: (color) => {
 				currentColor = ToRgbString(color);
