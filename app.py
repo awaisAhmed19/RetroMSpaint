@@ -1,13 +1,51 @@
 from flask import Flask, render_template
+from jinja2 import FileSystemLoader, Environment
 
-app=Flask(__name__,template_folder='./Frontend/html_template',static_folder='./Frontend/static')
+app = Flask(
+    __name__,
+    static_folder='./Frontend/static'
+)
 
+# Configure multiple template folders
+template_loader = FileSystemLoader([
+    './Frontend/html_template/Tool_options',
+    './Frontend/html_template/Menu_dropdown',
+    './Frontend/html_template/'
+])
+app.jinja_loader = template_loader
+
+@app.route('/FileMenu.html')
+def FileMenutemp():
+    return render_template('FileMenu.html')
+
+@app.route('/EditMenu.html')
+def EditMenutemp():
+    return render_template('EditMenu.html')
+
+
+@app.route('/ViewMenu.html')
+def ViewMenutemp():
+    return render_template('ViewMenu.html')
+
+
+@app.route('/LayerMenu.html')
+def LayerMenutemp():
+    return render_template('LayerMenu.html')
+
+
+@app.route('/ImageMenu.html')
+def ImageMenutemp():
+    return render_template('ImageMenu.html')
+
+
+@app.route('/ColorMenu.html')
+def ColorMenutemp():
+    return render_template('ColorMenu.html')
 
 
 @app.route('/')
 def index():
     return render_template("Index.html")
-
 
 @app.route('/RectOptions.html')
 def template():
