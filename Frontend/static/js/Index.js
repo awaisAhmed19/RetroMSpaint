@@ -106,7 +106,43 @@ function defaultFootNote() {
 }
 
 //TODO: toggling the menu dropdown
+document.addEventListener("DOMContentLoaded", function () {
+	const menubar = document.querySelectorAll(".menubar-btn");
+	let dropdownVisible = false;
+	let currentDropdownId = null;
 
+	const toggleDropdown = (dropdownId) => {
+		const dropdown = document.querySelector(".dropdown-container");
+		if (dropdownVisible && currentDropdownId === dropdownId) {
+			dropdown.classList.remove("active");
+			dropdownVisible = false;
+		} else {
+			dropdown.classList.add("active");
+			dropdownVisible = true;
+			currentDropdownId = dropdownId;
+		}
+	};
+
+	menubar.forEach((btn) => {
+		btn.addEventListener("click", function (e) {
+			e.preventDefault();
+			const dropdownId = btn.getAttribute("data-dropdown-id");
+			toggleDropdown(dropdownId);
+		});
+	});
+
+	document.addEventListener("click", function (e) {
+		const dropdown = document.getElementById("dropdowncontainer");
+		const clickedInside = Array.from(menubar).some((btn) =>
+			btn.contains(e.target)
+		);
+
+		if (dropdownVisible && !dropdown.contains(e.target) && !clickedInside) {
+			dropdown.classList.remove("active");
+			dropdownVisible = false;
+		}
+	});
+});
 document.addEventListener("keydown", (e) => {
 	if (e.key === "Escape") {
 		closeDropdownMenu();

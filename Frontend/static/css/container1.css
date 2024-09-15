@@ -68,15 +68,16 @@
 	border-bottom: 1px solid var(--borderdark);
 }
 .dropdown {
-	display: none;
-}
-
-.dropdown.active {
 	display: flex;
 }
 .dropdown-container {
-	display: flex; /* Hidden by default */
+	display: none;
 }
+
+.dropdown-container.active {
+	display: flex;
+}
+
 .tickspace,
 .secondary-dialog-arrow {
 	background-color: var(--main-color);
