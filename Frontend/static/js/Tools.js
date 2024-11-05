@@ -10,6 +10,7 @@ const tools = document.querySelectorAll(".tools");
 let currentColorDisplay = document.getElementById("selected-color");
 let switchColor = document.getElementById("switch-color");
 const paletteColors = document.querySelectorAll(".pallete-color");
+let activeTool = null;
 
 let currentColor = JSON.parse(currentColorDisplay.getAttribute("value"));
 let switchColorValue = JSON.parse(switchColor.getAttribute("value"));
@@ -55,7 +56,6 @@ function switchColorHandler() {
 }
 
 let isDrawing = false;
-let activeTool = null;
 
 let x = 0;
 let y = 0;
@@ -1874,13 +1874,13 @@ const ToolsInstance = {
 		updateDimens(bufferCanvas);
 		return {
 			removeEvents: () => {
-				bufferCanvas.style.display = "none";
 				deactivateTool(
 					bufferCanvas,
 					startRectHandler,
 					drawRectHandler,
 					stopRectHandler
 				);
+				bufferCanvas.style.display = "none";
 			},
 			changeColor: (color) => {
 				currentColor = ToRgbString(color);
