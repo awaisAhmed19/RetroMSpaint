@@ -7,9 +7,9 @@ const ctx = canvas.getContext("2d", { willReadFrequently: true });
 const dimen = document.getElementById("dimensions");
 const coords = document.getElementById("coordinate_value");
 const tools = document.querySelectorAll(".tools");
+const paletteColors = document.querySelectorAll(".pallete-color");
 let currentColorDisplay = document.getElementById("selected-color");
 let switchColor = document.getElementById("switch-color");
-const paletteColors = document.querySelectorAll(".pallete-color");
 let activeTool = null;
 
 let currentColor = JSON.parse(currentColorDisplay.getAttribute("value"));
@@ -194,8 +194,7 @@ const ToolsInstance = {
 	airbrush: () => {
 		let isDrawing = false;
 		let airOpt = 1;
-		let prevX = 0;
-		let prevY = 0;
+		let pos = null;
 		const airbrushSettings = {
 			1: { density: 30, radius: 1 },
 			2: { density: 30, radius: 2 },
@@ -222,11 +221,10 @@ const ToolsInstance = {
 
 		function startDrawing(e) {
 			isDrawing = true;
-			const rect = canvas.getBoundingClientRect();
-			prevX = e.clientX - rect.left;
-			prevY = e.clientY - rect.top;
+			pos = getMousePos(canvas, e);
+
 			ctx.beginPath();
-			updateCoords(canvas); // Ensuring coordinates are updated on start
+			updateCoords(canvas);
 		}
 
 		function stopDrawing() {
@@ -236,18 +234,16 @@ const ToolsInstance = {
 
 		function airBrush(e) {
 			if (!isDrawing) return;
-			const rect = canvas.getBoundingClientRect();
-			let x = e.clientX - rect.left;
-			let y = e.clientY - rect.top;
+			let newPos = getMousePos(canvas, e);
 			const { density, radius } =
 				airbrushSettings[airOpt] || airbrushSettings[1];
 
-			const dist = Math.sqrt((x - prevX) ** 2 + (y - prevY) ** 2);
+			const dist = Math.sqrt((newPos.x - pos.x) ** 2 + (newPos.y - pos.y) ** 2);
 			const step = Math.max(1 / dist, 0.05);
 
 			for (let t = 0; t < 1; t += step) {
-				const interpolatedX = prevX + (x - prevX) * t;
-				const interpolatedY = prevY + (y - prevY) * t;
+				const interpolatedX = pos.x + (newPos.x - pos.x) * t;
+				const interpolatedY = pos.y + (newPos.y - pos.y) * t;
 
 				for (let i = 0; i < density / 5; i++) {
 					const angle = Math.random() * Math.PI * 2;
@@ -260,8 +256,8 @@ const ToolsInstance = {
 					ctx.fill();
 				}
 			}
-			prevX = x;
-			prevY = y;
+			pos.x = newPos.x;
+			pos.y = newPos.y;
 			updateCoords(canvas);
 		}
 
@@ -289,22 +285,17 @@ const ToolsInstance = {
 			},
 			changeColor: (color) => {
 				currentColor = ToRgbString(color);
-				console.log(currentColor);
-				console.log(ctx.fillStyle);
 			},
 		};
 	},
 
 	brush: () => {
-		const customCursorUrl = "/static/cursors/brush.png";
-		const cursorHotspotX = -45;
-		const cursorHotspotY = -5;
 		let old = null;
 		let brushSize = 1;
 		let lineLength = 10;
 		let angle = Math.PI / 4;
 
-		canvas.style.cursor = `url(${customCursorUrl}) ${cursorHotspotX} ${cursorHotspotY}, auto`;
+		canvas.style.cursor = "crosshair";
 
 		document.addEventListener("htmx:afterSwap", function (e) {
 			const brushOptions = e.detail.target.querySelectorAll(
@@ -353,14 +344,6 @@ const ToolsInstance = {
 				});
 			}
 		});
-
-		function getMousePos(canvas, e) {
-			const rect = canvas.getBoundingClientRect();
-			return {
-				x: e.clientX - rect.left,
-				y: e.clientY - rect.top,
-			};
-		}
 
 		function drawLine(x0, y0, x1, y1) {
 			const dx = Math.abs(x1 - x0);
@@ -411,7 +394,7 @@ const ToolsInstance = {
 			old = { x: pos.x, y: pos.y };
 		};
 
-		const startBrushDrawing = (e) => {
+		const start = (e) => {
 			isDrawing = true;
 			old = getMousePos(canvas, e);
 
@@ -454,15 +437,15 @@ const ToolsInstance = {
 			}
 		};
 
-		const stopBrushDrawing = () => {
+		const stop = () => {
 			isDrawing = false;
 		};
 
-		activateTool(canvas, startBrushDrawing, draw, stopBrushDrawing);
+		activateTool(canvas, start, draw, stop);
 		updateCoords(canvas);
 		return {
 			removeEvents: () => {
-				deactivateTool(canvas, startBrushDrawing, draw, stopBrushDrawing);
+				deactivateTool(canvas, start, draw, stop);
 			},
 			changeColor: (color) => {
 				currentColor = ToRgbString(color);
@@ -495,14 +478,6 @@ const ToolsInstance = {
 			}
 		});
 
-		function getMousePos(canvas, e) {
-			const rect = canvas.getBoundingClientRect();
-			return {
-				x: e.clientX - rect.left,
-				y: e.clientY - rect.top,
-			};
-		}
-
 		let isDrawing = false;
 
 		const erase = (e) => {
@@ -526,20 +501,20 @@ const ToolsInstance = {
 			old = { x: pos.x, y: pos.y };
 		};
 
-		const startEraserDrawing = (e) => {
+		const start = (e) => {
 			isDrawing = true;
 			old = getMousePos(canvas, e);
 		};
 
-		const stopEraserDrawing = () => {
+		const stop = () => {
 			isDrawing = false;
 		};
 
-		activateTool(canvas, startEraserDrawing, erase, stopEraserDrawing);
+		activateTool(canvas, start, erase, stop);
 		updateCoords(canvas);
 		return {
 			removeEvents: () => {
-				deactivateTool(canvas, startEraserDrawing, erase, stopEraserDrawing);
+				deactivateTool(canvas, start, erase, stop);
 			},
 		};
 	},
@@ -551,56 +526,50 @@ const ToolsInstance = {
 		const SBufferCtx = selectionBuffer.getContext("2d");
 
 		bufferCanvas.width = canvas.width;
-		bufferCanvas.height = canvas.height;
 		selectionBuffer.width = canvas.width;
+		bufferCanvas.height = canvas.height;
 		selectionBuffer.height = canvas.height;
 
 		bufferCtx.lineWidth = 1;
 		ctx.lineWidth = 1;
-
+		bufferCanvas.style.cursor = "cosshair";
+		canvas.style.cursor = "cosshair";
+		selectionBuffer.style.cursor = "cosshair";
 		let isDrawing = false;
 		let isDragging = false;
 		let isSelected = false;
-		let startX,
-			startY,
-			endX,
-			endY,
+		let start,
+			end,
 			selectedImageData = null;
 		let offsetX, offsetY;
 
 		const startPolyRectHandler = (e) => {
-			const rect = bufferCanvas.getBoundingClientRect();
 			isDrawing = true;
-			startX = e.clientX - rect.left;
-			startY = e.clientY - rect.top;
+			start = getMousePos(canvas, e);
 		};
 
 		const drawPolyRectHandler = (e) => {
 			if (!isDrawing) return;
-			const rect = bufferCanvas.getBoundingClientRect();
-			endX = e.clientX - rect.left;
-			endY = e.clientY - rect.top;
-
+			end = getMousePos(canvas, e);
+			let width = end.x - start.x;
+			let height = end.y - start.y;
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 			bufferCtx.strokeStyle = "black";
 			bufferCtx.setLineDash([5, 3]);
-			bufferCtx.strokeRect(startX, startY, endX - startX, endY - startY);
+			bufferCtx.strokeRect(start.x, start.y, width, height);
 		};
 
 		const stopPolyRectHandler = (e) => {
 			isDrawing = false;
 			isSelected = true;
-
-			const rect = bufferCanvas.getBoundingClientRect();
-			endX = e.clientX - rect.left;
-			endY = e.clientY - rect.top;
-			const width = endX - startX;
-			const height = endY - startY;
+			end = getMousePos(canvas, e);
+			let width = end.x - start.x;
+			let height = end.y - start.y;
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-			selectedImageData = ctx.getImageData(startX, startY, width, height);
-			ctx.clearRect(startX, startY, width, height);
+			selectedImageData = ctx.getImageData(start.x, start.y, width, height);
+			ctx.clearRect(start.x, start.y, width, height);
 			SBufferCtx.clearRect(0, 0, selectionBuffer.width, selectionBuffer.height);
-			SBufferCtx.putImageData(selectedImageData, startX, startY);
+			SBufferCtx.putImageData(selectedImageData, start.x, start.y);
 
 			bufferCanvas.style.display = "none";
 			selectionBuffer.style.display = "block";
@@ -609,14 +578,12 @@ const ToolsInstance = {
 		};
 
 		const startDragHandler = (e) => {
-			const rect = selectionBuffer.getBoundingClientRect();
-			const mouseX = e.clientX - rect.left;
-			const mouseY = e.clientY - rect.top;
-
-			if (isInsideSelection(mouseX, mouseY)) {
+			selectionBuffer.style.cursor = "grab";
+			let mouse = getMousePos(canvas, e);
+			if (isInsideSelection(mouse.x, mouse.y)) {
 				isDragging = true;
-				offsetX = mouseX - startX;
-				offsetY = mouseY - startY;
+				offsetX = mouse.x - start.x;
+				offsetY = mouse.y - start.y;
 				selectionBuffer.addEventListener("mousemove", dragHandler);
 				selectionBuffer.addEventListener("mouseup", stopDragHandler);
 			} else {
@@ -626,25 +593,23 @@ const ToolsInstance = {
 
 		const dragHandler = (e) => {
 			if (!isDragging) return;
-			const rect = selectionBuffer.getBoundingClientRect();
-			const mouseX = e.clientX - rect.left;
-			const mouseY = e.clientY - rect.top;
-
-			const dx = mouseX - offsetX;
-			const dy = mouseY - offsetY;
+			selectionBuffer.style.cursor = "grabbing";
+			let mouse = getMousePos(canvas, e);
+			const dx = mouse.x - offsetX;
+			const dy = mouse.y - offsetY;
 
 			SBufferCtx.clearRect(0, 0, selectionBuffer.width, selectionBuffer.height);
 			SBufferCtx.putImageData(selectedImageData, dx, dy);
 
-			startX = dx;
-			startY = dy;
+			start.x = dx;
+			start.y = dy;
 		};
 
 		const stopDragHandler = (e) => {
 			if (!isDragging) return;
 			isDragging = false;
-
-			ctx.putImageData(selectedImageData, startX, startY);
+			bufferCanvas.style.cursor = "crosshair";
+			ctx.putImageData(selectedImageData, start.x, start.y);
 			SBufferCtx.clearRect(0, 0, selectionBuffer.width, selectionBuffer.height);
 
 			selectionBuffer.removeEventListener("mousemove", dragHandler);
@@ -664,10 +629,10 @@ const ToolsInstance = {
 
 		const isInsideSelection = (x, y) => {
 			return (
-				x >= startX &&
-				x <= startX + selectedImageData.width &&
-				y >= startY &&
-				y <= startY + selectedImageData.height
+				x >= start.x &&
+				x <= start.x + selectedImageData.width &&
+				y >= start.y &&
+				y <= start.y + selectedImageData.height
 			);
 		};
 
@@ -697,16 +662,17 @@ const ToolsInstance = {
 	eyedrop: () => {
 		const eyeDrop = document.getElementById("eyedrop");
 		const brush = document.getElementById("brush");
-		const rect = canvas.getBoundingClientRect();
 		const customCursorUrl = "/static/cursors/eye-dropper.png";
 		const cursorHotspotX = 15;
 		const cursorHotspotY = 24;
 		canvas.style.cursor = `url(${customCursorUrl}), auto`;
 		const handleEyeClick = (e) => {
-			const mouseX = e.clientX - rect.left - cursorHotspotX;
-			const mouseY = e.clientY - rect.top - cursorHotspotY;
+			let mouse = getMousePos(canvas, e);
 
-			const pixelColor = getColorAtPosition(mouseX, mouseY);
+			const pixelColor = getColorAtPosition(
+				mouse.x - cursorHotspotX,
+				mouse.y - cursorHotspotY
+			);
 
 			currentColorDisplay.style.backgroundColor = pixelColor;
 			currentColor = pixelColor;
@@ -840,23 +806,17 @@ const ToolsInstance = {
 		const bufferCanvas = document.getElementById("canvasbuffer");
 		const bufferCtx = bufferCanvas.getContext("2d");
 		let isDrawing = false;
-		let startPosX = 0;
-		let startPosY = 0;
-		let lastPosX = 0;
-		let lastPosY = 0;
+		let start = null;
+		let end = null;
+
 		let linewidth = 1;
-		const rec = bufferCanvas.getBoundingClientRect();
 
 		bufferCanvas.style.display = "none";
 		bufferCanvas.width = canvas.width;
 		bufferCanvas.height = canvas.height;
 
-		const customCursorUrl = "/static/cursors/precise.png";
-		const cursorHotspotX = -45;
-		const cursorHotspotY = -5;
-
-		canvas.style.cursor = `url(${customCursorUrl}), auto`;
-		bufferCanvas.style.cursor = `url(${customCursorUrl}), auto`;
+		canvas.style.cursor = "crosshair";
+		bufferCanvas.style.cursor = "crosshair";
 
 		document.addEventListener("htmx:afterSwap", function (e) {
 			const LOptions = e.detail.target.querySelectorAll(".Loptions");
@@ -873,21 +833,19 @@ const ToolsInstance = {
 		});
 
 		const startLineHandler = (e) => {
-			startPosX = e.clientX - rec.left;
-			startPosY = e.clientY - rec.top;
+			start = getMousePos(canvas, e);
 			isDrawing = true;
 		};
 
 		const drawLineHandler = (e) => {
 			if (!isDrawing) return;
-			lastPosX = e.clientX - rec.left;
-			lastPosY = e.clientY - rec.top;
+			end = getMousePos(canvas, e);
 			bufferCtx.strokeStyle = currentColor;
 			bufferCtx.lineWidth = linewidth;
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 			bufferCtx.beginPath();
-			bufferCtx.moveTo(startPosX + cursorHotspotX, startPosY + cursorHotspotY);
-			bufferCtx.lineTo(lastPosX + cursorHotspotX, lastPosY + cursorHotspotY);
+			bufferCtx.moveTo(start.x, start.y);
+			bufferCtx.lineTo(end.x, end.y);
 			bufferCtx.closePath();
 			bufferCtx.stroke();
 		};
@@ -898,8 +856,8 @@ const ToolsInstance = {
 			ctx.strokeStyle = currentColor;
 			ctx.lineWidth = linewidth;
 			ctx.beginPath();
-			ctx.moveTo(startPosX + cursorHotspotX, startPosY + cursorHotspotY);
-			ctx.lineTo(lastPosX + cursorHotspotX, lastPosY + cursorHotspotY);
+			ctx.moveTo(start.x, start.y);
+			ctx.lineTo(end.x, end.y);
 			ctx.closePath();
 			ctx.stroke();
 
@@ -934,23 +892,16 @@ const ToolsInstance = {
 	curveline: () => {
 		const bufferCanvas = document.getElementById("canvasbuffer");
 		const bufferCtx = bufferCanvas.getContext("2d");
-		const rec = bufferCanvas.getBoundingClientRect();
 		let isCurving = false;
-		let cp1x = 0;
-		let cp1y = 0;
-		let cp2x = 0;
-		let cp2y = 0;
+		let cp1 = null;
+		let cp2 = null;
 		let linewidth = 1;
 		bufferCanvas.style.display = "none";
 		bufferCanvas.width = canvas.width;
 		bufferCanvas.height = canvas.height;
 
-		const customCursorUrl = "/static/cursors/precise.png";
-		const cursorHotspotX = -45; // Adjust to center the cursor image
-		const cursorHotspotY = -5; // Adjust to center the cursor image
-
-		canvas.style.cursor = `url(${customCursorUrl}), auto`;
-		bufferCanvas.style.cursor = `url(${customCursorUrl}), auto`;
+		canvas.style.cursor = "crosshair";
+		bufferCanvas.style.cursor = "crosshair";
 
 		document.addEventListener("htmx:afterSwap", function (e) {
 			const LOptions = e.detail.target.querySelectorAll(".Loptions");
@@ -967,28 +918,19 @@ const ToolsInstance = {
 		});
 
 		const startCurvingHandler = (e) => {
-			cp1x = e.clientX - rec.left;
-			cp1y = e.clientY - rec.top;
+			cp1 = getMousePos(canvas, e);
 			isCurving = true;
 		};
 
 		const curveHandler = (e) => {
 			if (!isCurving) return;
-			cp2x = e.clientX - rec.left;
-			cp2y = e.clientY - rec.top;
+			cp2 = getMousePos(canvas, e);
 			bufferCtx.strokeStyle = currentColor;
 			bufferCtx.lineWidth = linewidth;
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 			bufferCtx.beginPath();
-			bufferCtx.moveTo(cp1x + cursorHotspotX, cp1y + cursorHotspotY);
-			bufferCtx.bezierCurveTo(
-				cp1x,
-				cp1y,
-				cp2x,
-				cp2y,
-				cp2x + cursorHotspotX,
-				cp2y + cursorHotspotY
-			);
+			bufferCtx.moveTo(cp1.x, cp1.y);
+			bufferCtx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, cp2.x, cp2.y);
 			bufferCtx.stroke();
 		};
 
@@ -998,15 +940,8 @@ const ToolsInstance = {
 			ctx.lineWidth = linewidth;
 			ctx.strokeStyle = currentColor;
 			ctx.beginPath();
-			ctx.moveTo(cp1x + cursorHotspotX, cp1y + cursorHotspotY);
-			ctx.bezierCurveTo(
-				cp1x,
-				cp1y,
-				cp2x,
-				cp2y,
-				cp2x + cursorHotspotX,
-				cp2y + cursorHotspotY
-			);
+			ctx.moveTo(cp1.x, cp1.y);
+			ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, cp2.x, cp2.y);
 			ctx.stroke();
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 		};
@@ -1049,12 +984,8 @@ const ToolsInstance = {
 		bufferCanvas.width = canvas.width;
 		bufferCanvas.height = canvas.height;
 
-		const customCursorUrl = "/static/cursors/precise.png";
-		const cursorHotspotX = 20;
-		const cursorHotspotY = 15;
-
-		canvas.style.cursor = `url(${customCursorUrl}), auto`;
-		bufferCanvas.style.cursor = `url(${customCursorUrl}), auto`;
+		canvas.style.cursor = "crosshair";
+		bufferCanvas.style.cursor = "crosshair";
 
 		bufferCtx.lineWidth = 1;
 		ctx.lineWidth = 1;
@@ -1075,14 +1006,6 @@ const ToolsInstance = {
 				});
 			}
 		});
-
-		const getMousePos = (canvas, e) => {
-			const rect = canvas.getBoundingClientRect();
-			return {
-				x: e.clientX - rect.left,
-				y: e.clientY - rect.top,
-			};
-		};
 
 		const isCloseToStart = (currentPoint, startPoint) => {
 			const distance = Math.sqrt(
@@ -1128,8 +1051,8 @@ const ToolsInstance = {
 		const drawLine = (start, end) => {
 			ctx.strokeStyle = currentColor;
 			ctx.beginPath();
-			ctx.moveTo(start.x + cursorHotspotX, start.y + cursorHotspotY);
-			ctx.lineTo(end.x + cursorHotspotX, end.y + cursorHotspotY);
+			ctx.moveTo(start.x, start.y);
+			ctx.lineTo(end.x, end.y);
 			ctx.stroke();
 		};
 
@@ -1141,14 +1064,8 @@ const ToolsInstance = {
 			const lastPoint = points[points.length - 1];
 			bufferCtx.strokeStyle = currentColor;
 			bufferCtx.beginPath();
-			bufferCtx.moveTo(
-				lastPoint.x + cursorHotspotX,
-				lastPoint.y + cursorHotspotY
-			);
-			bufferCtx.lineTo(
-				mousePos.x + cursorHotspotX,
-				mousePos.y + cursorHotspotY
-			);
+			bufferCtx.moveTo(lastPoint.x, lastPoint.y);
+			bufferCtx.lineTo(mousePos.x, mousePos.y);
 			bufferCtx.stroke();
 		};
 
@@ -1158,9 +1075,9 @@ const ToolsInstance = {
 
 		const fillPolygon = () => {
 			ctx.beginPath();
-			ctx.moveTo(points[0].x + cursorHotspotX, points[0].y + cursorHotspotY);
+			ctx.moveTo(points[0].x, points[0].y);
 			for (let i = 1; i < points.length; i++) {
-				ctx.lineTo(points[i].x + cursorHotspotX, points[i].y + cursorHotspotY);
+				ctx.lineTo(points[i].x, points[i].y);
 			}
 			ctx.closePath();
 			ctx.fill();
@@ -1197,34 +1114,31 @@ const ToolsInstance = {
 		const textarea = document.getElementById("textarea");
 		const canvas = document.getElementById("canvas");
 		const ctx = canvas.getContext("2d");
-		const rect = bufferCanvas.getBoundingClientRect();
-		const customCursorUrl = "/static/cursors/precise.png";
-		const cursorHotspotX = -45;
-		const cursorHotspotY = -5;
+		let start = null;
 
 		bufferCtx.lineWidth = 1;
 		ctx.lineWidth = 1;
+
 		bufferCanvas.width = canvas.width;
 		bufferCanvas.height = canvas.height;
+
 		bufferCanvas.style.display = "none";
 		bufferCanvas.style.background = "transparent";
 
-		let startPosX, startPosY, textBoxX, textBoxY, textBoxWidth, textBoxHeight;
+		let textBoxX, textBoxY, textBoxWidth, textBoxHeight;
 		let isDrawing = false;
 		let isEditing = false;
 
 		// Apply custom cursor with hotspot
-		canvas.style.cursor = `url(${customCursorUrl}) , auto`;
-		bufferCanvas.style.cursor = `url(${customCursorUrl}) , auto`;
+		canvas.style.cursor = "crosshair";
+		bufferCanvas.style.cursor = "crosshair";
 
 		const startTextBox = (e) => {
-			startPosX = e.clientX - rect.left + cursorHotspotX;
-			startPosY = e.clientY - rect.top + cursorHotspotY;
-
+			start = getMousePos(canvas, e);
 			if (!isEditing) {
 				isDrawing = true;
-				textBoxX = startPosX;
-				textBoxY = startPosY;
+				textBoxX = start.x;
+				textBoxY = start.y;
 			} else {
 				saveTextToCanvas();
 				isEditing = false;
@@ -1233,11 +1147,9 @@ const ToolsInstance = {
 
 		const writeTextBox = (e) => {
 			if (!isDrawing) return;
-			const mouseX = e.clientX - rect.left + cursorHotspotX;
-			const mouseY = e.clientY - rect.top + cursorHotspotY;
-
-			textBoxWidth = mouseX - startPosX;
-			textBoxHeight = mouseY - startPosY;
+			let mouse = getMousePos(canvas, e);
+			textBoxWidth = mouse.x - start.x;
+			textBoxHeight = mouse.y - start.y;
 
 			draw();
 		};
@@ -1327,10 +1239,9 @@ const ToolsInstance = {
 	rectshape: () => {
 		const bufferCanvas = document.getElementById("canvasbuffer");
 		const bufferCtx = bufferCanvas.getContext("2d");
-		const rect = bufferCanvas.getBoundingClientRect();
 		isDrawing = false;
-		let startPosX = 0;
-		let startPosY = 0;
+		let start = null;
+		let rect = null;
 		let OptValue = 1;
 		let currentMouseHandler = null;
 		bufferCanvas.style.display = "none";
@@ -1339,12 +1250,9 @@ const ToolsInstance = {
 
 		bufferCtx.lineWidth = 1;
 		ctx.lineWidth = 1;
-		const customCursorUrl = "/static/cursors/precise.png";
-		const cursorHotspotX = 45;
-		const cursorHotspotY = 5;
 
-		canvas.style.cursor = `url(${customCursorUrl}), auto`;
-		bufferCanvas.style.cursor = `url(${customCursorUrl}) , auto`;
+		canvas.style.cursor = "crosshair";
+		bufferCanvas.style.cursor = "crosshair";
 
 		document.addEventListener("htmx:afterSwap", function (e) {
 			const RectOptions = e.detail.target.querySelectorAll(".rectTool button");
@@ -1363,92 +1271,62 @@ const ToolsInstance = {
 		});
 
 		const startRectHandler = (e) => {
-			startPosX = e.clientX - rect.left;
-			startPosY = e.clientY - rect.top;
+			start = getMousePos(canvas, e);
 			isDrawing = true;
 		};
 
 		const drawRectHandler = (e) => {
 			if (!isDrawing) return;
-			const rectWidth = e.clientX - startPosX;
-			const rectHeight = e.clientY - startPosY;
+			rect = getMousePos(canvas, e);
 			bufferCtx.strokeStyle = currentColor;
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 			bufferCtx.beginPath();
 			bufferCtx.strokeRect(
-				startPosX - cursorHotspotX,
-				startPosY - cursorHotspotY,
-				rectWidth,
-				rectHeight
+				start.x,
+				start.y,
+				rect.x - start.x,
+				rect.y - start.y
 			);
 		};
 
 		const drawFilledRectHandler = (e) => {
 			if (!isDrawing) return;
-			const rectWidth = e.clientX - startPosX;
-			const rectHeight = e.clientY - startPosY;
+			rect = getMousePos(canvas, e);
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 			bufferCtx.beginPath();
 			bufferCtx.strokeStyle = "black";
 			bufferCtx.fillStyle = "white";
-			bufferCtx.rect(
-				startPosX - cursorHotspotX,
-				startPosY - cursorHotspotY,
-				rectWidth,
-				rectHeight
-			);
+			bufferCtx.rect(start.x, start.y, rect.x - start.x, rect.y - start.y);
 			bufferCtx.fill();
 			bufferCtx.stroke();
 		};
 
 		const drawFilledStrokeRectHandler = (e) => {
 			if (!isDrawing) return;
-			const rectWidth = e.clientX - startPosX;
-			const rectHeight = e.clientY - startPosY;
+			rect = getMousePos(canvas, e);
 			bufferCtx.strokeStyle = currentColor;
 			bufferCtx.fillStyle = currentColor;
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 			bufferCtx.beginPath();
-			bufferCtx.fillRect(
-				startPosX - cursorHotspotX,
-				startPosY - cursorHotspotY,
-				rectWidth,
-				rectHeight
-			);
+			bufferCtx.fillRect(start.x, start.y, rect.x - start.x, rect.y - start.y);
 		};
 
 		const stopRectHandler = (e) => {
 			if (!isDrawing) return;
 			isDrawing = false;
-			const rectWidth = e.clientX - startPosX;
-			const rectHeight = e.clientY - startPosY;
+			rect = getMousePos(canvas, e);
 			ctx.beginPath();
 			if (OptValue === 1) {
 				ctx.strokeStyle = currentColor;
-				ctx.strokeRect(
-					startPosX - cursorHotspotX,
-					startPosY - cursorHotspotY,
-					rectWidth,
-					rectHeight
-				);
+				ctx.strokeRect(start.x, start.y, rect.x - start.x, rect.y - start.y);
 			} else if (OptValue === 2) {
 				ctx.fillStyle = "white";
-				ctx.rect(
-					startPosX - cursorHotspotX,
-					startPosY - cursorHotspotY,
-					rectWidth,
-					rectHeight
-				);
+				ctx.rect(start.x, start.y, rect.x - start.x, rect.y - start.y);
 				ctx.fill();
 				ctx.stroke();
 			} else if (OptValue == 3) {
 				ctx.fillStyle = currentColor;
-				ctx.fillRect(
-					startPosX - cursorHotspotX,
-					startPosY - cursorHotspotY,
-					rectWidth,
-					rectHeight
-				);
+				ctx.fillRect(start.x, start.y, rect.x - start.x, rect.y - start.y);
 				ctx.stroke();
 			}
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
@@ -1500,8 +1378,8 @@ const ToolsInstance = {
 		const bufferCtx = bufferCanvas.getContext("2d");
 		const rect = bufferCanvas.getBoundingClientRect();
 		isDrawing = false;
-		let startPosX = 0;
-		let startPosY = 0;
+		let start = null;
+		let current = null;
 		let EOptValue = 1;
 		let currentMouseHandler = null;
 		bufferCanvas.style.display = "none";
@@ -1510,13 +1388,9 @@ const ToolsInstance = {
 
 		bufferCtx.lineWidth = 1;
 		ctx.lineWidth = 1;
-		const customCursorUrl = "/static/cursors/precise.png";
-		const cursorHotspotX = 45;
-		const cursorHotspotY = 5;
-
 		// Apply custom cursor with hotspot
-		canvas.style.cursor = `url(${customCursorUrl}), auto`;
-		bufferCanvas.style.cursor = `url(${customCursorUrl}), auto`;
+		canvas.style.cursor = "crosshair";
+		bufferCanvas.style.cursor = "crosshair";
 
 		document.addEventListener("htmx:afterSwap", function (e) {
 			const ElipseOptions =
@@ -1536,126 +1410,78 @@ const ToolsInstance = {
 		});
 
 		const startCircleHandler = (e) => {
-			startPosX = e.clientX - rect.left;
-			startPosY = e.clientY - rect.top;
+			start = getMousePos(canvas, e);
 			isDrawing = true;
 		};
 
 		const drawCircleHandler = (e) => {
 			if (!isDrawing) return;
-			const currentX = e.clientX - rect.left;
-			const currentY = e.clientY - rect.top;
+			current = getMousePos(canvas, e);
 			const radius = Math.sqrt(
-				(currentX - startPosX) ** 2 + (currentY - startPosY) ** 2
+				(current.x - start.x) ** 2 + (current.y - start.y) ** 2
 			);
 
 			bufferCtx.strokeStyle = currentColor;
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 			bufferCtx.beginPath();
-			bufferCtx.arc(
-				startPosX - cursorHotspotX,
-				startPosY - cursorHotspotY,
-				radius,
-				0,
-				Math.PI * 2,
-				false
-			);
+			bufferCtx.arc(start.x, start.y, radius, 0, Math.PI * 2, false);
 			bufferCtx.stroke();
 		};
 
 		const drawFilledStrokeElipseHandler = (e) => {
 			if (!isDrawing) return;
-			const currentX = e.clientX - rect.left;
-			const currentY = e.clientY - rect.top;
+			current = getMousePos(canvas, e);
 			const radius = Math.sqrt(
-				(currentX - startPosX) ** 2 + (currentY - startPosY) ** 2
+				(current.x - start.x) ** 2 + (current.y - start.y) ** 2
 			);
 			bufferCtx.strokeStyle = currentColor;
 			bufferCtx.fillStyle = "white";
 
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 			bufferCtx.beginPath();
-			bufferCtx.arc(
-				startPosX - cursorHotspotX,
-				startPosY - cursorHotspotY,
-				radius,
-				0,
-				Math.PI * 2,
-				false
-			);
+			bufferCtx.arc(start.x, start.y, radius, 0, Math.PI * 2, false);
 			bufferCtx.fill();
 			bufferCtx.stroke();
 		};
 
 		const drawFilledElipseHandler = (e) => {
 			if (!isDrawing) return;
-			const currentX = e.clientX - rect.left;
-			const currentY = e.clientY - rect.top;
+			current = getMousePos(canvas, e);
 			const radius = Math.sqrt(
-				(currentX - startPosX) ** 2 + (currentY - startPosY) ** 2
+				(current.x - start.x) ** 2 + (current.y - start.y) ** 2
 			);
 			bufferCtx.strokeStyle = currentColor;
 			bufferCtx.fillStyle = currentColor;
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 			bufferCtx.beginPath();
-			bufferCtx.arc(
-				startPosX - cursorHotspotX,
-				startPosY - cursorHotspotY,
-				radius,
-				0,
-				Math.PI * 2,
-				false
-			);
+			bufferCtx.arc(start.x, start.y, radius, 0, Math.PI * 2, false);
 			bufferCtx.fill();
 		};
 
 		const stopCircleHandler = (e) => {
 			if (!isDrawing) return;
 			isDrawing = false;
-			const currentX = e.clientX - rect.left;
-			const currentY = e.clientY - rect.top;
+			current = getMousePos(canvas, e);
 			const radius = Math.sqrt(
-				(currentX - startPosX) ** 2 + (currentY - startPosY) ** 2
+				(current.x - start.x) ** 2 + (current.y - start.y) ** 2
 			);
-
 			if (EOptValue === 1) {
 				ctx.strokeStyle = currentColor;
 				ctx.beginPath();
-				ctx.arc(
-					startPosX - cursorHotspotX,
-					startPosY - cursorHotspotY,
-					radius,
-					0,
-					Math.PI * 2,
-					false
-				);
+				ctx.arc(start.x, start.y, radius, 0, Math.PI * 2, false);
 				ctx.stroke();
 			} else if (EOptValue === 2) {
 				ctx.strokeStyle = currentColor;
 				ctx.fillStyle = "white";
 				ctx.beginPath();
-				ctx.arc(
-					startPosX - cursorHotspotX,
-					startPosY - cursorHotspotY,
-					radius,
-					0,
-					Math.PI * 2,
-					false
-				);
+				ctx.arc(start.x, start.y, radius, 0, Math.PI * 2, false);
 				ctx.fill();
 				ctx.stroke();
 			} else if (EOptValue === 3) {
 				ctx.strokeStyle = currentColor;
 				ctx.fillStyle = currentColor;
 				ctx.beginPath();
-				ctx.arc(
-					startPosX - cursorHotspotX,
-					startPosY - cursorHotspotY,
-					radius,
-					0,
-					Math.PI * 2,
-					false
-				);
+				ctx.arc(start.x, start.y, radius, 0, Math.PI * 2, false);
 				ctx.fill();
 				//ctx.stroke();
 			}
@@ -1712,10 +1538,8 @@ const ToolsInstance = {
 	rectelipse: () => {
 		const bufferCanvas = document.getElementById("canvasbuffer");
 		const bufferCtx = bufferCanvas.getContext("2d");
-		const rect = bufferCanvas.getBoundingClientRect();
 		let isDrawing = false;
-		let startPosX = 0;
-		let startPosY = 0;
+		let start = null;
 		const fixedRadius = 10;
 		let ROptions = 1;
 		let color = "black";
@@ -1725,12 +1549,8 @@ const ToolsInstance = {
 		bufferCanvas.width = canvas.width;
 		bufferCanvas.height = canvas.height;
 
-		const customCursorUrl = "/static/cursors/precise.png";
-		const cursorHotspotX = -5;
-		const cursorHotspotY = 5;
-
-		canvas.style.cursor = `url(${customCursorUrl}) ${cursorHotspotX} ${cursorHotspotY}, auto`;
-		bufferCanvas.style.cursor = `url(${customCursorUrl}) ${cursorHotspotX} ${cursorHotspotY}, auto`;
+		canvas.style.cursor = "crosshair";
+		bufferCanvas.style.cursor = "crosshair";
 
 		document.addEventListener("htmx:afterSwap", function (e) {
 			const RectElipseOptions = e.detail.target.querySelectorAll(
@@ -1764,23 +1584,21 @@ const ToolsInstance = {
 		});
 
 		const startRectHandler = (e) => {
-			startPosX = e.clientX - rect.left;
-			startPosY = e.clientY - rect.top;
+			start = getMousePos(canvas, e);
 			isDrawing = true;
 		};
 
 		const drawRectHandler = (e) => {
 			if (!isDrawing) return;
-			const mouseX = e.clientX - rect.left;
-			const mouseY = e.clientY - rect.top;
-			const rectWidth = mouseX - startPosX;
-			const rectHeight = mouseY - startPosY;
+			let mouse = getMousePos(canvas, e);
+			const rectWidth = mouse.x - start.x;
+			const rectHeight = mouse.y - start.y;
 
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 			drawRoundedRect(
 				bufferCtx,
-				startPosX,
-				startPosY,
+				start.x,
+				start.y,
 				rectWidth,
 				rectHeight,
 				fixedRadius,
@@ -1791,15 +1609,14 @@ const ToolsInstance = {
 		const stopRectHandler = (e) => {
 			if (!isDrawing) return;
 			isDrawing = false;
-			const mouseX = e.clientX - rect.left;
-			const mouseY = e.clientY - rect.top;
-			const rectWidth = mouseX - startPosX;
-			const rectHeight = mouseY - startPosY;
+			let mouse = getMousePos(canvas, e);
+			const rectWidth = mouse.x - start.x;
+			const rectHeight = mouse.y - start.y;
 
 			drawRoundedRect(
 				ctx,
-				startPosX,
-				startPosY,
+				start.x,
+				start.y,
 				rectWidth,
 				rectHeight,
 				fixedRadius,
