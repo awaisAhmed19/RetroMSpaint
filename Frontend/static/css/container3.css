@@ -4,69 +4,67 @@
 @import "container4.css";
 
 .container-3 {
-    background-color: var(--main-color);
-    display: flex;
-    flex-grow: 2;
-    height: 56px;
-    width: 100vw;
-    align-items: center;
-    border-top: 1px solid var(--borderlight);
-    border-bottom: 1px solid var(--borderlighterdark);
+	background-color: var(--main-color);
+	display: flex;
+	flex-grow: 2;
+	height: 56px;
+	width: 100vw;
+	align-items: center;
+	border-top: 1px solid var(--borderlight);
+	border-bottom: 1px solid var(--borderlighterdark);
 }
 
 .pallete-layout {
-    background-color: transparent;
-    display: grid;
-    border: 0;
-    left: 8px;
-    position: relative;
-    grid-template-columns: repeat(14,15px);
-    column-gap: 1px;
-    row-gap: 1px;
-  
+	background-color: transparent;
+	display: grid;
+	border: 0;
+	left: 8px;
+	position: relative;
+	grid-template-columns: repeat(14, 15px);
+	column-gap: 1px;
+	row-gap: 1px;
 }
 
 .pallete-layout button {
-    background-color: transparent;
-    height: 15px;
-    width: 15px;
-    border-top: 1px solid var(--borderdark);
-    border-right: 1px solid var(--borderlight);
-    border-left: 1px solid var(--borderdark);
-    border-bottom: 1px solid var(--borderlight);
+	background-color: transparent;
+	height: 15px;
+	width: 15px;
+	border-top: 1px solid var(--borderdark);
+	border-right: 1px solid var(--borderlight);
+	border-left: 1px solid var(--borderdark);
+	border-bottom: 1px solid var(--borderlight);
 }
 
 .pallete-preview {
-    background-color: rgb(209, 209, 209);
-    position: relative;
-    left: 5px;
-    display: flex;
-    height: 30px;
-    width: 30px;
-    border-top: 1px solid var(--borderdark);
-    border-right: 1px solid var(--borderlight);
-    border-left: 1px solid var(--borderdark);
-    border-bottom: 1px solid var(--borderlight);
+	background-color: rgb(209, 209, 209);
+	position: relative;
+	left: 5px;
+	display: flex;
+	height: 30px;
+	width: 30px;
+	border-top: 1px solid var(--borderdark);
+	border-right: 1px solid var(--borderlight);
+	border-left: 1px solid var(--borderdark);
+	border-bottom: 1px solid var(--borderlight);
 }
-.selectedcolor{
-    top: 5px;
-    left: 5px;
-    z-index: 10;
+.selectedcolor {
+	top: 5px;
+	left: 5px;
+	z-index: 10;
 }
-.switchcolor{
-    right: 5px;
-    bottom: 5px;
-    z-index: 0;
+.switchcolor {
+	right: 5px;
+	bottom: 5px;
+	z-index: 0;
 }
 
 .switchcolor,
-.selectedcolor{
-    border-top: 1px solid var(--borderlight);
-    border-left: 1px solid var(--borderlight);
-    border-right: 1px solid rgb(164, 164, 164);
-    border-bottom: 1px solid rgb(164, 164, 164);
-    width: 12px;
-    height: 12px;
-    position: absolute;
+.selectedcolor {
+	border-top: 1px solid var(--borderlight);
+	border-left: 1px solid var(--borderlight);
+	border-right: 1px solid rgb(164, 164, 164);
+	border-bottom: 1px solid rgb(164, 164, 164);
+	width: 12px;
+	height: 12px;
+	position: absolute;
 }
-

@@ -3,54 +3,54 @@
 @import "container2.css";
 @import "container4.css";
 .container-4 {
-    background-color: var(--main-color);
-    display: flex;
-    flex-grow: 1;
-    font-size: 13px;
-    height: 25px;
-    width: 100vw;
-    bottom: 0;
-    align-items: center;
-    column-gap: 2px;
-    border-top: 1px solid var(--borderlight);
+	background-color: var(--main-color);
+	display: flex;
+	flex-grow: 1;
+	font-size: 13px;
+	height: 25px;
+	width: 100vw;
+	bottom: 0;
+	align-items: center;
+	column-gap: 2px;
+	border-top: 1px solid var(--borderlight);
 }
 
 .footer-note {
-    background-color: transparent;
-    align-items:bottom;
-    flex: 4 1 80%;
-    /* font-size: 13px; */
-    position: relative;
-    height: 80%;
-    border-top: 1px solid var(--borderdark);
-    border-right: 1px solid var(--borderlight);
-    border-left: 1px solid var(--borderdark);
-    border-bottom: 1px solid var(--borderlight);
+	background-color: transparent;
+	align-items: bottom;
+	flex: 4 1 80%;
+	/* font-size: 13px; */
+	position: relative;
+	height: 80%;
+	border-top: 1px solid var(--borderdark);
+	border-right: 1px solid var(--borderlight);
+	border-left: 1px solid var(--borderdark);
+	border-bottom: 1px solid var(--borderlight);
 }
 
 .coordinates {
-    background-color: transparent;
-    position: relative;
-    align-content: baseline;
-    /* font-size: 13px; */
-    height: 80%;
-    width: 9vw;
-    bottom: 0;
-    flex-basis: 1 1 10%;
-    border-top: 1px solid var(--borderdark);
-    border-right: 1px solid var(--borderlight);
-    border-left: 1px solid var(--borderdark);
-    border-bottom: 1px solid var(--borderlight);
+	background-color: transparent;
+	position: relative;
+	align-content: baseline;
+	/* font-size: 13px; */
+	height: 80%;
+	width: 9vw;
+	bottom: 0;
+	flex-basis: 1 1 10%;
+	border-top: 1px solid var(--borderdark);
+	border-right: 1px solid var(--borderlight);
+	border-left: 1px solid var(--borderdark);
+	border-bottom: 1px solid var(--borderlight);
 }
 
 .extra {
-    background-color: transparent;
-    position: relative;
-    height: 80%;
-    width: 9vw;
-    bottom: 0;
-    border-top: 1px solid var(--borderdark);
-    border-right: 1px solid var(--borderlight);
-    border-left: 1px solid var(--borderdark);
-    border-bottom: 1px solid var(--borderlight);
-} 
+	background-color: transparent;
+	position: relative;
+	height: 80%;
+	width: 9vw;
+	bottom: 0;
+	border-top: 1px solid var(--borderdark);
+	border-right: 1px solid var(--borderlight);
+	border-left: 1px solid var(--borderdark);
+	border-bottom: 1px solid var(--borderlight);
+}
