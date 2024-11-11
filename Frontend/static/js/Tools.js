@@ -138,16 +138,48 @@ function ToRgbString(rgbArray) {
 	}
 }
 
-function activateTool(canvas, start, draw, stop) {
-	canvas.addEventListener("mousedown", start);
-	canvas.addEventListener("mousemove", draw);
-	canvas.addEventListener("mouseup", stop);
+function isMobileOrTab() {
+	return window.innerWidth <= 800 || "ontouchstart" in window;
 }
 
-function deactivateTool(canvas, start, draw, stop) {
-	canvas.removeEventListener("mousedown", start);
-	canvas.removeEventListener("mousemove", draw);
-	canvas.removeEventListener("mouseup", stop);
+function activateTool(canvas, start, draw, stop) {
+	const startHandler = (e) => {
+		e.preventDefault();
+		start(e);
+	};
+	const drawHandler = (e) => {
+		e.preventDefault();
+		draw(e);
+	};
+	const stopHandler = (e) => {
+		e.preventDefault();
+		stop(e);
+	};
+
+	canvas.addEventListener("mousedown", startHandler);
+	canvas.addEventListener("mousemove", drawHandler);
+	canvas.addEventListener("mouseup", stopHandler);
+
+	canvas.addEventListener("touchstart", startHandler);
+	canvas.addEventListener("touchmove", drawHandler);
+	canvas.addEventListener("touchend", stopHandler);
+	canvas.addEventListener("touchcancel", stopHandler);
+
+	canvas._eventHandlers = { startHandler, drawHandler, stopHandler };
+}
+
+function deactivateTool(canvas) {
+	const { startHandler, drawHandler, stopHandler } =
+		canvas._eventHandlers || {};
+
+	canvas.removeEventListener("mousedown", startHandler);
+	canvas.removeEventListener("mousemove", drawHandler);
+	canvas.removeEventListener("mouseup", stopHandler);
+
+	canvas.removeEventListener("touchstart", startHandler);
+	canvas.removeEventListener("touchmove", drawHandler);
+	canvas.removeEventListener("touchend", stopHandler);
+	canvas.removeEventListener("touchcancel", stopHandler);
 }
 
 const ToolsInstance = {
@@ -262,6 +294,12 @@ const ToolsInstance = {
 		}
 
 		const activateTool = () => {
+			if (isMobileOrTab()) {
+				canvas.addEventListener("touchstart", startDrawing);
+				canvas.addEventListener("touchmove", airBrush);
+				canvas.addEventListener("touchend", stopDrawing);
+				canvas.addEventListener("touchcancel", stopDrawing);
+			}
 			canvas.addEventListener("mousedown", startDrawing);
 			canvas.addEventListener("mousemove", airBrush);
 			canvas.addEventListener("mouseup", stopDrawing);
@@ -269,6 +307,12 @@ const ToolsInstance = {
 		};
 
 		const deactivateTool = () => {
+			if (isMobileOrTab()) {
+				canvas.removeEventListener("touchmove", airBrush);
+				canvas.removeEventListener("touchend", stopDrawing);
+				canvas.removeEventListener("touchstart", startDrawing);
+				canvas.removeEventListener("touchcancel", stopDrawing);
+			}
 			canvas.removeEventListener("mousedown", startDrawing);
 			canvas.removeEventListener("mousemove", airBrush);
 			canvas.removeEventListener("mouseup", stopDrawing);
@@ -686,9 +730,15 @@ const ToolsInstance = {
 			return `rgb(${pxData.data[0]} ${pxData.data[1]} ${pxData.data[2]} / ${pxData.data[3] / 255})`;
 		}
 		const activateTool = () => {
+			if (isMobileOrTab()) {
+				canvas.addEventListener("touchstart", handleEyeClick);
+			}
 			canvas.addEventListener("mousedown", handleEyeClick);
 		};
 		const deactivateTool = () => {
+			if (isMobileOrTab()) {
+				canvas.removeEventListener("touchstart", handleEyeClick);
+			}
 			canvas.removeEventListener("mousedown", handleEyeClick);
 			eyeDrop.classList.remove("pressed");
 			brush.classList.add("pressed");
@@ -782,10 +832,16 @@ const ToolsInstance = {
 		};
 
 		const activateTool = () => {
+			if (isMobileOrTab()) {
+				canvas.addEventListener("touchstart", mousedown);
+			}
 			canvas.addEventListener("mousedown", mousedown);
 		};
 
 		const deactivateTool = () => {
+			if (isMobileOrTab()) {
+				canvas.removeEventListener("touchstart", mousedown);
+			}
 			canvas.removeEventListener("mousedown", mousedown);
 		};
 
@@ -1207,6 +1263,11 @@ const ToolsInstance = {
 
 		const activateTool = () => {
 			bufferCanvas.style.display = "flex";
+			if (isMobileOrTab()) {
+				bufferCanvas.addEventListener("touchstart", startTextBox);
+				bufferCanvas.addEventListener("touchmove", writeTextBox);
+				bufferCanvas.addEventListener("touchend", stopTextBox);
+			}
 			bufferCanvas.addEventListener("mousedown", startTextBox);
 			bufferCanvas.addEventListener("mousemove", writeTextBox);
 			bufferCanvas.addEventListener("mouseup", stopTextBox);
@@ -1216,6 +1277,12 @@ const ToolsInstance = {
 
 		const deactivateTool = () => {
 			bufferCanvas.style.display = "none";
+			if (isMobileOrTab()) {
+				bufferCanvas.removeEventListener("touchmove", writeTextBox);
+				bufferCanvas.removeEventListener("touchend", stopTextBox);
+				bufferCanvas.removeEventListener("touchstart", startTextBox);
+				bufferCanvas.removeEventListener("touchcancel", stopTextBox);
+			}
 			bufferCanvas.removeEventListener("mousedown", startTextBox);
 			bufferCanvas.removeEventListener("mousemove", writeTextBox);
 			bufferCanvas.removeEventListener("mouseup", stopTextBox);
@@ -1334,6 +1401,22 @@ const ToolsInstance = {
 
 		const activateTool = () => {
 			bufferCanvas.style.display = "flex";
+			if (isMobileOrTab()) {
+				canvas.addEventListener("touchstart", startRectHandler);
+				if (currentMouseHandler) {
+					bufferCanvas.removeEventListener("touchmove", currentMouseHandler);
+				}
+				if (OptValue === 1) {
+					currentMouseHandler = drawRectHandler;
+				} else if (OptValue === 2) {
+					currentMouseHandler = drawFilledRectHandler;
+				} else if (OptValue === 3) {
+					currentMouseHandler = drawFilledStrokeRectHandler;
+				}
+				bufferCanvas.addEventListener("touchmove", currentMouseHandler);
+				bufferCanvas.addEventListener("touchend", stopRectHandler);
+				bufferCanvas.addEventListener("touchcancel", stopRectHandler);
+			}
 			bufferCanvas.addEventListener("mousedown", startRectHandler);
 			if (currentMouseHandler) {
 				bufferCanvas.removeEventListener("mousemove", currentMouseHandler);
@@ -1352,6 +1435,14 @@ const ToolsInstance = {
 
 		const deactivateTool = () => {
 			bufferCanvas.style.display = "none";
+			if (isMobileOrTab()) {
+				if (currentMouseHandler) {
+					bufferCanvas.removeEventListener("touchmove", currentMouseHandler);
+				}
+				bufferCanvas.removeEventListener("touchend", stopRectHandler);
+				bufferCanvas.removeEventListener("touchstart", startRectHandler);
+				bufferCanvas.removeEventListener("touchcancel", stopRectHandler);
+			}
 			bufferCanvas.removeEventListener("mousedown", startRectHandler);
 			if (currentMouseHandler) {
 				bufferCanvas.removeEventListener("mousemove", currentMouseHandler);
@@ -1488,31 +1579,97 @@ const ToolsInstance = {
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 		};
 
-		const activateTool = () => {
-			bufferCanvas.style.display = "flex";
-			bufferCanvas.addEventListener("mousedown", startCircleHandler);
-			if (currentMouseHandler) {
-				bufferCanvas.removeEventListener("mousemove", currentMouseHandler);
+		const toggleEventListener = (event, handler, action) => {
+			if (action === "add") {
+				bufferCanvas.addEventListener(event, handler);
+			} else if (action === "remove") {
+				bufferCanvas.removeEventListener(event, handler);
 			}
-			if (EOptValue == 1 && currentMouseHandler !== drawCircleHandler) {
-				currentMouseHandler = drawCircleHandler;
-			} else if (
-				EOptValue == 2 &&
-				currentMouseHandler !== drawFilledStrokeElipseHandler
-			) {
-				currentMouseHandler = drawFilledStrokeElipseHandler;
-			} else if (
-				EOptValue == 3 &&
-				currentMouseHandler !== drawFilledElipseHandler
-			) {
-				currentMouseHandler = drawFilledElipseHandler;
-			}
-
-			bufferCanvas.addEventListener("mousemove", currentMouseHandler);
-			bufferCanvas.addEventListener("mouseup", stopCircleHandler);
 		};
 
+		const activateTool = () => {
+			bufferCanvas.style.display = "flex";
+
+			// Helper function to handle adding/removing event listeners
+			// Handle touch events for mobile or tablet
+			if (isMobileOrTab()) {
+				toggleEventListener("touchstart", startCircleHandler, "add");
+				toggleEventListener("touchend", stopCircleHandler, "add");
+				toggleEventListener("touchcancel", stopCircleHandler, "add");
+
+				// Remove previous touchmove handler if set
+				if (currentMouseHandler) {
+					toggleEventListener("touchmove", currentMouseHandler, "remove");
+				}
+
+				// Set the new touchmove handler based on the selected option
+				switch (EOptValue) {
+					case 1:
+						if (currentMouseHandler !== drawCircleHandler) {
+							currentMouseHandler = drawCircleHandler;
+							toggleEventListener("touchmove", currentMouseHandler, "add");
+						}
+						break;
+					case 2:
+						if (currentMouseHandler !== drawFilledStrokeElipseHandler) {
+							currentMouseHandler = drawFilledStrokeElipseHandler;
+							toggleEventListener("touchmove", currentMouseHandler, "add");
+						}
+						break;
+					case 3:
+						if (currentMouseHandler !== drawFilledElipseHandler) {
+							currentMouseHandler = drawFilledElipseHandler;
+							toggleEventListener("touchmove", currentMouseHandler, "add");
+						}
+						break;
+					default:
+						break;
+				}
+			}
+
+			// Handle mouse events for desktop
+			toggleEventListener("mousedown", startCircleHandler, "add");
+
+			// Remove previous mousemove handler if set
+			if (currentMouseHandler) {
+				toggleEventListener("mousemove", currentMouseHandler, "remove");
+			}
+
+			// Set the new mousemove handler based on the selected option
+			switch (EOptValue) {
+				case 1:
+					if (currentMouseHandler !== drawCircleHandler) {
+						currentMouseHandler = drawCircleHandler;
+						toggleEventListener("mousemove", currentMouseHandler, "add");
+					}
+					break;
+				case 2:
+					if (currentMouseHandler !== drawFilledStrokeElipseHandler) {
+						currentMouseHandler = drawFilledStrokeElipseHandler;
+						toggleEventListener("mousemove", currentMouseHandler, "add");
+					}
+					break;
+				case 3:
+					if (currentMouseHandler !== drawFilledElipseHandler) {
+						currentMouseHandler = drawFilledElipseHandler;
+						toggleEventListener("mousemove", currentMouseHandler, "add");
+					}
+					break;
+				default:
+					break;
+			}
+
+			toggleEventListener("mouseup", stopCircleHandler, "add");
+		};
 		const deactivateTool = () => {
+			if (isMobileOrTab()) {
+				bufferCanvas.removeEventListener("touchstart", startCircleHandler);
+				if (currentMouseHandler !== null) {
+					bufferCanvas.removeEventListener("touchmove", currentMouseHandler);
+					currentMouseHandler = null;
+				}
+				bufferCanvas.removeEventListener("touchend", stopCircleHandler);
+			}
 			bufferCanvas.removeEventListener("mousedown", startCircleHandler);
 			if (currentMouseHandler !== null) {
 				bufferCanvas.removeEventListener("mousemove", currentMouseHandler);
