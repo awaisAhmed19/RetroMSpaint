@@ -573,7 +573,6 @@ const ToolsInstance = {
 			},
 		};
 	},
-
 	rectlasso: () => {
 		const bufferCanvas = document.getElementById("canvasbuffer");
 		const selectionBuffer = document.getElementById("selectionbuffer");
@@ -597,59 +596,61 @@ const ToolsInstance = {
 			end,
 			selectedImageData = null;
 		let offsetX, offsetY;
+		bufferCtx.strokeStyle = "black";
+		bufferCtx.setLineDash([5, 3]);
 
-		const startPolyRectHandler = (e) => {
+		const startLassoRect = (e) => {
+			selectedImageData = null;
 			isDrawing = true;
-			start = getMousePos(canvas, e);
+			start = getMousePos(bufferCanvas, e);
 		};
 
-		const drawPolyRectHandler = (e) => {
+		const drawLassoRect = (e) => {
 			if (!isDrawing) return;
-			end = getMousePos(canvas, e);
-			let width = end.x - start.x;
-			let height = end.y - start.y;
+			end = getMousePos(bufferCanvas, e);
+			let width = Math.abs(end.x - start.x);
+			let height = Math.abs(end.y - start.y);
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-			bufferCtx.strokeStyle = "black";
-			bufferCtx.setLineDash([5, 3]);
+			bufferCtx.beginPath();
 			bufferCtx.strokeRect(start.x, start.y, width, height);
 		};
 
-		const stopPolyRectHandler = (e) => {
+		const stopLassoRect = (e) => {
 			isDrawing = false;
 			isSelected = true;
-			end = getMousePos(canvas, e);
-			let width = end.x - start.x;
-			let height = end.y - start.y;
-			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+			end = getMousePos(bufferCanvas, e);
+			let width = Math.abs(end.x - start.x);
+			let height = Math.abs(end.y - start.y);
 			selectedImageData = ctx.getImageData(start.x, start.y, width, height);
 			ctx.clearRect(start.x, start.y, width, height);
-			SBufferCtx.clearRect(0, 0, selectionBuffer.width, selectionBuffer.height);
 			SBufferCtx.putImageData(selectedImageData, start.x, start.y);
-
 			bufferCanvas.style.display = "none";
 			selectionBuffer.style.display = "block";
-
-			selectionBuffer.addEventListener("mousedown", startDragHandler);
+			activateTool(
+				selectionBuffer,
+				startDragHandler,
+				DraghHandler,
+				stopDraghHandler
+			);
 		};
 
 		const startDragHandler = (e) => {
-			selectionBuffer.style.cursor = "grab";
 			let mouse = getMousePos(canvas, e);
 			if (isInsideSelection(mouse.x, mouse.y)) {
+				selectionBuffer.style.cursor = "grab";
 				isDragging = true;
 				offsetX = mouse.x - start.x;
 				offsetY = mouse.y - start.y;
-				selectionBuffer.addEventListener("mousemove", dragHandler);
-				selectionBuffer.addEventListener("mouseup", stopDragHandler);
 			} else {
-				stopDragHandler(e);
+				stopDraghHandler(e);
 			}
 		};
-
-		const dragHandler = (e) => {
+		const DraghHandler = (e) => {
 			if (!isDragging) return;
-			selectionBuffer.style.cursor = "grabbing";
 			let mouse = getMousePos(canvas, e);
+			if (isInsideSelection(mouse.x, mouse.y)) {
+				selectionBuffer.style.cursor = "grabbing";
+			}
 			const dx = mouse.x - offsetX;
 			const dy = mouse.y - offsetY;
 
@@ -660,26 +661,22 @@ const ToolsInstance = {
 			start.y = dy;
 		};
 
-		const stopDragHandler = (e) => {
+		const stopDraghHandler = (e) => {
 			if (!isDragging) return;
 			isDragging = false;
+			bufferCanvas.style.display = "block";
 			bufferCanvas.style.cursor = "crosshair";
-			ctx.putImageData(selectedImageData, start.x, start.y);
 			SBufferCtx.clearRect(0, 0, selectionBuffer.width, selectionBuffer.height);
-
-			selectionBuffer.removeEventListener("mousemove", dragHandler);
-			selectionBuffer.removeEventListener("mouseup", stopDragHandler);
-
-			selectionBuffer.style.display = "none";
-			bufferCanvas.style.display = "none";
-			isSelected = false;
-			activateTool(
-				bufferCanvas,
-				startPolyRectHandler,
-				drawPolyRectHandler,
-				stopPolyRectHandler
+			bufferCtx.clearRect(0, 0, selectionBuffer.width, selectionBuffer.height);
+			ctx.putImageData(selectedImageData, start.x, start.y);
+			deactivateTool(
+				selectionBuffer,
+				startDragHandler,
+				DraghHandler,
+				stopDraghHandler
 			);
-			bufferCanvas.style.display = "flex";
+			selectionBuffer.style.display = "none";
+			isSelected = false;
 		};
 
 		const isInsideSelection = (x, y) => {
@@ -691,12 +688,7 @@ const ToolsInstance = {
 			);
 		};
 
-		activateTool(
-			bufferCanvas,
-			startPolyRectHandler,
-			drawPolyRectHandler,
-			stopPolyRectHandler
-		);
+		activateTool(bufferCanvas, startLassoRect, drawLassoRect, stopLassoRect);
 		bufferCanvas.style.display = "flex";
 		updateCoords(bufferCanvas);
 		updateDimens(bufferCanvas);
@@ -706,14 +698,13 @@ const ToolsInstance = {
 				selectionBuffer.style.display = "none";
 				deactivateTool(
 					bufferCanvas,
-					startPolyRectHandler,
-					drawPolyRectHandler,
-					stopPolyRectHandler
+					startLassoRect,
+					drawLassoRect,
+					stopLassoRect
 				);
 			},
 		};
 	},
-
 	eyedrop: () => {
 		const eyeDrop = document.getElementById("eyedrop");
 		const brush = document.getElementById("brush");
@@ -962,7 +953,7 @@ const ToolsInstance = {
 		let end = null;
 		let cp1 = null;
 		let cp2 = null;
-		let mouseDownEv = 3;
+		let mouseDownEv = 2;
 		let draggingCp1 = false;
 		let draggingCp2 = false;
 		let linewidth = 1;
@@ -1045,7 +1036,7 @@ const ToolsInstance = {
 			activateCurve();
 		};
 		function activateCurve() {
-			mouseDownEv = 3;
+			mouseDownEv = 2;
 			deactivateTool(
 				bufferCanvas,
 				startCurvingHandler,

@@ -8,6 +8,10 @@ app = Flask(
 def index():
     return render_template('Index.html')
 
+@app.route('/clear')
+def clear():
+    return ""
+
 # Route to load dynamic templates
 @app.route('/<template>.html')
 def load_template(template):
