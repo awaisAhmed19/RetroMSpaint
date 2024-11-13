@@ -116,6 +116,13 @@
 					></button>
 					<button
 						class="tools"
+						hx-get="/clear"
+						hx-target=".optionWindow"
+						hx-swap="innerHTML"
+						id="polylasso"
+					></button>
+					<button
+						class="tools"
 						hx-get="/EraserOptions.html"
 						hx-target=".optionWindow"
 						hx-swap="innerHTML"
@@ -134,6 +141,13 @@
 						hx-target=".optionWindow"
 						hx-swap="innerHTML"
 						id="eyedrop"
+					></button>
+					<button
+						class="tools"
+						hx-get="/clear"
+						hx-target=".optionWindow"
+						hx-swap="innerHTML"
+						id="magnification"
 					></button>
 					<button
 						class="tools"
@@ -251,13 +265,6 @@
 						class="resize-handle corner"
 						alt="corner handle"
 					/>
-				</div>
-
-				<div class="scrollBar scroll-vertical">
-					<div class="thumb thumb-vertical"></div>
-				</div>
-				<div class="scrollBar scrollbar-horizontal">
-					<div class="thumb thumb-horizontal"></div>
 				</div>
 			</div>
 

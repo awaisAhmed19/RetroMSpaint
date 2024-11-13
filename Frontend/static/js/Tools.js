@@ -40,6 +40,17 @@ paletteColors.forEach((color) => {
 	});
 });
 
+function createCanvas(width, height) {
+	const stage = document.getElementById("canvas-container");
+	const canvas = document.createElement("canvas");
+	canvas.width = width;
+	canvas.height = height;
+
+	stage.appendChild(canvas);
+	const ctx = canvas.getContext("2d");
+	return { canvas, ctx };
+}
+
 function switchColorHandler() {
 	let temp = switchColor.style.backgroundColor;
 	switchColor.style.backgroundColor = currentColorDisplay.style.backgroundColor;
@@ -916,7 +927,6 @@ const ToolsInstance = {
 			ctx.lineTo(end.x, end.y);
 			ctx.closePath();
 			ctx.stroke();
-
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 		};
 
@@ -944,13 +954,17 @@ const ToolsInstance = {
 			},
 		};
 	},
-	//TODO: need to solve the pullingpart;
 	curveline: () => {
 		const bufferCanvas = document.getElementById("canvasbuffer");
 		const bufferCtx = bufferCanvas.getContext("2d");
 		let isCurving = false;
+		let start = null;
+		let end = null;
 		let cp1 = null;
 		let cp2 = null;
+		let mouseDownEv = 3;
+		let draggingCp1 = false;
+		let draggingCp2 = false;
 		let linewidth = 1;
 		bufferCanvas.style.display = "none";
 		bufferCanvas.width = canvas.width;
@@ -972,35 +986,123 @@ const ToolsInstance = {
 				});
 			}
 		});
-
+		const isWithinControlPoint = (mousepos, cp) => {
+			const dx = mousepos.x - cp.x;
+			const dy = mousepos.y - cp.y;
+			return Math.sqrt(dx * dx + dy * dy) < 100;
+		};
 		const startCurvingHandler = (e) => {
-			cp1 = getMousePos(canvas, e);
+			start = getMousePos(canvas, e);
 			isCurving = true;
 		};
 
 		const curveHandler = (e) => {
 			if (!isCurving) return;
-			cp2 = getMousePos(canvas, e);
-			bufferCtx.strokeStyle = currentColor;
-			bufferCtx.lineWidth = linewidth;
-			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-			bufferCtx.beginPath();
-			bufferCtx.moveTo(cp1.x, cp1.y);
-			bufferCtx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, cp2.x, cp2.y);
-			bufferCtx.stroke();
+			end = getMousePos(canvas, e);
+			let Mx = Math.abs((end.x + start.x) / 2);
+			let My = Math.abs((end.y + start.y) / 2);
+			cp1 = {
+				x: Math.abs((Mx + start.x) / 2),
+				y: Math.abs((My + start.y) / 2),
+			};
+			cp2 = {
+				x: Math.abs((end.x + Mx) / 2),
+				y: Math.abs((end.y + My) / 2),
+			};
+			drawCurve(bufferCtx);
 		};
+
+		function drawCurve(ctx) {
+			ctx.strokeStyle = currentColor;
+			ctx.lineWidth = linewidth;
+			ctx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+			ctx.beginPath();
+			ctx.moveTo(start.x, start.y);
+			ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
+			ctx.stroke();
+			// // Start and end points
+			// ctx.fillStyle = "blue";
+			// ctx.beginPath();
+			// ctx.arc(start.x, start.y, 5, 0, 2 * Math.PI); // Start point
+			// ctx.arc(end.x, end.y, 5, 0, 2 * Math.PI); // End point
+			// ctx.fill();
+
+			// // Control points
+			// ctx.fillStyle = "red";
+			// ctx.beginPath();
+			// ctx.arc(cp1.x, cp1.y, 5, 0, 2 * Math.PI); // Control point one
+			// ctx.arc(cp2.x, cp2.y, 5, 0, 2 * Math.PI); // Control point two
+			// ctx.fill();
+		}
 
 		const stopCurvingHandler = () => {
 			if (!isCurving) return;
 			isCurving = false;
 			ctx.lineWidth = linewidth;
 			ctx.strokeStyle = currentColor;
-			ctx.beginPath();
-			ctx.moveTo(cp1.x, cp1.y);
-			ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, cp2.x, cp2.y);
-			ctx.stroke();
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+			drawCurve(bufferCtx);
+			activateCurve();
 		};
+		function activateCurve() {
+			mouseDownEv = 3;
+			deactivateTool(
+				bufferCanvas,
+				startCurvingHandler,
+				curveHandler,
+				stopCurvingHandler
+			);
+			bufferCanvas.addEventListener("mousedown", mouseDownHandler);
+			bufferCanvas.addEventListener("mousemove", mouseMoveHandler);
+			bufferCanvas.addEventListener("mouseup", mouseUpHandler);
+		}
+		const mouseDownHandler = (e) => {
+			if (isWithinControlPoint(getMousePos(canvas, e), cp1)) {
+				draggingCp1 = true;
+			} else if (isWithinControlPoint(getMousePos(canvas, e), cp2)) {
+				draggingCp2 = true;
+			}
+		};
+		const mouseMoveHandler = (e) => {
+			if (draggingCp1 || draggingCp2) {
+				let mousepos = getMousePos(canvas, e);
+				if (draggingCp1) {
+					cp1.x = mousepos.x;
+					cp1.y = mousepos.y;
+				} else if (draggingCp2) {
+					cp2.x = mousepos.x;
+					cp2.y = mousepos.y;
+				}
+				bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+				drawCurve(bufferCtx);
+			}
+		};
+
+		const mouseUpHandler = () => {
+			mouseDownEv--;
+			draggingCp1 = false;
+			draggingCp2 = false;
+			if (mouseDownEv == 0) {
+				deactivateCurve();
+				ctx.beginPath();
+				ctx.moveTo(start.x, start.y);
+				ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
+				ctx.stroke();
+				bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+				return;
+			}
+		};
+		function deactivateCurve() {
+			activateTool(
+				bufferCanvas,
+				startCurvingHandler,
+				curveHandler,
+				stopCurvingHandler
+			);
+			bufferCanvas.removeEventListener("mousedown", mouseDownHandler);
+			bufferCanvas.removeEventListener("mousemove", mouseMoveHandler);
+			bufferCanvas.removeEventListener("mouseup", mouseUpHandler);
+		}
 
 		bufferCanvas.style.display = "flex";
 		activateTool(
@@ -1011,6 +1113,7 @@ const ToolsInstance = {
 		);
 		updateCoords(bufferCanvas);
 		updateDimens(bufferCanvas);
+
 		return {
 			removeEvents: () => {
 				bufferCanvas.style.display = "none";
@@ -1020,6 +1123,9 @@ const ToolsInstance = {
 					curveHandler,
 					stopCurvingHandler
 				);
+				bufferCanvas.removeEventListener("mousedown", mouseDownHandler);
+				bufferCanvas.removeEventListener("mousemove", mouseMoveHandler);
+				bufferCanvas.removeEventListener("mouseup", mouseUpHandler);
 			},
 			changeColor: (color) => {
 				currentColor = ToRgbString(color);
