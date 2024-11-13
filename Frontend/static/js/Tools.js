@@ -608,8 +608,8 @@ const ToolsInstance = {
 		const drawLassoRect = (e) => {
 			if (!isDrawing) return;
 			end = getMousePos(bufferCanvas, e);
-			let width = Math.abs(end.x - start.x);
-			let height = Math.abs(end.y - start.y);
+			let width = end.x - start.x;
+			let height = end.y - start.y;
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 			bufferCtx.beginPath();
 			bufferCtx.strokeRect(start.x, start.y, width, height);
@@ -619,11 +619,15 @@ const ToolsInstance = {
 			isDrawing = false;
 			isSelected = true;
 			end = getMousePos(bufferCanvas, e);
-			let width = Math.abs(end.x - start.x);
-			let height = Math.abs(end.y - start.y);
+			let width = end.x - start.x;
+			let height = end.y - start.y;
 			selectedImageData = ctx.getImageData(start.x, start.y, width, height);
 			ctx.clearRect(start.x, start.y, width, height);
-			SBufferCtx.putImageData(selectedImageData, start.x, start.y);
+			if (start.x > end.x) {
+				SBufferCtx.putImageData(selectedImageData, end.x, end.y);
+			} else {
+				SBufferCtx.putImageData(selectedImageData, start.x, start.y);
+			}
 			bufferCanvas.style.display = "none";
 			selectionBuffer.style.display = "block";
 			activateTool(
@@ -639,10 +643,8 @@ const ToolsInstance = {
 			if (isInsideSelection(mouse.x, mouse.y)) {
 				selectionBuffer.style.cursor = "grab";
 				isDragging = true;
-				offsetX = mouse.x - start.x;
-				offsetY = mouse.y - start.y;
-			} else {
-				stopDraghHandler(e);
+				offsetX = start.x > end.x ? mouse.x - end.x : mouse.x - start.x;
+				offsetY = start.y > end.y ? mouse.y - end.x : mouse.y - start.y;
 			}
 		};
 		const DraghHandler = (e) => {
@@ -680,6 +682,14 @@ const ToolsInstance = {
 		};
 
 		const isInsideSelection = (x, y) => {
+			if (start.x > end.x) {
+				return (
+					x >= end.x &&
+					x <= end.x + selectedImageData.width &&
+					y >= end.y &&
+					y <= end.y + selectedImageData.height
+				);
+			}
 			return (
 				x >= start.x &&
 				x <= start.x + selectedImageData.width &&
