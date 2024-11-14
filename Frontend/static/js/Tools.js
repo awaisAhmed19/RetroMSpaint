@@ -196,9 +196,9 @@ function deactivateTool(canvas) {
 const ToolsInstance = {
 	pencil: () => {
 		let isDrawing = false;
-		const customCursorUrl = "/static/cursors/pencil.png";
+		const customCursorUrl = "../cursors/move.png";
 		let pos = null;
-		canvas.style.cursor = `url(${customCursorUrl})`;
+		canvas.style.cursor = `url(./static/cursors/pencil.png), auto`;
 
 		const start = (e) => {
 			ctx.beginPath();
@@ -570,6 +570,110 @@ const ToolsInstance = {
 		return {
 			removeEvents: () => {
 				deactivateTool(canvas, start, erase, stop);
+			},
+		};
+	},
+	lasso: () => {
+		const bufferCanvas = document.getElementById("canvasbuffer");
+		const bufferCtx = bufferCanvas.getContext("2d");
+		bufferCanvas.width = canvas.width;
+		bufferCanvas.height = canvas.height;
+
+		bufferCtx.lineWidth, (ctx.linewidth = 1);
+		let lassoPoint = [];
+		let isDrawing = false;
+
+		const startLasso = (e) => {
+			isDrawing = true;
+			lassoPoint = [];
+			lassoPoint.push(getMousePos(bufferCanvas, e));
+		};
+
+		const drawLasso = (e) => {
+			if (!isDrawing) return;
+			const pos = getMousePos(bufferCanvas, e);
+			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+			lassoPoint.push(pos);
+			bufferCtx.beginPath();
+			bufferCtx.moveTo(pos.x, pos.y);
+			for (let i = 1; i < lassoPoint.length; i++) {
+				bufferCtx.lineTo(lassoPoint[i].x, lassoPoint[i].y);
+			}
+			bufferCtx.strokeStyle = "black";
+			bufferCtx.stroke();
+		};
+
+		const stopLasso = () => {
+			isDrawing = false;
+			if (lassoPoint.length > 2) {
+				bufferCtx.lineTo(lassoPoint[0].x, lassoPoint[0].y);
+				bufferCtx.stroke();
+				bufferCtx.fillStyle = "rgb(255,0,0,0.4)";
+				bufferCtx.fill();
+				applyMask();
+				// ctx.clearRect(0, 0, canvas.width, canvas.height);
+			}
+		};
+		function applyMask() {
+			// Create a new ImageData object to store the masked content on the buffer canvas
+			const mask = ctx.getImageData(
+				0,
+				0,
+				bufferCanvas.width,
+				bufferCanvas.height
+			);
+			let selected = [];
+			// Loop through all pixels to check if they're inside the lasso selection
+			for (let y = 0; y < bufferCanvas.height; y++) {
+				for (let x = 0; x < bufferCanvas.width; x++) {
+					if (pointInPolygon({ x, y }, lassoPoint)) {
+						const index = (y * bufferCanvas.width + x) * 4;
+						selected.push[{ x, y }];
+						// Get the pixel color from the main canvas
+						const r = mask.data[index]; // Red channel
+						const g = mask.data[index + 1]; // Green channel
+						const b = mask.data[index + 2]; // Blue channel
+						const a = mask.data[index + 3]; // Alpha channel
+
+						// Draw the selected pixel to the buffer canvas
+						bufferCtx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a / 255})`;
+						bufferCtx.fillRect(x, y, 1, 1); // Update buffer canvas
+					}
+				}
+			}
+
+			// Now clear the main canvas for the selected pixels (only after processing)
+			for (let i = 0; i < selected.length; i++) {
+				const { x, y } = selected[i];
+				ctx.clearRect(x, y, 1, 1); // Clear the pixel in the main canvas
+			}
+		}
+
+		function pointInPolygon(point, polygon) {
+			let count = 0;
+			for (let i = 0; i < polygon.length; i++) {
+				const v1 = polygon[i];
+				const v2 = polygon[(i + 1) % polygon.length];
+
+				if (v1.y > point.y !== v2.y > point.y) {
+					const intersectX =
+						v1.x + ((point.y - v1.y) * (v2.x - v1.x)) / (v2.y - v1.y);
+					if (point.x < intersectX) count++;
+				}
+			}
+			return count % 2 == 1;
+		}
+
+		const lassoBorder = () => {};
+
+		activateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
+		bufferCanvas.style.display = "flex";
+		updateCoords(bufferCanvas);
+		updateDimens(bufferCanvas);
+		return {
+			removeEvents: () => {
+				bufferCanvas.style.display = "none";
+				deactivateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
 			},
 		};
 	},
