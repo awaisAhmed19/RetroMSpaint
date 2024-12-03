@@ -27,7 +27,6 @@
 			rel="stylesheet"
 			href="{{url_for('static',filename='./css/container4.css')}}"
 		/>
-		<script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
 	</head>
 
 	<body>
@@ -473,6 +472,10 @@
 		></script>
 		<script
 			type="module"
+			src="{{ url_for('static', filename='js/Undo.js') }}"
+		></script>
+		<script
+			type="module"
 			src="{{ url_for('static', filename='js/Tools.js') }}"
 		></script>
 		<script
@@ -486,6 +489,10 @@
 		<script
 			type="module"
 			src="{{ url_for('static', filename='js/Files.js') }}"
+		></script>
+		<script
+			type="module"
+			src="{{ url_for('static', filename='js/Edit.js') }}"
 		></script>
 	</body>
 </html>

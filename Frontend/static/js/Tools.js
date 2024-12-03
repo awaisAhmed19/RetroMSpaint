@@ -1,13 +1,14 @@
 /**
  * @type HTMLCanvasElement
  */
-
+import { undoLog } from "./undo.js";
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d", { willReadFrequently: true });
 const dimen = document.getElementById("dimensions");
 const coords = document.getElementById("coordinate_value");
 const tools = document.querySelectorAll(".tools");
 const paletteColors = document.querySelectorAll(".pallete-color");
+export const undo = new undoLog();
 let currentColorDisplay = document.getElementById("selected-color");
 let switchColor = document.getElementById("switch-color");
 let activeTool = null;
@@ -221,6 +222,7 @@ const ToolsInstance = {
 		const stop = () => {
 			isDrawing = false;
 			ctx.closePath();
+			undo.logging("pencil");
 		};
 
 		activateTool(canvas, start, draw, stop);
@@ -273,6 +275,7 @@ const ToolsInstance = {
 		function stopDrawing() {
 			isDrawing = false;
 			ctx.closePath();
+			undo.logging("Airbrush");
 		}
 
 		function airBrush(e) {
@@ -314,7 +317,7 @@ const ToolsInstance = {
 			canvas.addEventListener("mousedown", startDrawing);
 			canvas.addEventListener("mousemove", airBrush);
 			canvas.addEventListener("mouseup", stopDrawing);
-			canvas.addEventListener("mouseout", stopDrawing); // Handle mouse leaving canvas
+			// canvas.addEventListener("mouseout", stopDrawing); // Handle mouse leaving canvas
 		};
 
 		const deactivateTool = () => {
@@ -327,7 +330,7 @@ const ToolsInstance = {
 			canvas.removeEventListener("mousedown", startDrawing);
 			canvas.removeEventListener("mousemove", airBrush);
 			canvas.removeEventListener("mouseup", stopDrawing);
-			canvas.removeEventListener("mouseout", stopDrawing); // Handle mouse leaving canvas
+			// canvas.removeEventListener("mouseout", stopDrawing); // Handle mouse leaving canvas
 		};
 
 		activateTool();
@@ -494,6 +497,7 @@ const ToolsInstance = {
 
 		const stop = () => {
 			isDrawing = false;
+			undo.logging("Brush");
 		};
 
 		activateTool(canvas, start, draw, stop);
@@ -563,6 +567,7 @@ const ToolsInstance = {
 
 		const stop = () => {
 			isDrawing = false;
+			undo.logging("Eraser");
 		};
 
 		activateTool(canvas, start, erase, stop);
@@ -576,96 +581,150 @@ const ToolsInstance = {
 	lasso: () => {
 		const bufferCanvas = document.getElementById("canvasbuffer");
 		const bufferCtx = bufferCanvas.getContext("2d");
+
 		bufferCanvas.width = canvas.width;
 		bufferCanvas.height = canvas.height;
-
-		bufferCtx.lineWidth, (ctx.linewidth = 1);
 		let lassoPoint = [];
 		let isDrawing = false;
+		let dragoffset = { x: 0, y: 0 };
+		let boundingBox = null;
+		let minX, minY, maxX, maxY;
 
 		const startLasso = (e) => {
 			isDrawing = true;
 			lassoPoint = [];
 			lassoPoint.push(getMousePos(bufferCanvas, e));
+			console.log("start");
 		};
 
-		const drawLasso = (e) => {
+		const drawLasso = () => {
 			if (!isDrawing) return;
-			const pos = getMousePos(bufferCanvas, e);
+			console.log("draw");
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-			lassoPoint.push(pos);
 			bufferCtx.beginPath();
-			bufferCtx.moveTo(pos.x, pos.y);
-			for (let i = 1; i < lassoPoint.length; i++) {
-				bufferCtx.lineTo(lassoPoint[i].x, lassoPoint[i].y);
-			}
+			lassoPoint.forEach((point, i) => {
+				if (i === 0) bufferCtx.moveTo(point.x, point.y);
+				else bufferCtx.lineTo(point.x, point.y);
+			});
+			bufferCtx.closePath();
 			bufferCtx.strokeStyle = "black";
 			bufferCtx.stroke();
 		};
-
 		const stopLasso = () => {
+			if (lassoPoint.length < 3) return; // Invalid lasso
 			isDrawing = false;
-			if (lassoPoint.length > 2) {
-				bufferCtx.lineTo(lassoPoint[0].x, lassoPoint[0].y);
-				bufferCtx.stroke();
-				bufferCtx.fillStyle = "rgb(255,0,0,0.4)";
-				bufferCtx.fill();
-				applyMask();
-				// ctx.clearRect(0, 0, canvas.width, canvas.height);
-			}
+			boundingBox = calculateBoundingBox(lassoPoint);
+			console.log("stop");
+			applyMask();
+			activateTool(bufferCanvas, startdraglasso, draglasso, stopdraglasso);
+			deactivateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
 		};
+
 		function applyMask() {
-			// Create a new ImageData object to store the masked content on the buffer canvas
-			const mask = ctx.getImageData(
-				0,
-				0,
-				bufferCanvas.width,
-				bufferCanvas.height
+			bufferCtx.save();
+			bufferCtx.beginPath();
+			lassoPoint.forEach((point, i) => {
+				if (i === 0) bufferCtx.moveTo(point.x, point.y);
+				else bufferCtx.lineTo(point.x, point.y);
+			});
+			bufferCtx.closePath();
+			bufferCtx.clip(); // Clip the region
+			bufferCtx.drawImage(canvas, 0, 0); // Draw only the clipped part
+			bufferCtx.restore();
+		}
+
+		// function applyMask() {
+		// 	const mask = ctx.getImageData(
+		// 		0,
+		// 		0,
+		// 		bufferCanvas.width,
+		// 		bufferCanvas.height
+		// 	);
+		// 	for (let y = 0; y < bufferCanvas.height; y++) {
+		// 		for (let x = 0; x < bufferCanvas.width; x++) {
+		// 			if (pointInPolygon({ x, y }, lassoPoint)) {
+		// 				const index = (y * bufferCanvas.width + x) * 4;
+		// 				selected.push({ x, y });
+		// 				// Get the pixel color from the main canvas
+		// 				const r = mask.data[index]; // Red channel
+		// 				const g = mask.data[index + 1]; // Green channel
+		// 				const b = mask.data[index + 2]; // Blue channel
+		// 				const a = mask.data[index + 3]; // Alpha channel
+
+		// 				// Draw the selected pixel to the buffer canvas
+		// 				bufferCtx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a / 255})`;
+		// 				bufferCtx.fillRect(x, y, 1, 1); // Update buffer canvas
+		// 			}
+		// 		}
+		// 	}
+		// }
+		function calculateBoundingBox(polygon) {
+			if (polygon.length < 1) return;
+
+			const xValues = polygon.map((point) => point.x);
+			const yValues = polygon.map((point) => point.y);
+			return {
+				minX: Math.min(...xValues),
+				minY: Math.min(...yValues),
+				maxX: Math.max(...xValues),
+				maxY: Math.max(...yValues),
+			};
+		}
+		// function pointInPolygon(point, polygon) {
+		// 	let count = 0;
+		// 	for (let i = 0; i < polygon.length; i++) {
+		// 		const v1 = polygon[i];
+		// 		const v2 = polygon[(i + 1) % polygon.length];
+
+		// 		if (v1.y > point.y !== v2.y > point.y) {
+		// 			const intersectX =
+		// 				v1.x + ((point.y - v1.y) * (v2.x - v1.x)) / (v2.y - v1.y);
+		// 			if (point.x < intersectX) count++;
+		// 		}
+		// 	}
+		// 	return count % 2 == 1;
+		// }
+		const startdraglasso = (e) => {
+			if (!isInsidebound(getMousePos(bufferCanvas, e))) {
+				lassoDragging = false;
+				stopdraglasso();
+				deactivateTool(bufferCanvas, startdraglasso, draglasso, stopdraglasso);
+				activateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
+			}
+
+			lassoDragging = true;
+			startpos = getMousePos(bufferCanvas, e);
+		};
+		const draglasso = (e) => {
+			if (!lassoDragging) return;
+			let currentpos = getMousePos(bufferCanvas, e);
+			dragoffset.x = currentpos.x - startpos.x;
+			dragoffset.y = currentpos.y - startpos.y;
+			drawBlob(dragoffset);
+		};
+		const stopdraglasso = () => {
+			lassoDragging = false;
+			activateTool(bufferCanvas, startdraglasso, draglasso, stopdraglasso);
+			deactivateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
+			dragoffset = { x: 0, y: 0 };
+		};
+
+		// function drawBlob(offset) {
+		// }
+		function drawBlob(offset) {
+			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+			bufferCtx.save();
+			bufferCtx.translate(offset.x, offset.y);
+			bufferCtx.drawImage(canvas, 0, 0);
+			bufferCtx.restore();
+		}
+
+		function isInsidebound(mousepos) {
+			let pos = mousepos;
+			return (
+				minC.x < pos.x && maxC.x > pos.x && minC.y < pos.y && maxC.y > pos.y
 			);
-			let selected = [];
-			// Loop through all pixels to check if they're inside the lasso selection
-			for (let y = 0; y < bufferCanvas.height; y++) {
-				for (let x = 0; x < bufferCanvas.width; x++) {
-					if (pointInPolygon({ x, y }, lassoPoint)) {
-						const index = (y * bufferCanvas.width + x) * 4;
-						selected.push[{ x, y }];
-						// Get the pixel color from the main canvas
-						const r = mask.data[index]; // Red channel
-						const g = mask.data[index + 1]; // Green channel
-						const b = mask.data[index + 2]; // Blue channel
-						const a = mask.data[index + 3]; // Alpha channel
-
-						// Draw the selected pixel to the buffer canvas
-						bufferCtx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a / 255})`;
-						bufferCtx.fillRect(x, y, 1, 1); // Update buffer canvas
-					}
-				}
-			}
-
-			// Now clear the main canvas for the selected pixels (only after processing)
-			for (let i = 0; i < selected.length; i++) {
-				const { x, y } = selected[i];
-				ctx.clearRect(x, y, 1, 1); // Clear the pixel in the main canvas
-			}
 		}
-
-		function pointInPolygon(point, polygon) {
-			let count = 0;
-			for (let i = 0; i < polygon.length; i++) {
-				const v1 = polygon[i];
-				const v2 = polygon[(i + 1) % polygon.length];
-
-				if (v1.y > point.y !== v2.y > point.y) {
-					const intersectX =
-						v1.x + ((point.y - v1.y) * (v2.x - v1.x)) / (v2.y - v1.y);
-					if (point.x < intersectX) count++;
-				}
-			}
-			return count % 2 == 1;
-		}
-
-		const lassoBorder = () => {};
-
 		activateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
 		bufferCanvas.style.display = "flex";
 		updateCoords(bufferCanvas);
@@ -677,6 +736,7 @@ const ToolsInstance = {
 			},
 		};
 	},
+
 	rectlasso: () => {
 		const bufferCanvas = document.getElementById("canvasbuffer");
 		const selectionBuffer = document.getElementById("selectionbuffer");
@@ -783,6 +843,7 @@ const ToolsInstance = {
 			);
 			selectionBuffer.style.display = "none";
 			isSelected = false;
+			undo.logging("RectLasso");
 		};
 
 		const isInsideSelection = (x, y) => {
@@ -945,6 +1006,7 @@ const ToolsInstance = {
 		const mousedown = (e) => {
 			let pos = getMousePos(canvas, e);
 			floodFill(ctx, Math.floor(pos.x), Math.floor(pos.y), currentColor, 10);
+			undo.logging("FloodFill");
 		};
 
 		const activateTool = () => {
@@ -1033,6 +1095,7 @@ const ToolsInstance = {
 			ctx.closePath();
 			ctx.stroke();
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+			undo.logging("Line");
 		};
 
 		bufferCanvas.style.display = "flex";
@@ -1194,6 +1257,7 @@ const ToolsInstance = {
 				ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
 				ctx.stroke();
 				bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+				undo.logging("Curveline");
 				return;
 			}
 		};
@@ -1338,6 +1402,7 @@ const ToolsInstance = {
 
 		const stopLineHandler = () => {
 			isDrawing = false;
+			undo.logging("PolygonShape");
 		};
 
 		const fillPolygon = () => {
@@ -1434,6 +1499,7 @@ const ToolsInstance = {
 			textarea.classList.remove("hidden");
 			textarea.focus();
 			bufferCtx.clearRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
+			undo.logging("Text");
 		};
 
 		const onBlur = () => {
@@ -1607,6 +1673,7 @@ const ToolsInstance = {
 				ctx.fillRect(start.x, start.y, rect.x - start.x, rect.y - start.y);
 				ctx.stroke();
 			}
+			undo.logging("Rectshape");
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 		};
 
@@ -1787,6 +1854,7 @@ const ToolsInstance = {
 				ctx.fill();
 				//ctx.stroke();
 			}
+			undo.logging("elipse");
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 		};
 
@@ -1990,6 +2058,7 @@ const ToolsInstance = {
 				fixedRadius,
 				ROptions
 			);
+			undo.logging("RectElipse");
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 		};
 

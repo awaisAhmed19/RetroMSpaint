@@ -8,5 +8,12 @@
 	},
 	"[typescript]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
-	}
+	},
+	"python.pythonPath": "C:\\Users\\awais\\AppData\\Local\\Programs\\Python\\Python312\\python.exe", // Add your Python interpreter path
+	"python.analysis.extraPaths": [
+		"C:\\Users\\awais\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages" // Include the site-packages path
+	],
+	"python.formatting.provider": "black", // Optional: Use Black for Python formatting
+	"python.linting.enabled": true, // Enable linting
+	"python.linting.pylintEnabled": true // Optional: Use pylint for linting
 }
