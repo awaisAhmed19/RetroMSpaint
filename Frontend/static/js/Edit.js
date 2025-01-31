@@ -14,6 +14,6 @@ document.addEventListener("keydown", (e) => {
 document.addEventListener("htmx:afterSwap", () => {
 	const undo_button = document.getElementById("Undo");
 	const repeat_button = document.getElementById("Repeat");
-	undo_button.addEventListener("click", () => undo.undo());
-	repeat_button.addEventListener("click", () => undo.redo());
+	if (undo_button!=null){undo_button.addEventListener("click", () => undo.undo());}
+	if (repeat_button!=null){repeat_button.addEventListener("click", () => undo.redo());}
 });

@@ -580,159 +580,79 @@ const ToolsInstance = {
 	},
 	lasso: () => {
 		const bufferCanvas = document.getElementById("canvasbuffer");
+		const selectionBuffer = document.getElementById("selectionbuffer");
 		const bufferCtx = bufferCanvas.getContext("2d");
+		const SBufferCtx = selectionBuffer.getContext("2d");
 
 		bufferCanvas.width = canvas.width;
+		selectionBuffer.width = canvas.width;
 		bufferCanvas.height = canvas.height;
-		let lassoPoint = [];
+		selectionBuffer.height = canvas.height;
+
+		bufferCtx.lineWidth = 1;
+		ctx.lineWidth = 1;
+		bufferCanvas.style.cursor = "cosshair";
+		canvas.style.cursor = "cosshair";
+		selectionBuffer.style.cursor = "cosshair";
 		let isDrawing = false;
-		let dragoffset = { x: 0, y: 0 };
-		let boundingBox = null;
-		let minX, minY, maxX, maxY;
-
-		const startLasso = (e) => {
+		let isDragging = false;
+		let isSelected = false;
+		let start = null,
+			pos = null;
+		// let lasso = new Path2D();
+		let lassopoints = [];
+		const lassoStart = (e) => {
+			ctx.beginPath();
 			isDrawing = true;
-			lassoPoint = [];
-			lassoPoint.push(getMousePos(bufferCanvas, e));
-			console.log("start");
+			start = getMousePos(canvas, e);
 		};
 
-		const drawLasso = () => {
+		const lassoDraw = (e) => {
 			if (!isDrawing) return;
-			console.log("draw");
-			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-			bufferCtx.beginPath();
-			lassoPoint.forEach((point, i) => {
-				if (i === 0) bufferCtx.moveTo(point.x, point.y);
-				else bufferCtx.lineTo(point.x, point.y);
-			});
-			bufferCtx.closePath();
-			bufferCtx.strokeStyle = "black";
-			bufferCtx.stroke();
+			pos = getMousePos(canvas, e);
+			ctx.strokeStyle = "black";
+			ctx.lineWidth = 1;
+			ctx.lineCap = "round";
+			ctx.lineJoin = "round";
+
+			ctx.lineTo(pos.x, pos.y);
+			lassopoints.push(pos.x, pos.y);
+			ctx.stroke();
+			updateCoords(canvas);
 		};
-		const stopLasso = () => {
-			if (lassoPoint.length < 3) return; // Invalid lasso
+
+		const stopLassoDraw = (e) => {
 			isDrawing = false;
-			boundingBox = calculateBoundingBox(lassoPoint);
-			console.log("stop");
-			applyMask();
-			activateTool(bufferCanvas, startdraglasso, draglasso, stopdraglasso);
-			deactivateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
+			ctx.lineTo(start.x, start.y);
+			ctx.clip();
+			boundingBox();
 		};
 
-		function applyMask() {
-			bufferCtx.save();
-			bufferCtx.beginPath();
-			lassoPoint.forEach((point, i) => {
-				if (i === 0) bufferCtx.moveTo(point.x, point.y);
-				else bufferCtx.lineTo(point.x, point.y);
+		function boundingBox() {
+			let min_x = Infinity,
+				min_y = Infinity;
+			let max_x = -Infinity,
+				max_y = -Infinity;
+
+			lassopoints.forEach((pos) => {
+				if (pos.x < min_x) min_x = pos.x;
+				if (pos.y < min_y) min_y = pos.y;
+				if (pos.x > max_x) max_x = pos.x;
+				if (pos.y > max_y) max_y = pos.y;
 			});
-			bufferCtx.closePath();
-			bufferCtx.clip(); // Clip the region
-			bufferCtx.drawImage(canvas, 0, 0); // Draw only the clipped part
-			bufferCtx.restore();
+
+			return { min_x, min_y, max_x, max_y };
 		}
 
-		// function applyMask() {
-		// 	const mask = ctx.getImageData(
-		// 		0,
-		// 		0,
-		// 		bufferCanvas.width,
-		// 		bufferCanvas.height
-		// 	);
-		// 	for (let y = 0; y < bufferCanvas.height; y++) {
-		// 		for (let x = 0; x < bufferCanvas.width; x++) {
-		// 			if (pointInPolygon({ x, y }, lassoPoint)) {
-		// 				const index = (y * bufferCanvas.width + x) * 4;
-		// 				selected.push({ x, y });
-		// 				// Get the pixel color from the main canvas
-		// 				const r = mask.data[index]; // Red channel
-		// 				const g = mask.data[index + 1]; // Green channel
-		// 				const b = mask.data[index + 2]; // Blue channel
-		// 				const a = mask.data[index + 3]; // Alpha channel
-
-		// 				// Draw the selected pixel to the buffer canvas
-		// 				bufferCtx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a / 255})`;
-		// 				bufferCtx.fillRect(x, y, 1, 1); // Update buffer canvas
-		// 			}
-		// 		}
-		// 	}
-		// }
-		function calculateBoundingBox(polygon) {
-			if (polygon.length < 1) return;
-
-			const xValues = polygon.map((point) => point.x);
-			const yValues = polygon.map((point) => point.y);
-			return {
-				minX: Math.min(...xValues),
-				minY: Math.min(...yValues),
-				maxX: Math.max(...xValues),
-				maxY: Math.max(...yValues),
-			};
-		}
-		// function pointInPolygon(point, polygon) {
-		// 	let count = 0;
-		// 	for (let i = 0; i < polygon.length; i++) {
-		// 		const v1 = polygon[i];
-		// 		const v2 = polygon[(i + 1) % polygon.length];
-
-		// 		if (v1.y > point.y !== v2.y > point.y) {
-		// 			const intersectX =
-		// 				v1.x + ((point.y - v1.y) * (v2.x - v1.x)) / (v2.y - v1.y);
-		// 			if (point.x < intersectX) count++;
-		// 		}
-		// 	}
-		// 	return count % 2 == 1;
-		// }
-		const startdraglasso = (e) => {
-			if (!isInsidebound(getMousePos(bufferCanvas, e))) {
-				lassoDragging = false;
-				stopdraglasso();
-				deactivateTool(bufferCanvas, startdraglasso, draglasso, stopdraglasso);
-				activateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
-			}
-
-			lassoDragging = true;
-			startpos = getMousePos(bufferCanvas, e);
-		};
-		const draglasso = (e) => {
-			if (!lassoDragging) return;
-			let currentpos = getMousePos(bufferCanvas, e);
-			dragoffset.x = currentpos.x - startpos.x;
-			dragoffset.y = currentpos.y - startpos.y;
-			drawBlob(dragoffset);
-		};
-		const stopdraglasso = () => {
-			lassoDragging = false;
-			activateTool(bufferCanvas, startdraglasso, draglasso, stopdraglasso);
-			deactivateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
-			dragoffset = { x: 0, y: 0 };
-		};
-
-		// function drawBlob(offset) {
-		// }
-		function drawBlob(offset) {
-			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-			bufferCtx.save();
-			bufferCtx.translate(offset.x, offset.y);
-			bufferCtx.drawImage(canvas, 0, 0);
-			bufferCtx.restore();
-		}
-
-		function isInsidebound(mousepos) {
-			let pos = mousepos;
-			return (
-				minC.x < pos.x && maxC.x > pos.x && minC.y < pos.y && maxC.y > pos.y
-			);
-		}
-		activateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
-		bufferCanvas.style.display = "flex";
-		updateCoords(bufferCanvas);
-		updateDimens(bufferCanvas);
+		canvas.style.display = "flex";
+		updateCoords(canvas);
+		updateDimens(canvas);
+		activateTool(canvas, lassoStart, lassoDraw, stopLassoDraw);
 		return {
 			removeEvents: () => {
-				bufferCanvas.style.display = "none";
-				deactivateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
+				// canvas.style.display = "none";
+				selectionBuffer.style.display = "none";
+				deactivateTool(canvas, lassoStart, lassoDraw, stopLassoDraw);
 			},
 		};
 	},

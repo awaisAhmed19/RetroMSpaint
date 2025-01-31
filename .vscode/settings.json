@@ -1,5 +1,5 @@
 {
-	"workbench.colorTheme": "Kimbie Dark",
+	"workbench.colorTheme": "Monokai",
 	"editor.formatOnSave": true,
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
 	"prettier.useTabs": true,
