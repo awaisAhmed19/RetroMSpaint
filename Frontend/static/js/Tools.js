@@ -578,84 +578,107 @@ const ToolsInstance = {
 			},
 		};
 	},
-	lasso: () => {
-		const bufferCanvas = document.getElementById("canvasbuffer");
-		const selectionBuffer = document.getElementById("selectionbuffer");
-		const bufferCtx = bufferCanvas.getContext("2d");
-		const SBufferCtx = selectionBuffer.getContext("2d");
+	// 	lasso: () => {
+	// 		const p_canvas = null;
+	// 		p_canvas = document.getElementById("canvasbuffer");
+	// 		const p_ctx = p_canvas.getContext("2d");
+	// 		let points = [];
+	// 		let min_x = -Infinity;
+	// 		let min_y = -Infinity;
+	// 		let max_x = Infinity;
+	// 		let max_y = Infinity;
+	//     let isDrawing = false;
+	// 		let isSelected = false;
+	//     let prev_pointer={x:0,y:0};
 
-		bufferCanvas.width = canvas.width;
-		selectionBuffer.width = canvas.width;
-		bufferCanvas.height = canvas.height;
-		selectionBuffer.height = canvas.height;
+	// 		const startLasso = (e) => {
+	// 			pos = getMousePos(p_canvas, e);
+	// 			min_x = pos.x;
+	// 			max_x = pos.x + 1;
+	// 			min_y = pos.y;
+	// 			max_y = pos.y + 1;
+	// 			points = [];
+	// 			p_canvas.width = canvas.width;
+	// 			p_canvas.height = canvas.height;
+	// 			isDrawing = true;
+	// 			deselct();
+	// 		};
 
-		bufferCtx.lineWidth = 1;
-		ctx.lineWidth = 1;
-		bufferCanvas.style.cursor = "cosshair";
-		canvas.style.cursor = "cosshair";
-		selectionBuffer.style.cursor = "cosshair";
-		let isDrawing = false;
-		let isDragging = false;
-		let isSelected = false;
-		let start = null,
-			pos = null;
-		// let lasso = new Path2D();
-		let lassopoints = [];
-		const lassoStart = (e) => {
-			ctx.beginPath();
-			isDrawing = true;
-			start = getMousePos(canvas, e);
-		};
+	// 		const drawLasso = (ctx, x, y) => {
+	// 			pos.x = Math.min(canvas.width, pos.x);
+	// 			pos.x = Math.max(0, pos.x);
+	// 			pos.y = Math.max(0, pos.y);
+	// 			pos.y = Math.max(canvas.height, pos.y);
 
-		const lassoDraw = (e) => {
-			if (!isDrawing) return;
-			pos = getMousePos(canvas, e);
-			ctx.strokeStyle = "black";
-			ctx.lineWidth = 1;
-			ctx.lineCap = "round";
-			ctx.lineJoin = "round";
+	// 			points.push(pos);
 
-			ctx.lineTo(pos.x, pos.y);
-			lassopoints.push(pos.x, pos.y);
-			ctx.stroke();
-			updateCoords(canvas);
-		};
+	// 			x_min = Math.min(pos.x, x_min);
+	// 			x_max = Math.max(pos.x, x_max);
+	// 			y_min = Math.min(pos.y, y_min);
+	// 			y_max = Math.max(pos.y, y_max);
 
-		const stopLassoDraw = (e) => {
-			isDrawing = false;
-			ctx.lineTo(start.x, start.y);
-			ctx.clip();
-			boundingBox();
-		};
+	//       bresenham_line(prev_pointer.x,prev_pointer.y,pos.x,pos.y,(x,y)=>{ffs_paint_iteration(x,y)});
 
-		function boundingBox() {
-			let min_x = Infinity,
-				min_y = Infinity;
-			let max_x = -Infinity,
-				max_y = -Infinity;
+	// 		};
 
-			lassopoints.forEach((pos) => {
-				if (pos.x < min_x) min_x = pos.x;
-				if (pos.y < min_y) min_y = pos.y;
-				if (pos.x > max_x) max_x = pos.x;
-				if (pos.y > max_y) max_y = pos.y;
-			});
+	//     function ffs_paint_iteration(x,y){
+	//       x=Math.min(canvas.width,x);
+	//       x=Math.max(0,x);
+	//       y=Math.min(canvas.height,y);
+	//       y=Math.max(0,y);
 
-			return { min_x, min_y, max_x, max_y };
-		}
+	//       const inverse_size=2;
+	//       const rect_x=~~(x,inverse_size/2);
+	//       const rect_y=~~(y-inverse_size/2);
+	//       const rect_w= inverse_size;
+	//       const rect_h= inverse_size;
 
-		canvas.style.display = "flex";
-		updateCoords(canvas);
-		updateDimens(canvas);
-		activateTool(canvas, lassoStart, lassoDraw, stopLassoDraw);
-		return {
-			removeEvents: () => {
-				// canvas.style.display = "none";
-				selectionBuffer.style.display = "none";
-				deactivateTool(canvas, lassoStart, lassoDraw, stopLassoDraw);
-			},
-		};
-	},
+	//       const ctx_dest= p_ctx;
+	//       const id_src=ctx.getImageData(rect_x,rect_y,rect_w,rect_h);
+	//       const id_des=ctx_dest.getImageData(rect_x,rect_y,rect_w,rect_h);
+
+	//       for(let i=0;i=id_des.data.length;i<1;i+=4){
+	//         id_des.data[i+0]=255-id_src.data[i+0];
+	//         id_des.data[i+1]=255-id_src.data[i+1];
+	//         id_des.data[i+2]=255-id_src.data[i+2];
+	//         id_des.data[i+3]=255;
+	//       }
+
+	//       ctx_dest.putImageData(id_des,rect_x,rect_y);
+	//     }
+
+	//     function bresenham_line(x1, y1, x2, y2, callback) {
+	// 	// Bresenham's line algorithm
+	// 	    x1 = ~~x1; x2 = ~~x2; y1 = ~~y1; y2 = ~~y2;
+
+	// 	    const dx = Math.abs(x2 - x1);
+	// 	    const dy = Math.abs(y2 - y1);
+	// 	    const sx = (x1 < x2) ? 1 : -1;
+	// 	    const sy = (y1 < y2) ? 1 : -1;
+	// 	    let err = dx - dy;
+
+	// 	    while (true) {
+	// 		    callback(x1, y1);
+
+	// 		    if (x1 === x2 && y1 === y2) break;
+	// 		    const e2 = err * 2;
+	// 		    if (e2 > -dy) { err -= dy; x1 += sx; }
+	// 		    if (e2 < dx) { err += dx; y1 += sy; }
+	// 	  }
+	// }
+
+	// 		canvas.style.display = "flex";
+	// 		updateCoords(canvas);
+	// 		updateDimens(canvas);
+	// 		activateTool(canvas, lassoStart, lassoDraw, stopLassoDraw);
+	// 		return {
+	// 			removeEvents: () => {
+	// 				// canvas.style.display = "none";
+	// 				selectionBuffer.style.display = "none";
+	// 				deactivateTool(canvas, lassoStart, lassoDraw, stopLassoDraw);
+	// 			},
+	// 		};
+	// 	},
 
 	rectlasso: () => {
 		const bufferCanvas = document.getElementById("canvasbuffer");
@@ -1667,226 +1690,94 @@ const ToolsInstance = {
 		const bufferCtx = bufferCanvas.getContext("2d");
 		const rect = bufferCanvas.getBoundingClientRect();
 		isDrawing = false;
-		let start = null;
-		let current = null;
-		let EOptValue = 1;
-		let currentMouseHandler = null;
+		let startPosX = 0;
+		let startPosY = 0;
 		bufferCanvas.style.display = "none";
 		bufferCanvas.width = canvas.width;
 		bufferCanvas.height = canvas.height;
+		console.log("active");
 
-		bufferCtx.lineWidth = 1;
-		ctx.lineWidth = 1;
+		const customCursorUrl = "/static/cursors/precise.png";
+		const cursorHotspotX = 45; // Adjust this value to center the cursor image
+		const cursorHotspotY = 5; // Adjust this value to center the cursor image
+
 		// Apply custom cursor with hotspot
-		canvas.style.cursor = "crosshair";
-		bufferCanvas.style.cursor = "crosshair";
-
-		document.addEventListener("htmx:afterSwap", function (e) {
-			const ElipseOptions =
-				e.detail.target.querySelectorAll(".elipsetool button");
-
-			if (ElipseOptions && ElipseOptions.length > 0) {
-				ElipseOptions.forEach((option) => {
-					option.addEventListener("click", () => {
-						ElipseOptions.forEach((opt) => opt.classList.remove("pressed"));
-						option.classList.add("pressed");
-						EOptValue = parseInt(option.value, 10);
-						deactivateTool();
-						activateTool();
-					});
-				});
-			}
-		});
+		canvas.style.cursor = `url(${customCursorUrl}), auto`;
+		bufferCanvas.style.cursor = `url(${customCursorUrl}) , auto`;
 
 		const startCircleHandler = (e) => {
-			start = getMousePos(canvas, e);
+			startPosX = e.clientX - rect.left;
+			startPosY = e.clientY - rect.top;
 			isDrawing = true;
 		};
 
 		const drawCircleHandler = (e) => {
 			if (!isDrawing) return;
-			current = getMousePos(canvas, e);
+			const currentX = e.clientX - rect.left;
+			const currentY = e.clientY - rect.top;
 			const radius = Math.sqrt(
-				(current.x - start.x) ** 2 + (current.y - start.y) ** 2
+				(currentX - startPosX) ** 2 + (currentY - startPosY) ** 2
 			);
 
 			bufferCtx.strokeStyle = currentColor;
 			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 			bufferCtx.beginPath();
-			bufferCtx.arc(start.x, start.y, radius, 0, Math.PI * 2, false);
+			bufferCtx.arc(
+				startPosX - cursorHotspotX,
+				startPosY - cursorHotspotY,
+				radius,
+				0,
+				Math.PI * 2,
+				false
+			);
 			bufferCtx.stroke();
-		};
-
-		const drawFilledStrokeElipseHandler = (e) => {
-			if (!isDrawing) return;
-			current = getMousePos(canvas, e);
-			const radius = Math.sqrt(
-				(current.x - start.x) ** 2 + (current.y - start.y) ** 2
-			);
-			bufferCtx.strokeStyle = currentColor;
-			bufferCtx.fillStyle = "white";
-
-			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-			bufferCtx.beginPath();
-			bufferCtx.arc(start.x, start.y, radius, 0, Math.PI * 2, false);
-			bufferCtx.fill();
-			bufferCtx.stroke();
-		};
-
-		const drawFilledElipseHandler = (e) => {
-			if (!isDrawing) return;
-			current = getMousePos(canvas, e);
-			const radius = Math.sqrt(
-				(current.x - start.x) ** 2 + (current.y - start.y) ** 2
-			);
-			bufferCtx.strokeStyle = currentColor;
-			bufferCtx.fillStyle = currentColor;
-			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-			bufferCtx.beginPath();
-			bufferCtx.arc(start.x, start.y, radius, 0, Math.PI * 2, false);
-			bufferCtx.fill();
 		};
 
 		const stopCircleHandler = (e) => {
 			if (!isDrawing) return;
 			isDrawing = false;
-			current = getMousePos(canvas, e);
+			const currentX = e.clientX - rect.left;
+			const currentY = e.clientY - rect.top;
 			const radius = Math.sqrt(
-				(current.x - start.x) ** 2 + (current.y - start.y) ** 2
+				(currentX - startPosX) ** 2 + (currentY - startPosY) ** 2
 			);
-			if (EOptValue === 1) {
-				ctx.strokeStyle = currentColor;
-				ctx.beginPath();
-				ctx.arc(start.x, start.y, radius, 0, Math.PI * 2, false);
-				ctx.stroke();
-			} else if (EOptValue === 2) {
-				ctx.strokeStyle = currentColor;
-				ctx.fillStyle = "white";
-				ctx.beginPath();
-				ctx.arc(start.x, start.y, radius, 0, Math.PI * 2, false);
-				ctx.fill();
-				ctx.stroke();
-			} else if (EOptValue === 3) {
-				ctx.strokeStyle = currentColor;
-				ctx.fillStyle = currentColor;
-				ctx.beginPath();
-				ctx.arc(start.x, start.y, radius, 0, Math.PI * 2, false);
-				ctx.fill();
-				//ctx.stroke();
-			}
-			undo.logging("elipse");
-			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-		};
 
-		const toggleEventListener = (event, handler, action) => {
-			if (action === "add") {
-				bufferCanvas.addEventListener(event, handler);
-			} else if (action === "remove") {
-				bufferCanvas.removeEventListener(event, handler);
-			}
+			ctx.strokeStyle = currentColor;
+			//ctx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+			ctx.beginPath();
+			ctx.arc(
+				startPosX - cursorHotspotX,
+				startPosY - cursorHotspotY,
+				radius,
+				0,
+				Math.PI * 2,
+				false
+			);
+			ctx.stroke();
+			bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 		};
 
 		const activateTool = () => {
 			bufferCanvas.style.display = "flex";
-
-			// Helper function to handle adding/removing event listeners
-			// Handle touch events for mobile or tablet
-			if (isMobileOrTab()) {
-				toggleEventListener("touchstart", startCircleHandler, "add");
-				toggleEventListener("touchend", stopCircleHandler, "add");
-				toggleEventListener("touchcancel", stopCircleHandler, "add");
-
-				// Remove previous touchmove handler if set
-				if (currentMouseHandler) {
-					toggleEventListener("touchmove", currentMouseHandler, "remove");
-				}
-
-				// Set the new touchmove handler based on the selected option
-				switch (EOptValue) {
-					case 1:
-						if (currentMouseHandler !== drawCircleHandler) {
-							currentMouseHandler = drawCircleHandler;
-							toggleEventListener("touchmove", currentMouseHandler, "add");
-						}
-						break;
-					case 2:
-						if (currentMouseHandler !== drawFilledStrokeElipseHandler) {
-							currentMouseHandler = drawFilledStrokeElipseHandler;
-							toggleEventListener("touchmove", currentMouseHandler, "add");
-						}
-						break;
-					case 3:
-						if (currentMouseHandler !== drawFilledElipseHandler) {
-							currentMouseHandler = drawFilledElipseHandler;
-							toggleEventListener("touchmove", currentMouseHandler, "add");
-						}
-						break;
-					default:
-						break;
-				}
-			}
-
-			// Handle mouse events for desktop
-			toggleEventListener("mousedown", startCircleHandler, "add");
-
-			// Remove previous mousemove handler if set
-			if (currentMouseHandler) {
-				toggleEventListener("mousemove", currentMouseHandler, "remove");
-			}
-
-			// Set the new mousemove handler based on the selected option
-			switch (EOptValue) {
-				case 1:
-					if (currentMouseHandler !== drawCircleHandler) {
-						currentMouseHandler = drawCircleHandler;
-						toggleEventListener("mousemove", currentMouseHandler, "add");
-					}
-					break;
-				case 2:
-					if (currentMouseHandler !== drawFilledStrokeElipseHandler) {
-						currentMouseHandler = drawFilledStrokeElipseHandler;
-						toggleEventListener("mousemove", currentMouseHandler, "add");
-					}
-					break;
-				case 3:
-					if (currentMouseHandler !== drawFilledElipseHandler) {
-						currentMouseHandler = drawFilledElipseHandler;
-						toggleEventListener("mousemove", currentMouseHandler, "add");
-					}
-					break;
-				default:
-					break;
-			}
-
-			toggleEventListener("mouseup", stopCircleHandler, "add");
+			bufferCanvas.addEventListener("mousedown", startCircleHandler);
+			bufferCanvas.addEventListener("mousemove", drawCircleHandler);
+			bufferCanvas.addEventListener("mouseup", stopCircleHandler);
 		};
 		const deactivateTool = () => {
-			if (isMobileOrTab()) {
-				bufferCanvas.removeEventListener("touchstart", startCircleHandler);
-				if (currentMouseHandler !== null) {
-					bufferCanvas.removeEventListener("touchmove", currentMouseHandler);
-					currentMouseHandler = null;
-				}
-				bufferCanvas.removeEventListener("touchend", stopCircleHandler);
-			}
-			bufferCanvas.removeEventListener("mousedown", startCircleHandler);
-			if (currentMouseHandler !== null) {
-				bufferCanvas.removeEventListener("mousemove", currentMouseHandler);
-				currentMouseHandler = null;
-			}
-			bufferCanvas.removeEventListener("mouseup", stopCircleHandler);
 			bufferCanvas.style.display = "none";
+			bufferCanvas.removeEventListener("mousedown", startCircleHandler);
+			bufferCanvas.removeEventListener("mousemove", drawCircleHandler);
+			bufferCanvas.removeEventListener("mouseup", stopCircleHandler);
 		};
 
 		activateTool();
-		updateCoords(bufferCanvas);
-		updateDimens(bufferCanvas);
+
 		return {
 			removeEvents: () => {
 				deactivateTool();
 			},
 			changeColor: (color) => {
-				currentColor = ToRgbString(color);
+				currentColor = color;
 			},
 		};
 	},
