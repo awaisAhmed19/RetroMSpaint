@@ -1,498 +1,498 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta
-			name="viewport"
-			content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-		/>
-		<title>MSPaint.com</title>
-		<link
-			rel="stylesheet"
-			href="{{url_for('static',filename='./css/root.css')}}"
-		/>
-		<link
-			rel="stylesheet"
-			href="{{url_for('static',filename='./css/container1.css')}}"
-		/>
-		<link
-			rel="stylesheet"
-			href="{{url_for('static',filename='./css/container2.css')}}"
-		/>
-		<link
-			rel="stylesheet"
-			href="{{url_for('static',filename='./css/container3.css')}}"
-		/>
-		<link
-			rel="stylesheet"
-			href="{{url_for('static',filename='./css/container4.css')}}"
-		/>
-	</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>MSPaint.com</title>
+    <link
+      rel="stylesheet"
+      href="{{url_for('static',filename='./css/root.css')}}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{url_for('static',filename='./css/container1.css')}}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{url_for('static',filename='./css/container2.css')}}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{url_for('static',filename='./css/container3.css')}}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{url_for('static',filename='./css/container4.css')}}"
+    />
+  </head>
 
-	<body>
-		<div class="container-1">
-			<div class="menubar">
-				<button
-					class="menubar-btn"
-					data-dropdown-id="file_toggle"
-					hx-get="/FileMenu.html"
-					hx-target="#dropdowncontainer"
-					hx-swap="innerHTML"
-				>
-					File
-				</button>
-				<button
-					class="menubar-btn"
-					data-dropdown-id="edit_toggle"
-					hx-get="/EditMenu.html"
-					hx-target="#dropdowncontainer"
-					hx-swap="innerHTML"
-				>
-					Edit
-				</button>
-				<button
-					class="menubar-btn"
-					data-dropdown-id="view_toggle"
-					hx-get="/ViewMenu.html"
-					hx-target="#dropdowncontainer"
-					hx-swap="innerHTML"
-				>
-					View
-				</button>
-				<button
-					class="menubar-btn"
-					data-dropdown-id="layer_toggle"
-					hx-get="/LayerMenu.html"
-					hx-target="#dropdowncontainer"
-					hx-swap="innerHTML"
-				>
-					Layer
-				</button>
-				<button
-					class="menubar-btn"
-					data-dropdown-id="image_toggle"
-					hx-get="/ImageMenu.html"
-					hx-target="#dropdowncontainer"
-					hx-swap="innerHTML"
-				>
-					Image
-				</button>
-				<button
-					class="menubar-btn"
-					data-dropdown-id="colors_toggle"
-					hx-get="/ColorMenu.html"
-					hx-target="#dropdowncontainer"
-					hx-swap="innerHTML"
-				>
-					Colors
-				</button>
-				<button
-					class="menubar-btn"
-					data-dropdown-id="help_toggle"
-					hx-get="/HelpMenu.html"
-					hx-target="#dropdowncontainer"
-					hx-swap="innerHTML"
-				>
-					Help
-				</button>
-			</div>
-			<div class="dropdown-container" id="dropdowncontainer"></div>
-		</div>
+  <body>
+    <div class="container-1">
+      <div class="menubar">
+        <button
+          class="menubar-btn"
+          data-dropdown-id="file_toggle"
+          hx-get="/FileMenu.html"
+          hx-target="#dropdowncontainer"
+          hx-swap="innerHTML"
+        >
+          File
+        </button>
+        <button
+          class="menubar-btn"
+          data-dropdown-id="edit_toggle"
+          hx-get="/EditMenu.html"
+          hx-target="#dropdowncontainer"
+          hx-swap="innerHTML"
+        >
+          Edit
+        </button>
+        <button
+          class="menubar-btn"
+          data-dropdown-id="view_toggle"
+          hx-get="/ViewMenu.html"
+          hx-target="#dropdowncontainer"
+          hx-swap="innerHTML"
+        >
+          View
+        </button>
+        <button
+          class="menubar-btn"
+          data-dropdown-id="layer_toggle"
+          hx-get="/LayerMenu.html"
+          hx-target="#dropdowncontainer"
+          hx-swap="innerHTML"
+        >
+          Layer
+        </button>
+        <button
+          class="menubar-btn"
+          data-dropdown-id="image_toggle"
+          hx-get="/ImageMenu.html"
+          hx-target="#dropdowncontainer"
+          hx-swap="innerHTML"
+        >
+          Image
+        </button>
+        <button
+          class="menubar-btn"
+          data-dropdown-id="colors_toggle"
+          hx-get="/ColorMenu.html"
+          hx-target="#dropdowncontainer"
+          hx-swap="innerHTML"
+        >
+          Colors
+        </button>
+        <button
+          class="menubar-btn"
+          data-dropdown-id="help_toggle"
+          hx-get="/HelpMenu.html"
+          hx-target="#dropdowncontainer"
+          hx-swap="innerHTML"
+        >
+          Help
+        </button>
+      </div>
+      <div class="dropdown-container" id="dropdowncontainer"></div>
+    </div>
 
-		<div class="container-2">
-			<div class="sidebar" id="side-bar">
-				<div class="sidebar-floating-top" placeholder="Tools">
-					<button class="sidebar-close-button"></button>
-					Tools
-				</div>
-				<div class="toolbar">
-					<button
-						class="tools"
-						hx-get="/clear"
-						hx-target=".optionWindow"
-						hx-swap="innerHTML"
-						id="rectlasso"
-					></button>
-					<button
-						class="tools"
-						hx-get="/clear"
-						hx-target=".optionWindow"
-						hx-swap="innerHTML"
-						id="lasso"
-					></button>
-					<button
-						class="tools"
-						hx-get="/EraserOptions.html"
-						hx-target=".optionWindow"
-						hx-swap="innerHTML"
-						id="eraser"
-					></button>
-					<button
-						class="tools"
-						hx-get="/clear"
-						hx-target=".optionWindow"
-						hx-swap="innerHTML"
-						id="floodfill"
-					></button>
-					<button
-						class="tools"
-						hx-get="/clear"
-						hx-target=".optionWindow"
-						hx-swap="innerHTML"
-						id="eyedrop"
-					></button>
-					<button
-						class="tools"
-						hx-get="/clear"
-						hx-target=".optionWindow"
-						hx-swap="innerHTML"
-						id="magnification"
-					></button>
-					<button
-						class="tools"
-						hx-get="/clear"
-						hx-target=".optionWindow"
-						hx-swap="innerHTML"
-						id="pencil"
-					></button>
-					<button
-						class="tools"
-						hx-get="/BrushOptions.html"
-						hx-target=".optionWindow"
-						hx-swap="innerHTML"
-						id="brush"
-					></button>
-					<button
-						class="tools"
-						hx-get="/AirBrushOptions.html"
-						hx-target=".optionWindow"
-						hx-swap="innerHTML"
-						id="airbrush"
-					></button>
-					<button
-						class="tools"
-						hx-get="/clear"
-						hx-target=".optionWindow"
-						hx-swap="innerHTML"
-						id="text"
-					></button>
-					<button
-						class="tools"
-						hx-get="/LineOptions.html"
-						hx-target=".optionWindow"
-						hx-swap="innerHTML"
-						id="line"
-					></button>
-					<button
-						class="tools"
-						hx-get="/CurvedLineOptions.html"
-						hx-target=".optionWindow"
-						hx-swap="innerHTML"
-						id="curveline"
-					></button>
-					<button
-						class="tools"
-						hx-get="/RectOptions.html"
-						hx-target=".optionWindow"
-						hx-swap="innerHTML"
-						id="rectshape"
-					></button>
-					<button
-						class="tools"
-						hx-get="/PolygonOptions.html"
-						hx-target=".optionWindow"
-						hx-swap="innerHTML"
-						id="polygonshape"
-					></button>
-					<button
-						class="tools"
-						hx-get="/ElipseTool.html"
-						hx-target=".optionWindow"
-						hx-swap="innerHTML"
-						id="elipse"
-					></button>
-					<button
-						class="tools"
-						hx-get="/RoundedRectTool.html"
-						hx-target=".optionWindow"
-						hx-swap="innerHTML"
-						id="rectelipse"
-					></button>
-				</div>
-				<div class="optionWindow" id="optionWindow"></div>
-			</div>
+    <div class="container-2">
+      <div class="sidebar" id="side-bar">
+        <div class="sidebar-floating-top" placeholder="Tools">
+          <button class="sidebar-close-button"></button>
+          Tools
+        </div>
+        <div class="toolbar">
+          <button
+            class="tools"
+            hx-get="/clear"
+            hx-target=".optionWindow"
+            hx-swap="innerHTML"
+            id="rectlasso"
+          ></button>
+          <button
+            class="tools"
+            hx-get="/clear"
+            hx-target=".optionWindow"
+            hx-swap="innerHTML"
+            id="lasso"
+          ></button>
+          <button
+            class="tools"
+            hx-get="/EraserOptions.html"
+            hx-target=".optionWindow"
+            hx-swap="innerHTML"
+            id="eraser"
+          ></button>
+          <button
+            class="tools"
+            hx-get="/clear"
+            hx-target=".optionWindow"
+            hx-swap="innerHTML"
+            id="floodfill"
+          ></button>
+          <button
+            class="tools"
+            hx-get="/clear"
+            hx-target=".optionWindow"
+            hx-swap="innerHTML"
+            id="eyedrop"
+          ></button>
+          <button
+            class="tools"
+            hx-get="/MagnificationOptions.html"
+            hx-target=".optionWindow"
+            hx-swap="innerHTML"
+            id="magnification"
+          ></button>
+          <button
+            class="tools"
+            hx-get="/clear"
+            hx-target=".optionWindow"
+            hx-swap="innerHTML"
+            id="pencil"
+          ></button>
+          <button
+            class="tools"
+            hx-get="/BrushOptions.html"
+            hx-target=".optionWindow"
+            hx-swap="innerHTML"
+            id="brush"
+          ></button>
+          <button
+            class="tools"
+            hx-get="/AirBrushOptions.html"
+            hx-target=".optionWindow"
+            hx-swap="innerHTML"
+            id="airbrush"
+          ></button>
+          <button
+            class="tools"
+            hx-get="/clear"
+            hx-target=".optionWindow"
+            hx-swap="innerHTML"
+            id="text"
+          ></button>
+          <button
+            class="tools"
+            hx-get="/LineOptions.html"
+            hx-target=".optionWindow"
+            hx-swap="innerHTML"
+            id="line"
+          ></button>
+          <button
+            class="tools"
+            hx-get="/CurvedLineOptions.html"
+            hx-target=".optionWindow"
+            hx-swap="innerHTML"
+            id="curveline"
+          ></button>
+          <button
+            class="tools"
+            hx-get="/RectOptions.html"
+            hx-target=".optionWindow"
+            hx-swap="innerHTML"
+            id="rectshape"
+          ></button>
+          <button
+            class="tools"
+            hx-get="/PolygonOptions.html"
+            hx-target=".optionWindow"
+            hx-swap="innerHTML"
+            id="polygonshape"
+          ></button>
+          <button
+            class="tools"
+            hx-get="/ElipseTool.html"
+            hx-target=".optionWindow"
+            hx-swap="innerHTML"
+            id="ellipse"
+          ></button>
+          <button
+            class="tools"
+            hx-get="/RoundedRectTool.html"
+            hx-target=".optionWindow"
+            hx-swap="innerHTML"
+            id="rectelipse"
+          ></button>
+        </div>
+        <div class="optionWindow" id="optionWindow"></div>
+      </div>
 
-			<div class="canvasbackcontainer" id="canvas-back-container">
-				<div class="canvascontainer" id="canvas-container">
-					<canvas id="canvas" class="canvas"></canvas>
-					<canvas
-						id="canvasbuffer"
-						style="
-							display: none;
-							z-index: 3;
-							position: inherit;
-							top: 3px;
-							left: 3px;
-							width: 100%;
-							height: 100%;
-							border: none;
-						"
-					></canvas>
-					<canvas
-						id="selectionbuffer"
-						style="
-							display: none;
-							z-index: 3;
-							position: inherit;
-							z-index: 99;
-							border: none;
-						"
-					></canvas>
-					<textarea id="textarea" class="hidden"></textarea>
-					<img
-						src="{{url_for('static',filename='./imgs/point.png')}}"
-						class="resize-handle right"
-						alt="right handle"
-					/>
-					<img
-						src="{{url_for('static',filename='./imgs/point.png')}}"
-						class="resize-handle bottom"
-						alt="bottom handle"
-					/>
-					<img
-						src="{{url_for('static',filename='./imgs/point.png')}}"
-						class="resize-handle corner"
-						alt="corner handle"
-					/>
-				</div>
-			</div>
+      <div class="canvasbackcontainer" id="canvas-back-container">
+        <div class="canvascontainer" id="canvas-container">
+          <canvas id="canvas" class="canvas"></canvas>
+          <canvas
+            id="canvasbuffer"
+            style="
+              display: none;
+              z-index: 3;
+              position: inherit;
+              top: 3px;
+              left: 3px;
+              width: 100%;
+              height: 100%;
+              border: none;
+            "
+          ></canvas>
+          <canvas
+            id="selectionbuffer"
+            style="
+              display: none;
+              z-index: 3;
+              position: inherit;
+              z-index: 99;
+              border: none;
+            "
+          ></canvas>
+          <textarea id="textarea" class="hidden"></textarea>
+          <img
+            src="{{url_for('static',filename='./imgs/point.png')}}"
+            class="resize-handle right"
+            alt="right handle"
+          />
+          <img
+            src="{{url_for('static',filename='./imgs/point.png')}}"
+            class="resize-handle bottom"
+            alt="bottom handle"
+          />
+          <img
+            src="{{url_for('static',filename='./imgs/point.png')}}"
+            class="resize-handle corner"
+            alt="corner handle"
+          />
+        </div>
+      </div>
 
-			<div class="right-sidebar"></div>
-		</div>
+      <div class="right-sidebar"></div>
+    </div>
 
-		<div class="container-3">
-			<div class="pallete-preview">
-				<div
-					class="selectedcolor"
-					id="selected-color"
-					value="[0, 0, 0, 255]"
-					style="background-color: rgb(0, 0, 0)"
-				></div>
-				<div
-					class="switchcolor"
-					id="switch-color"
-					value="[255, 255, 255, 255]"
-					style="background-color: rgb(255, 255, 255)"
-				></div>
-			</div>
-			<div class="pallete-layout">
-				<button
-					class="pallete-color"
-					id="black-button"
-					value="[0, 0, 0, 255]"
-					style="background-color: rgb(0, 0, 0)"
-				></button>
-				<button
-					class="pallete-color"
-					id="grey-button"
-					value="[128, 128, 128, 255]"
-					style="background-color: rgb(128, 128, 128)"
-				></button>
-				<button
-					class="pallete-color"
-					id="maroon-button"
-					value="[128, 0, 0, 255]"
-					style="background-color: rgb(128, 0, 0)"
-				></button>
-				<button
-					class="pallete-color"
-					id="dirty-yellow-button"
-					value="[185, 155, 20, 255]"
-					style="background-color: rgb(185, 155, 20)"
-				></button>
-				<button
-					class="pallete-color"
-					id="green-button"
-					value="[0, 128, 0, 255]"
-					style="background-color: rgb(0, 128, 0)"
-				></button>
-				<button
-					class="pallete-color"
-					id="teal-button"
-					value="[0, 128, 128, 255]"
-					style="background-color: rgb(0, 128, 128)"
-				></button>
-				<button
-					class="pallete-color"
-					id="navyblue-button"
-					value="[0, 0, 128, 255]"
-					style="background-color: rgb(0, 0, 128)"
-				></button>
-				<button
-					class="pallete-color"
-					id="purple-button"
-					value="[128, 0, 128, 255]"
-					style="background-color: rgb(128, 0, 128)"
-				></button>
-				<button
-					class="pallete-color"
-					id="dirty-yellowish-button"
-					value="[199, 151, 61, 255]"
-					style="background-color: rgb(199, 151, 61)"
-				></button>
-				<button
-					class="pallete-color"
-					id="greenish-blue-button"
-					value="[0, 63, 63, 255]"
-					style="background-color: rgb(0, 63, 63)"
-				></button>
-				<button
-					class="pallete-color"
-					id="lightseagreen-button"
-					value="[32, 178, 170, 255]"
-					style="background-color: rgb(32, 178, 170)"
-				></button>
-				<button
-					class="pallete-color"
-					id="royal-blue-button"
-					value="[0, 65, 129, 255]"
-					style="background-color: rgb(0, 65, 129)"
-				></button>
-				<button
-					class="pallete-color"
-					id="deep-blue-button"
-					value="[64, 0, 255, 255]"
-					style="background-color: rgb(64, 0, 255)"
-				></button>
-				<button
-					class="pallete-color"
-					id="brown-button"
-					value="[128, 65, 1, 255]"
-					style="background-color: rgb(128, 65, 1)"
-				></button>
-				<button
-					class="pallete-color"
-					id="white-button"
-					value="[255, 255, 255, 255]"
-					style="background-color: rgb(255, 255, 255)"
-				></button>
-				<button
-					class="pallete-color"
-					id="lightgray-button"
-					value="[211, 211, 211, 255]"
-					style="background-color: rgb(211, 211, 211)"
-				></button>
-				<button
-					class="pallete-color"
-					id="red-button"
-					value="[255, 0, 0, 255]"
-					style="background-color: rgb(255, 0, 0)"
-				></button>
-				<button
-					class="pallete-color"
-					id="yellow-button"
-					value="[255, 255, 0, 255]"
-					style="background-color: rgb(255, 255, 0)"
-				></button>
-				<button
-					class="pallete-color"
-					id="lightgreen-button"
-					value="[144, 238, 144, 255]"
-					style="background-color: rgb(144, 238, 144)"
-				></button>
-				<button
-					class="pallete-color"
-					id="lightblue-button"
-					value="[173, 216, 230, 255]"
-					style="background-color: rgb(173, 216, 230)"
-				></button>
-				<button
-					class="pallete-color"
-					id="blue-button"
-					value="[0, 0, 255, 255]"
-					style="background-color: rgb(0, 0, 255)"
-				></button>
-				<button
-					class="pallete-color"
-					id="pink-button"
-					value="[255, 192, 203, 255]"
-					style="background-color: rgb(255, 192, 203)"
-				></button>
-				<button
-					class="pallete-color"
-					id="beige-button"
-					value="[245, 245, 220, 255]"
-					style="background-color: rgb(245, 245, 220)"
-				></button>
-				<button
-					class="pallete-color"
-					id="sea-green-button"
-					value="[1, 255, 129, 255]"
-					style="background-color: rgb(1, 255, 129)"
-				></button>
-				<button
-					class="pallete-color"
-					id="cyan-button"
-					value="[0, 255, 255, 255]"
-					style="background-color: rgb(0, 255, 255)"
-				></button>
-				<button
-					class="pallete-color"
-					id="dull-blue-button"
-					value="[128, 128, 255, 255]"
-					style="background-color: rgb(128, 128, 255)"
-				></button>
-				<button
-					class="pallete-color"
-					id="darkpink-button"
-					value="[255, 0, 128, 255]"
-					style="background-color: rgb(255, 0, 128)"
-				></button>
-				<button
-					class="pallete-color"
-					id="mud-orange-button"
-					value="[255, 129, 65, 255]"
-					style="background-color: rgb(255, 129, 65)"
-				></button>
-			</div>
-		</div>
+    <div class="container-3">
+      <div class="pallete-preview">
+        <div
+          class="selectedcolor"
+          id="selected-color"
+          value="[0, 0, 0, 255]"
+          style="background-color: rgb(0, 0, 0)"
+        ></div>
+        <div
+          class="switchcolor"
+          id="switch-color"
+          value="[255, 255, 255, 255]"
+          style="background-color: rgb(255, 255, 255)"
+        ></div>
+      </div>
+      <div class="pallete-layout">
+        <button
+          class="pallete-color"
+          id="black-button"
+          value="[0, 0, 0, 255]"
+          style="background-color: rgb(0, 0, 0)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="grey-button"
+          value="[128, 128, 128, 255]"
+          style="background-color: rgb(128, 128, 128)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="maroon-button"
+          value="[128, 0, 0, 255]"
+          style="background-color: rgb(128, 0, 0)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="dirty-yellow-button"
+          value="[185, 155, 20, 255]"
+          style="background-color: rgb(185, 155, 20)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="green-button"
+          value="[0, 128, 0, 255]"
+          style="background-color: rgb(0, 128, 0)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="teal-button"
+          value="[0, 128, 128, 255]"
+          style="background-color: rgb(0, 128, 128)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="navyblue-button"
+          value="[0, 0, 128, 255]"
+          style="background-color: rgb(0, 0, 128)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="purple-button"
+          value="[128, 0, 128, 255]"
+          style="background-color: rgb(128, 0, 128)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="dirty-yellowish-button"
+          value="[199, 151, 61, 255]"
+          style="background-color: rgb(199, 151, 61)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="greenish-blue-button"
+          value="[0, 63, 63, 255]"
+          style="background-color: rgb(0, 63, 63)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="lightseagreen-button"
+          value="[32, 178, 170, 255]"
+          style="background-color: rgb(32, 178, 170)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="royal-blue-button"
+          value="[0, 65, 129, 255]"
+          style="background-color: rgb(0, 65, 129)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="deep-blue-button"
+          value="[64, 0, 255, 255]"
+          style="background-color: rgb(64, 0, 255)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="brown-button"
+          value="[128, 65, 1, 255]"
+          style="background-color: rgb(128, 65, 1)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="white-button"
+          value="[255, 255, 255, 255]"
+          style="background-color: rgb(255, 255, 255)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="lightgray-button"
+          value="[211, 211, 211, 255]"
+          style="background-color: rgb(211, 211, 211)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="red-button"
+          value="[255, 0, 0, 255]"
+          style="background-color: rgb(255, 0, 0)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="yellow-button"
+          value="[255, 255, 0, 255]"
+          style="background-color: rgb(255, 255, 0)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="lightgreen-button"
+          value="[144, 238, 144, 255]"
+          style="background-color: rgb(144, 238, 144)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="lightblue-button"
+          value="[173, 216, 230, 255]"
+          style="background-color: rgb(173, 216, 230)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="blue-button"
+          value="[0, 0, 255, 255]"
+          style="background-color: rgb(0, 0, 255)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="pink-button"
+          value="[255, 192, 203, 255]"
+          style="background-color: rgb(255, 192, 203)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="beige-button"
+          value="[245, 245, 220, 255]"
+          style="background-color: rgb(245, 245, 220)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="sea-green-button"
+          value="[1, 255, 129, 255]"
+          style="background-color: rgb(1, 255, 129)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="cyan-button"
+          value="[0, 255, 255, 255]"
+          style="background-color: rgb(0, 255, 255)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="dull-blue-button"
+          value="[128, 128, 255, 255]"
+          style="background-color: rgb(128, 128, 255)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="darkpink-button"
+          value="[255, 0, 128, 255]"
+          style="background-color: rgb(255, 0, 128)"
+        ></button>
+        <button
+          class="pallete-color"
+          id="mud-orange-button"
+          value="[255, 129, 65, 255]"
+          style="background-color: rgb(255, 129, 65)"
+        ></button>
+      </div>
+    </div>
 
-		<div class="container-4">
-			<div class="footer-note" id="foot-note"></div>
-			<div id="coordinate_value" class="coordinates"></div>
-			<div class="extra" id="dimensions"></div>
-		</div>
+    <div class="container-4">
+      <div class="footer-note" id="foot-note"></div>
+      <div id="coordinate_value" class="coordinates"></div>
+      <div class="extra" id="dimensions"></div>
+    </div>
 
-		<div class="load-box" id="load_box" style="display: none"></div>
+    <div class="load-box" id="load_box" style="display: none"></div>
 
-		<script src="https://unpkg.com/htmx.org@1.5.0"></script>
-		<script
-			type="module"
-			src="{{ url_for('static', filename='js/Index.js') }}"
-		></script>
-		<script
-			type="module"
-			src="{{ url_for('static', filename='js/undo.js') }}"
-		></script>
-		<script
-			type="module"
-			src="{{ url_for('static', filename='js/Tools.js') }}"
-		></script>
-		<script
-			type="module"
-			src="{{ url_for('static', filename='js/toolbox.js') }}"
-		></script>
-		<script
-			type="module"
-			src="{{ url_for('static', filename='js/canvas.js') }}"
-		></script>
-		<script
-			type="module"
-			src="{{ url_for('static', filename='js/Files.js') }}"
-		></script>
-		<script
-			type="module"
-			src="{{ url_for('static', filename='js/Edit.js') }}"
-		></script>
-	</body>
+    <script src="https://unpkg.com/htmx.org@1.5.0"></script>
+    <script
+      type="module"
+      src="{{ url_for('static', filename='js/Index.js') }}"
+    ></script>
+    <script
+      type="module"
+      src="{{ url_for('static', filename='js/undo.js') }}"
+    ></script>
+    <script
+      type="module"
+      src="{{ url_for('static', filename='js/Tools.js') }}"
+    ></script>
+    <script
+      type="module"
+      src="{{ url_for('static', filename='js/toolbox.js') }}"
+    ></script>
+    <script
+      type="module"
+      src="{{ url_for('static', filename='js/canvas.js') }}"
+    ></script>
+    <script
+      type="module"
+      src="{{ url_for('static', filename='js/Files.js') }}"
+    ></script>
+    <script
+      type="module"
+      src="{{ url_for('static', filename='js/Edit.js') }}"
+    ></script>
+  </body>
 </html>

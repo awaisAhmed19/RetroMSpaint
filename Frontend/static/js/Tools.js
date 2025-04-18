@@ -873,7 +873,81 @@ const ToolsInstance = {
       },
     };
   },
+  magnification: () => {
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const customCursorUrl = "/static/cursors/magnifier.png";
+    const buffercanvas = document.getElementById("canvasbuffer");
+    const bctx = buffercanvas.getContext("2d");
+    const cursorHotspotX = 15;
+    const cursorHotspotY = 15;
+    const baseWidth = canvas.width;
+    const baseHeight = canvas.height;
 
+    let imageData = null;
+    let zoom = 1;
+    canvas.style.cursor = `url(${customCursorUrl}) ${cursorHotspotX} ${cursorHotspotY}, auto`;
+
+    document.addEventListener("htmx:afterSwap", function (e) {
+      const MOptions = e.detail.target.querySelectorAll(
+        ".MagnificationOptions button",
+      );
+
+      if (MOptions && MOptions.length > 0) {
+        MOptions.forEach((option) => {
+          option.addEventListener("click", () => {
+            MOptions.forEach((opt) => opt.classList.remove("pressed"));
+            option.classList.add("pressed");
+            const newZoom = parseFloat(option.value);
+            setZoom(newZoom);
+          });
+        });
+      }
+    });
+
+    function setZoom(factor) {
+      console.log(zoom);
+      zoom = Math.max(0.1, Math.min(10, factor));
+      buffercanvas.width = canvas.width;
+      buffercanvas.height = canvas.height;
+
+      // Copy current canvas content
+      bctx.drawImage(canvas, 0, 0);
+
+      canvas.style.width = `${baseWidth * zoom}px`;
+      canvas.style.height = `${baseHeight * zoom}px`;
+
+      // Clear original canvas
+      ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transforms
+      ctx.scale(zoom, zoom);
+      console.log("Zoomed", zoom);
+      // Apply scaling
+      ctx.drawImage(buffercanvas, canvas.width, canvas.height); // Draw scaled image
+    }
+
+    const activateTool = () => {
+      if (isMobileOrTab()) {
+        canvas.addEventListener("touchstart", () => setZoom(zoom));
+      }
+      canvas.addEventListener("mousedown", () => setZoom(zoom));
+    };
+
+    const deactivateTool = () => {
+      if (isMobileOrTab()) {
+        canvas.removeEventListener("touchstart", () => setZoom(zoom));
+      }
+      canvas.removeEventListener("mousedown", () => setZoom(zoom));
+    };
+
+    activateTool();
+    updateCoords(canvas);
+    updateDimens(canvas);
+    return {
+      removeEvents: () => {
+        deactivateTool();
+      },
+    };
+  },
   floodfill: () => {
     const customCursorUrl = "/static/cursors/fill-bucket.png";
     const cursorHotspotX = 15;
@@ -1685,13 +1759,17 @@ const ToolsInstance = {
     };
   },
 
-  elipse: () => {
+  ellipse: () => {
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
     const bufferCanvas = document.getElementById("canvasbuffer");
     const bufferCtx = bufferCanvas.getContext("2d");
     let isDrawing = false;
     let startPos = null;
+    let fill = false;
+    let stroke = true;
+    let nostroke_fill = false;
+    let EOptions = 1;
     bufferCanvas.style.display = "none";
     bufferCanvas.width = canvas.width;
     bufferCanvas.height = canvas.height;
@@ -1704,6 +1782,36 @@ const ToolsInstance = {
     // Apply custom cursor with hotspot
     canvas.style.cursor = `url(${customCursorUrl}), auto`;
     bufferCanvas.style.cursor = `url(${customCursorUrl}) , auto`;
+    document.addEventListener("htmx:afterSwap", function (e) {
+      const EllipseOptions = e.detail.target.querySelectorAll(
+        ".ellipsetool button",
+      );
+      if (EllipseOptions && EllipseOptions.length > 0) {
+        EllipseOptions.forEach((option) => {
+          option.addEventListener("click", () => {
+            //@TODO
+            EllipseOptions.forEach((opt) => opt.classList.remove("pressed"));
+            option.classList.add("pressed");
+            EOptions = parseInt(option.value, 10);
+            bufferCanvas.style.display = "none";
+            deactivateTool(
+              bufferCanvas,
+              startCircleHandler,
+              drawCircleHandler,
+              stopCircleHandler,
+            );
+
+            bufferCanvas.style.display = "flex";
+            activateTool(
+              bufferCanvas,
+              startCircleHandler,
+              drawCircleHandler,
+              stopCircleHandler,
+            );
+          });
+        });
+      }
+    });
 
     const startCircleHandler = (e) => {
       startPos = getMousePos(bufferCanvas, e);
@@ -1715,19 +1823,37 @@ const ToolsInstance = {
       const current = getMousePos(bufferCanvas, e);
       const a = Math.abs(current.x - startPos.x);
       const b = Math.abs(current.y - startPos.y);
-      bufferCtx.strokeStyle = currentColor;
       bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-      drawEllipse(bufferCtx, startPos.x, startPos.y, a, b, currentColor, false);
+      stroke = EOptions === 1 ? true : false;
+      fill = EOptions === 2 ? true : false;
+      nostroke_fill = EOptions === 3 ? true : false;
+      drawEllipse(
+        bufferCtx,
+        startPos.x,
+        startPos.y,
+        a,
+        b,
+        currentColor,
+        stroke,
+        fill,
+        nostroke_fill,
+      );
     };
 
-    function drawEllipse(ctx, x, y, w, h, stroke, fill) {
+    function drawEllipse(ctx, x, y, w, h, color, stroke, fill, nostroke_fill) {
       const center_x = x + w / 2;
       const center_y = y + h / 2;
       ctx.beginPath();
-      ctx.strokeStyle = stroke;
+      ctx.strokeStyle = color;
       ctx.ellipse(center_x, center_y, w, h, 0, 0, 6.2831);
-      ctx.stroke();
       if (fill) {
+        ctx.fillStyle = "white";
+        ctx.stroke();
+        ctx.fill();
+      } else if (stroke) {
+        ctx.stroke();
+      } else if (nostroke_fill) {
+        ctx.fillStyle = color;
         ctx.fill();
       }
     }
@@ -1739,8 +1865,20 @@ const ToolsInstance = {
       const a = Math.abs(current.x - startPos.x);
       const b = Math.abs(current.y - startPos.y);
       ctx.strokeStyle = currentColor;
-      drawEllipse(ctx, startPos.x, startPos.y, a, b, currentColor, false);
-      ctx.beginPath();
+      stroke = EOptions === 1 ? true : false;
+      fill = EOptions === 2 ? true : false;
+      nostroke_fill = EOptions === 3 ? true : false;
+      drawEllipse(
+        ctx,
+        startPos.x,
+        startPos.y,
+        a,
+        b,
+        currentColor,
+        stroke,
+        fill,
+        nostroke_fill,
+      );
       bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
     };
 
