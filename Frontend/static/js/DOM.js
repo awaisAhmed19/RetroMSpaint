@@ -26,4 +26,9 @@ export const DOM = {
   menuRow,
   canvasContainer: document.querySelector(".canvascontainer"),
   elementFootNotesclasses: [...toolsClass, ...menuRow],
+  sidebarDrag: document.querySelector(".sidebar"),
+  toolbar: document.querySelector(".toolbar"),
+  sidebarTop: document.querySelector(".sidebar-floating-top"),
+  closeButton: document.querySelector(".sidebar-close-button"),
+  canvasContainer: document.getElementById("canvas-container"),
 };

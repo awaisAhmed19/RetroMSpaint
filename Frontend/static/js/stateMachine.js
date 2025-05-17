@@ -1,10 +1,9 @@
 import DOM from "./DOM.js";
 class stateMachine {
   constructor(DOM) {
-    this.DOM = DOM;
-    this.canvas = this.DOM.canvas;
+    this.canvas = DOM.canvas;
     this.ctx = this.canvas.getContext("2d");
-    this.bufferCanvas = this.DOM.bufferCanvas;
+    this.bufferCanvas = DOM.bufferCanvas;
     this.bctx = this.bufferCanvas.getConext("2d");
     this.state = "drawing";
     this.tool = "pencil";
