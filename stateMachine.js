@@ -1,0 +1,5 @@
+class stateMachine{
+  constructor(){
+    
+  }
+}
