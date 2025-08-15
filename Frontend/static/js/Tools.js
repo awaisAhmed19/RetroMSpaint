@@ -578,107 +578,164 @@ const ToolsInstance = {
       },
     };
   },
-  // 	lasso: () => {
-  // 		const p_canvas = null;
-  // 		p_canvas = document.getElementById("canvasbuffer");
-  // 		const p_ctx = p_canvas.getContext("2d");
-  // 		let points = [];
-  // 		let min_x = -Infinity;
-  // 		let min_y = -Infinity;
-  // 		let max_x = Infinity;
-  // 		let max_y = Infinity;
-  //     let isDrawing = false;
-  // 		let isSelected = false;
-  //     let prev_pointer={x:0,y:0};
 
-  // 		const startLasso = (e) => {
-  // 			pos = getMousePos(p_canvas, e);
-  // 			min_x = pos.x;
-  // 			max_x = pos.x + 1;
-  // 			min_y = pos.y;
-  // 			max_y = pos.y + 1;
-  // 			points = [];
-  // 			p_canvas.width = canvas.width;
-  // 			p_canvas.height = canvas.height;
-  // 			isDrawing = true;
-  // 			deselct();
-  // 		};
+  lasso: () => {
+    const bufferCanvas = document.getElementById("canvasbuffer");
+    const selectionBuffer = document.getElementById("selectionbuffer");
+    const bufferCtx = bufferCanvas.getContext("2d");
+    const SBufferCtx = selectionBuffer.getContext("2d");
 
-  // 		const drawLasso = (ctx, x, y) => {
-  // 			pos.x = Math.min(canvas.width, pos.x);
-  // 			pos.x = Math.max(0, pos.x);
-  // 			pos.y = Math.max(0, pos.y);
-  // 			pos.y = Math.max(canvas.height, pos.y);
+    bufferCanvas.width = canvas.width;
+    selectionBuffer.width = canvas.width;
+    bufferCanvas.height = canvas.height;
+    selectionBuffer.height = canvas.height;
 
-  // 			points.push(pos);
+    bufferCtx.lineWidth = 1;
+    ctx.lineWidth = 1;
+    bufferCanvas.style.cursor = "cosshair";
+    canvas.style.cursor = "cosshair";
+    selectionBuffer.style.cursor = "cosshair";
+    let isDrawing = false;
+    let isDragging = false;
+    let isSelected = false;
+    let padding = 10;
+    let polygon = [];
+    let points = [];
+    let selectedBlob = [];
+    let pos,
+      start,
+      selectedImageData = null;
+    bufferCtx.strokeStyle = "black";
 
-  // 			x_min = Math.min(pos.x, x_min);
-  // 			x_max = Math.max(pos.x, x_max);
-  // 			y_min = Math.min(pos.y, y_min);
-  // 			y_max = Math.max(pos.y, y_max);
+    const startLasso = (e) => {
+      selectedImageData = null;
+      isDrawing = true;
+      start = getMousePos(bufferCanvas, e);
+    };
 
-  //       bresenham_line(prev_pointer.x,prev_pointer.y,pos.x,pos.y,(x,y)=>{ffs_paint_iteration(x,y)});
+    const drawLasso = (e) => {
+      if (!isDrawing) return;
+      pos = getMousePos(bufferCanvas, e);
+      bufferCtx.strokeStyle = "black";
+      bufferCtx.lineWidth = 1;
+      bufferCtx.lineCap = "round";
+      bufferCtx.lineTo(pos.x, pos.y);
+      //console.log(pos.x," ",pos.y);
+      polygon.push(pos);
+      bufferCtx.stroke();
+      updateCoords(bufferCanvas);
+    };
 
-  // 		};
+    const stopLasso = (e) => {
+      isDrawing = false;
+      isSelected = true;
+      pos = getMousePos(bufferCanvas, e);
+      bufferCtx.lineTo(start.x, start.y);
 
-  //     function ffs_paint_iteration(x,y){
-  //       x=Math.min(canvas.width,x);
-  //       x=Math.max(0,x);
-  //       y=Math.min(canvas.height,y);
-  //       y=Math.max(0,y);
+      const selectionBox = boundingBox();
+      const points = pointCollector(selectionBox);
 
-  //       const inverse_size=2;
-  //       const rect_x=~~(x,inverse_size/2);
-  //       const rect_y=~~(y-inverse_size/2);
-  //       const rect_w= inverse_size;
-  //       const rect_h= inverse_size;
+      bufferCtx.beginPath(); // clear previous path for points
+      for (let i = 0; i < points.length; i++) {
+        if (ray_casting(points[i], polygon)) {
+          selectedBlob.push({ x: points[i].x, y: points[i].y });
+        }
+      }
+    };
 
-  //       const ctx_dest= p_ctx;
-  //       const id_src=ctx.getImageData(rect_x,rect_y,rect_w,rect_h);
-  //       const id_des=ctx_dest.getImageData(rect_x,rect_y,rect_w,rect_h);
+    function copy_blob(blob, src, dest) {
+      sctx = src.getContext("2d");
+      dctx = dest.getContext("2d");
+      const data = sctx.getImageData(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < blob.length; i++) {
+        let x = blob[i].x;
+        let y = blob[i].y;
 
-  //       for(let i=0;i=id_des.data.length;i<1;i+=4){
-  //         id_des.data[i+0]=255-id_src.data[i+0];
-  //         id_des.data[i+1]=255-id_src.data[i+1];
-  //         id_des.data[i+2]=255-id_src.data[i+2];
-  //         id_des.data[i+3]=255;
-  //       }
+        let i = (y * canvas.width + x) * 4;
+        let r = data[i];
+        let g = data[i + 1];
+        let b = data[i + 2];
+        let a = data[i + 3];
 
-  //       ctx_dest.putImageData(id_des,rect_x,rect_y);
-  //     }
+        dctx.fillStyle = `rgba(${r},${g},${b},${a / 255})`;
+        dctx.fillRect(x, y, 1, 1);
+      }
+    }
 
-  //     function bresenham_line(x1, y1, x2, y2, callback) {
-  // 	// Bresenham's line algorithm
-  // 	    x1 = ~~x1; x2 = ~~x2; y1 = ~~y1; y2 = ~~y2;
+    function ray_casting(point, polygon) {
+      let n = polygon.length;
+      let is_in = false;
+      let x = point.x;
+      let y = point.y;
 
-  // 	    const dx = Math.abs(x2 - x1);
-  // 	    const dy = Math.abs(y2 - y1);
-  // 	    const sx = (x1 < x2) ? 1 : -1;
-  // 	    const sy = (y1 < y2) ? 1 : -1;
-  // 	    let err = dx - dy;
+      for (let i = 0; i < n; i++) {
+        let x1 = polygon[i].x;
+        let y1 = polygon[i].y;
+        let x2 = polygon[(i + 1) % n].x; // wrap to first point
+        let y2 = polygon[(i + 1) % n].y;
 
-  // 	    while (true) {
-  // 		    callback(x1, y1);
+        if ((y < y1 && y >= y2) || (y >= y1 && y < y2)) {
+          if (x < ((x2 - x1) * (y - y1)) / (y2 - y1) + x1) {
+            is_in = !is_in;
+          }
+        }
+      }
 
-  // 		    if (x1 === x2 && y1 === y2) break;
-  // 		    const e2 = err * 2;
-  // 		    if (e2 > -dy) { err -= dy; x1 += sx; }
-  // 		    if (e2 < dx) { err += dx; y1 += sy; }
-  // 	  }
-  // }
+      return is_in;
+    }
 
-  // 		canvas.style.display = "flex";
-  // 		updateCoords(canvas);
-  // 		updateDimens(canvas);
-  // 		activateTool(canvas, lassoStart, lassoDraw, stopLassoDraw);
-  // 		return {
-  // 			removeEvents: () => {
-  // 				// canvas.style.display = "none";
-  // 				selectionBuffer.style.display = "none";
-  // 				deactivateTool(canvas, lassoStart, lassoDraw, stopLassoDraw);
-  // 			},
-  // 		};
-  // 	},
+    function boundingBox() {
+      let min_x = Infinity,
+        min_y = Infinity;
+      let max_x = -Infinity,
+        max_y = -Infinity;
+
+      if (!polygon || polygon.length === 0) return;
+
+      bufferCtx.setLineDash([5, 3]);
+      for (let i = 0; i < polygon.length; i++) {
+        min_x = Math.min(min_x, polygon[i].x);
+        min_y = Math.min(min_y, polygon[i].y);
+        max_x = Math.max(max_x, polygon[i].x);
+        max_y = Math.max(max_y, polygon[i].y);
+      }
+      let width = max_x - min_x + 2 * padding;
+      let height = max_y - min_y + 2 * padding;
+
+      bufferCtx.strokeStyle = "black";
+      bufferCtx.rect(min_x - padding, min_y - padding, width, height);
+      bufferCtx.stroke();
+
+      return {
+        x: min_x - padding,
+        y: min_y - padding,
+        ex: max_x + padding,
+        ey: max_y + padding,
+      };
+    }
+
+    function pointCollector(box) {
+      let point = [];
+      for (let i = box.x; i < box.ex; i++) {
+        for (let j = box.y; j < box.ey; j++) {
+          point.push({ x: i, y: j });
+        }
+      }
+      return point;
+    }
+
+    activateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
+    bufferCanvas.style.display = "flex";
+    updateCoords(bufferCanvas);
+    updateDimens(bufferCanvas);
+    return {
+      removeEvents: () => {
+        bufferCanvas.style.display = "none";
+        selectionBuffer.style.display = "none";
+        deactivateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
+      },
+    };
+  },
 
   rectlasso: () => {
     const bufferCanvas = document.getElementById("canvasbuffer");

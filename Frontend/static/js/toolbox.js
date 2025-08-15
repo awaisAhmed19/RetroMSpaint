@@ -12,69 +12,69 @@ const initialLeft = 0;
 let startPosX, startPosY, initialMouseX, initialMouseY;
 
 closeButton.addEventListener("click", () => {
-	sidebarDrag.style.display = "none";
+  sidebarDrag.style.display = "none";
 });
 
 sidebarDrag.addEventListener("mousedown", onMouseDown);
 
 function onMouseDown(e) {
-	if (e.target.closest(".toolbar") || e.target.closest(".tool")) return;
-	e.preventDefault();
-	initialMouseX = e.clientX;
-	initialMouseY = e.clientY;
-	startPosX = sidebarDrag.offsetLeft;
-	startPosY = sidebarDrag.offsetTop;
+  if (e.target.closest(".toolbar") || e.target.closest(".tool")) return;
+  e.preventDefault();
+  initialMouseX = e.clientX;
+  initialMouseY = e.clientY;
+  startPosX = sidebarDrag.offsetLeft;
+  startPosY = sidebarDrag.offsetTop;
 
-	holdTimeout = setTimeout(() => {
-		floating = true;
-		sidebarDrag.classList.add("floating");
-		sidebarTop.style.display = "flex";
-		sidebarDrag.style.cursor = "grabbing";
-	}, 700);
+  holdTimeout = setTimeout(() => {
+    floating = true;
+    sidebarDrag.classList.add("floating");
+    sidebarTop.style.display = "flex";
+    sidebarDrag.style.cursor = "grabbing";
+  }, 700);
 
-	document.addEventListener("mousemove", onMouseMove);
-	document.addEventListener("mouseup", onMouseUp);
+  document.addEventListener("mousemove", onMouseMove);
+  document.addEventListener("mouseup", onMouseUp);
 }
 
 function onMouseMove(e) {
-	if (!floating) return;
+  if (!floating) return;
 
-	const dx = e.clientX - initialMouseX;
-	const dy = e.clientY - initialMouseY;
+  const dx = e.clientX - initialMouseX;
+  const dy = e.clientY - initialMouseY;
 
-	sidebarDrag.style.left = `${startPosX + dx}px`;
-	sidebarDrag.style.top = `${startPosY + dy}px`;
-	//canvasContainer.style.marginLeft = `${sidebarDrag.offsetLeft + sidebarDrag.offsetWidth}px`;
+  sidebarDrag.style.left = `${startPosX + dx}px`;
+  sidebarDrag.style.top = `${startPosY + dy}px`;
+  //canvasContainer.style.marginLeft = `${sidebarDrag.offsetLeft + sidebarDrag.offsetWidth}px`;
 }
 
 function onMouseUp(e) {
-	clearTimeout(holdTimeout);
-	if (floating) {
-		const dx = e.clientX - initialMouseX;
-		const dy = e.clientY - initialMouseY;
+  clearTimeout(holdTimeout);
+  if (floating) {
+    const dx = e.clientX - initialMouseX;
+    const dy = e.clientY - initialMouseY;
 
-		if (shouldSnapBack(dx, dy)) {
-			backToPosition();
-		} else {
-			sidebarDrag.style.cursor = "grab";
-		}
-	}
+    if (shouldSnapBack(dx, dy)) {
+      backToPosition();
+    } else {
+      sidebarDrag.style.cursor = "grab";
+    }
+  }
 
-	document.removeEventListener("mouseup", onMouseUp);
-	document.removeEventListener("mousemove", onMouseMove);
+  document.removeEventListener("mouseup", onMouseUp);
+  document.removeEventListener("mousemove", onMouseMove);
 }
 
 function shouldSnapBack(dx, dy) {
-	const snapThreshold = 50;
-	return Math.abs(dx) <= snapThreshold && Math.abs(dy) <= snapThreshold;
+  const snapThreshold = 50;
+  return Math.abs(dx) <= snapThreshold && Math.abs(dy) <= snapThreshold;
 }
 
 function backToPosition() {
-	sidebarDrag.style.left = `${initialLeft}px`;
-	sidebarDrag.style.top = `${initialTop}px`;
-	sidebarDrag.style.height = "100%";
-	sidebarTop.style.display = "none";
-	sidebarDrag.classList.remove("floating");
-	sidebarDrag.style.cursor = "default";
-	floating = false;
+  sidebarDrag.style.left = `${initialLeft}px`;
+  sidebarDrag.style.top = `${initialTop}px`;
+  sidebarDrag.style.height = "100%";
+  sidebarTop.style.display = "none";
+  sidebarDrag.classList.remove("floating");
+  sidebarDrag.style.cursor = "default";
+  floating = false;
 }
