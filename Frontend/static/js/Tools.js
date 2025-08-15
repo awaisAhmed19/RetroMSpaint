@@ -641,25 +641,52 @@ const ToolsInstance = {
           selectedBlob.push({ x: points[i].x, y: points[i].y });
         }
       }
+
+      copy_blob(selectedBlob, points, canvas, bufferCanvas);
+      clearSrc(selectedBlob, canvas);
     };
 
-    function copy_blob(blob, src, dest) {
-      sctx = src.getContext("2d");
-      dctx = dest.getContext("2d");
-      const data = sctx.getImageData(0, 0, canvas.width, canvas.height);
+    function clearSrc(blob, src) {
+      const sctx = src.getContext("2d", { willReadFrequently: true });
+      const data = sctx.getImageData(0, 0, src.width, src.height);
       for (let i = 0; i < blob.length; i++) {
-        let x = blob[i].x;
-        let y = blob[i].y;
+        //let x = blob[i].x;
+        //let y = blob[i].y;
+        sctx.clearRect(blob[i].x, blob[i].y, 1, 1);
+        //let index = (y * src.width + x) * 4;
 
-        let i = (y * canvas.width + x) * 4;
-        let r = data[i];
-        let g = data[i + 1];
-        let b = data[i + 2];
-        let a = data[i + 3];
-
-        dctx.fillStyle = `rgba(${r},${g},${b},${a / 255})`;
-        dctx.fillRect(x, y, 1, 1);
+        //data.data[index] = 255;
+        //data.data[index + 1] = 255;
+        //data.data[index + 2] = 255;
+        //data.data[index + 3] = 255; // opaque white
       }
+      //sctx.putImageData(data, 0, 0);
+    }
+    function copy_blob(blob, points, src, dest) {
+      const sctx = src.getContext("2d");
+      const dctx = dest.getContext("2d");
+
+      // Ensure dest is cleared first
+
+      const srcData = sctx.getImageData(0, 0, src.width, src.height);
+      const destData = dctx.getImageData(0, 0, dest.width, dest.height);
+
+      for (let i = 0; i < blob.length; i++) {
+        const x = blob[i].x;
+        const y = blob[i].y;
+
+        if (x < 0 || x >= src.width || y < 0 || y >= src.height) continue;
+
+        const ind = (y * src.width + x) * 4;
+
+        // Copy RGBA
+        destData.data[ind] = srcData.data[ind];
+        destData.data[ind + 1] = srcData.data[ind + 1];
+        destData.data[ind + 2] = srcData.data[ind + 2];
+        destData.data[ind + 3] = srcData.data[ind + 3];
+      }
+
+      dctx.putImageData(destData, 1, 1);
     }
 
     function ray_casting(point, polygon) {
