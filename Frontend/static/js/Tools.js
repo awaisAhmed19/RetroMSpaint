@@ -69,8 +69,6 @@ function switchColorHandler() {
 
 let isDrawing = false;
 
-let x = 0;
-let y = 0;
 
 function getMousePos(canvas, e) {
   const rect = canvas.getBoundingClientRect();
@@ -251,7 +249,7 @@ const ToolsInstance = {
     const cursorHotspotY = -5;
 
     canvas.style.cursor = `url(${customCursorUrl}) ${cursorHotspotX} ${cursorHotspotY}, auto`;
-    document.addEventListener("htmx:afterSwap", function (e) {
+    document.addEventListener("htmx:afterSwap", function(e) {
       const airOptions = e.detail.target.querySelectorAll(".airOptions");
       if (airOptions && airOptions.length > 0) {
         airOptions.forEach((option) => {
@@ -355,7 +353,7 @@ const ToolsInstance = {
 
     canvas.style.cursor = "crosshair";
 
-    document.addEventListener("htmx:afterSwap", function (e) {
+    document.addEventListener("htmx:afterSwap", function(e) {
       const brushOptions = e.detail.target.querySelectorAll(
         ".BrushOptions button",
       );
@@ -521,7 +519,7 @@ const ToolsInstance = {
 
     canvas.style.cursor = `url(${customCursorUrl}) ${cursorHotspotX} ${cursorHotspotY}, auto`;
 
-    document.addEventListener("htmx:afterSwap", function (e) {
+    document.addEventListener("htmx:afterSwap", function(e) {
       const EOptions = e.detail.target.querySelectorAll(
         ".EraserOptions button",
       );
@@ -638,55 +636,56 @@ const ToolsInstance = {
       bufferCtx.beginPath(); // clear previous path for points
       for (let i = 0; i < points.length; i++) {
         if (ray_casting(points[i], polygon)) {
-          selectedBlob.push({ x: points[i].x, y: points[i].y });
+          ctx.clearRect(points[i].x, points[i].y, 1, 1);
         }
       }
-
-      copy_blob(selectedBlob, points, canvas, bufferCanvas);
-      clearSrc(selectedBlob, canvas);
     };
 
     function clearSrc(blob, src) {
       const sctx = src.getContext("2d", { willReadFrequently: true });
       const data = sctx.getImageData(0, 0, src.width, src.height);
       for (let i = 0; i < blob.length; i++) {
-        //let x = blob[i].x;
-        //let y = blob[i].y;
         sctx.clearRect(blob[i].x, blob[i].y, 1, 1);
-        //let index = (y * src.width + x) * 4;
-
-        //data.data[index] = 255;
-        //data.data[index + 1] = 255;
-        //data.data[index + 2] = 255;
-        //data.data[index + 3] = 255; // opaque white
       }
-      //sctx.putImageData(data, 0, 0);
     }
-    function copy_blob(blob, points, src, dest) {
-      const sctx = src.getContext("2d");
-      const dctx = dest.getContext("2d");
 
-      // Ensure dest is cleared first
-
-      const srcData = sctx.getImageData(0, 0, src.width, src.height);
-      const destData = dctx.getImageData(0, 0, dest.width, dest.height);
-
-      for (let i = 0; i < blob.length; i++) {
-        const x = blob[i].x;
-        const y = blob[i].y;
-
-        if (x < 0 || x >= src.width || y < 0 || y >= src.height) continue;
-
-        const ind = (y * src.width + x) * 4;
-
-        // Copy RGBA
-        destData.data[ind] = srcData.data[ind];
-        destData.data[ind + 1] = srcData.data[ind + 1];
-        destData.data[ind + 2] = srcData.data[ind + 2];
-        destData.data[ind + 3] = srcData.data[ind + 3];
+    function copy_blob(points, src, dest) {
+      const Box = boundingBox();
+      const width = Box.x - Box.ex;
+      const height = Box.y - Box.ey;
+      const cutout = document.createElement("scanvas");
+      cutout.width = src.width;
+      cutout.height = src.height;
+      const sctx = cutout.getContext("2d");
+      sctx.drawImage(src, 0, 0);
+      sctx.globalCompositeOperation = "destination-in";
+      sctx.beginPath();
+      sctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        sctx.lineTo(points[i].x, points[i].y);
       }
+      sctx.closePath();
+      sctx.fill();
+      const cropped = document.createElement("canvas");
+      cropped.width = width;
+      cropped.height = height;
+      const croppedCtx = cropped.getContext("2d");
+      croppedCtx.drawImage(
+        cutout,
+        x_min,
+        y_min,
+        width,
+        height,
+        0,
+        0,
+        width,
+        height,
+      );
 
-      dctx.putImageData(destData, 1, 1);
+      // Draw onto destination canvas at desired position
+      dest.getContext("2d").drawImage(cropped, x_min, y_min);
+
+      return cropped;
     }
 
     function ray_casting(point, polygon) {
@@ -972,7 +971,7 @@ const ToolsInstance = {
     let zoom = 1;
     canvas.style.cursor = `url(${customCursorUrl}) ${cursorHotspotX} ${cursorHotspotY}, auto`;
 
-    document.addEventListener("htmx:afterSwap", function (e) {
+    document.addEventListener("htmx:afterSwap", function(e) {
       const MOptions = e.detail.target.querySelectorAll(
         ".MagnificationOptions button",
       );
@@ -1153,7 +1152,7 @@ const ToolsInstance = {
     canvas.style.cursor = "crosshair";
     bufferCanvas.style.cursor = "crosshair";
 
-    document.addEventListener("htmx:afterSwap", function (e) {
+    document.addEventListener("htmx:afterSwap", function(e) {
       const LOptions = e.detail.target.querySelectorAll(".Loptions");
 
       if (LOptions && LOptions.length > 0) {
@@ -1242,7 +1241,7 @@ const ToolsInstance = {
     canvas.style.cursor = "crosshair";
     bufferCanvas.style.cursor = "crosshair";
 
-    document.addEventListener("htmx:afterSwap", function (e) {
+    document.addEventListener("htmx:afterSwap", function(e) {
       const LOptions = e.detail.target.querySelectorAll(".Loptions");
 
       if (LOptions && LOptions.length > 0) {
@@ -1422,7 +1421,7 @@ const ToolsInstance = {
     bufferCtx.lineWidth = 1;
     ctx.lineWidth = 1;
 
-    document.addEventListener("htmx:afterSwap", function (e) {
+    document.addEventListener("htmx:afterSwap", function(e) {
       const PolyOptions = e.detail.target.querySelectorAll(
         ".polygontool button",
       );
@@ -1442,7 +1441,7 @@ const ToolsInstance = {
     const isCloseToStart = (currentPoint, startPoint) => {
       const distance = Math.sqrt(
         Math.pow(currentPoint.x - startPoint.x, 2) +
-          Math.pow(currentPoint.y - startPoint.y, 2),
+        Math.pow(currentPoint.y - startPoint.y, 2),
       );
       return distance < closeThreshold;
     };
@@ -1699,7 +1698,7 @@ const ToolsInstance = {
     canvas.style.cursor = "crosshair";
     bufferCanvas.style.cursor = "crosshair";
 
-    document.addEventListener("htmx:afterSwap", function (e) {
+    document.addEventListener("htmx:afterSwap", function(e) {
       const RectOptions = e.detail.target.querySelectorAll(".rectTool button");
 
       if (RectOptions && RectOptions.length > 0) {
@@ -1866,7 +1865,7 @@ const ToolsInstance = {
     // Apply custom cursor with hotspot
     canvas.style.cursor = `url(${customCursorUrl}), auto`;
     bufferCanvas.style.cursor = `url(${customCursorUrl}) , auto`;
-    document.addEventListener("htmx:afterSwap", function (e) {
+    document.addEventListener("htmx:afterSwap", function(e) {
       const EllipseOptions = e.detail.target.querySelectorAll(
         ".ellipsetool button",
       );
@@ -2008,7 +2007,7 @@ const ToolsInstance = {
     canvas.style.cursor = "crosshair";
     bufferCanvas.style.cursor = "crosshair";
 
-    document.addEventListener("htmx:afterSwap", function (e) {
+    document.addEventListener("htmx:afterSwap", function(e) {
       const RectElipseOptions = e.detail.target.querySelectorAll(
         ".roundedrect-tool button",
       );
