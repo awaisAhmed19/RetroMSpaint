@@ -581,7 +581,6 @@ const ToolsInstance = {
     const bufferCanvas = document.getElementById("canvasbuffer");
     const selectionBuffer = document.getElementById("selectionbuffer");
     const bufferCtx = bufferCanvas.getContext("2d");
-    const SBufferCtx = selectionBuffer.getContext("2d");
 
     bufferCanvas.width = canvas.width;
     selectionBuffer.width = canvas.width;
@@ -594,11 +593,9 @@ const ToolsInstance = {
     canvas.style.cursor = "cosshair";
     selectionBuffer.style.cursor = "cosshair";
     let isDrawing = false;
-    let isDragging = false;
-    let isSelected = false;
+    let dragging = false;
     let padding = 10;
     let polygon = [];
-    let points = [];
     let selectedBlob = [];
     let pos,
       start,
@@ -626,67 +623,120 @@ const ToolsInstance = {
 
     const stopLasso = (e) => {
       isDrawing = false;
-      isSelected = true;
+      dragging = true;
       pos = getMousePos(bufferCanvas, e);
       bufferCtx.lineTo(start.x, start.y);
 
-      const selectionBox = boundingBox();
-      const points = pointCollector(selectionBox);
 
-      bufferCtx.beginPath(); // clear previous path for points
-      for (let i = 0; i < points.length; i++) {
-        if (ray_casting(points[i], polygon)) {
-          ctx.clearRect(points[i].x, points[i].y, 1, 1);
-        }
-      }
+      const selectionBox = boundingBox();
+      let offscreen = document.createElement("canvas");
+
+      let w = selectionBox.ex - selectionBox.x;
+      let h = selectionBox.ey - selectionBox.y;
+      offscreen.width = w;
+      offscreen.height = h;
+
+      let ofctx = offscreen.getContext("2d");
+
+      ofctx.beginPath();
+      polygon.forEach((p, i) => {
+        if (i === 0) ofctx.moveTo(p.x - selectionBox.x, p.y - selectionBox.y);
+        else ofctx.lineTo(p.x - selectionBox.x, p.y - selectionBox.y);
+      });
+      ofctx.closePath();
+      ofctx.clip();
+
+      ofctx.drawImage(ctx.canvas, selectionBox.x, selectionBox.y, w, h, 0, 0, w, h);
+
+      ctx.save();
+      ctx.beginPath();
+      polygon.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.closePath();
+      ctx.clip();
+      ctx.clearRect(selectionBox.x, selectionBox.y, w, h);
+      ctx.restore();
+
+
+      // snapshot of the full canvas after cutting
+      let backgroundImage = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+      // store it with the blob
+      selectedBlob = {
+        canvas: offscreen,
+        x: selectionBox.x,
+        y: selectionBox.y,
+        w: w,
+        h: h,
+        background: backgroundImage
+      };
+      deactivateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
     };
 
-    function clearSrc(blob, src) {
-      const sctx = src.getContext("2d", { willReadFrequently: true });
-      const data = sctx.getImageData(0, 0, src.width, src.height);
-      for (let i = 0; i < blob.length; i++) {
-        sctx.clearRect(blob[i].x, blob[i].y, 1, 1);
+
+
+    let offsetX = 0;
+    let offsetY = 0;
+
+    bufferCanvas.addEventListener("mousedown", (e) => {
+      if (!selectedBlob) return;
+
+      let pos = getMousePos(bufferCanvas, e);
+
+      // check if click is inside blob bounds
+      if (
+        pos.x >= selectedBlob.x &&
+        pos.x <= selectedBlob.x + selectedBlob.w &&
+        pos.y >= selectedBlob.y &&
+        pos.y <= selectedBlob.y + selectedBlob.h
+      ) {
+        dragging = true;
+        offsetX = pos.x - selectedBlob.x;
+        offsetY = pos.y - selectedBlob.y;
       }
-    }
+    });
 
-    function copy_blob(points, src, dest) {
-      const Box = boundingBox();
-      const width = Box.x - Box.ex;
-      const height = Box.y - Box.ey;
-      const cutout = document.createElement("scanvas");
-      cutout.width = src.width;
-      cutout.height = src.height;
-      const sctx = cutout.getContext("2d");
-      sctx.drawImage(src, 0, 0);
-      sctx.globalCompositeOperation = "destination-in";
-      sctx.beginPath();
-      sctx.moveTo(points[0].x, points[0].y);
-      for (let i = 1; i < points.length; i++) {
-        sctx.lineTo(points[i].x, points[i].y);
-      }
-      sctx.closePath();
-      sctx.fill();
-      const cropped = document.createElement("canvas");
-      cropped.width = width;
-      cropped.height = height;
-      const croppedCtx = cropped.getContext("2d");
-      croppedCtx.drawImage(
-        cutout,
-        x_min,
-        y_min,
-        width,
-        height,
-        0,
-        0,
-        width,
-        height,
-      );
 
-      // Draw onto destination canvas at desired position
-      dest.getContext("2d").drawImage(cropped, x_min, y_min);
+    bufferCanvas.addEventListener("mousemove", (e) => {
+      if (!dragging || !selectedBlob) return;
 
-      return cropped;
-    }
+      let pos = getMousePos(bufferCanvas, e);
+      selectedBlob.x = pos.x - offsetX;
+      selectedBlob.y = pos.y - offsetY;
+
+      // restore the background snapshot
+      ctx.putImageData(selectedBlob.background, 0, 0);
+
+      // draw the floating blob on top
+      bufferCtx.drawImage(selectedBlob.canvas, selectedBlob.x, selectedBlob.y);
+      bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+    });
+
+
+
+    bufferCanvas.addEventListener("mouseup", () => {
+      if (!selectedBlob) return;
+
+      dragging = false;
+
+      // Commit blob to the main canvas
+      ctx.drawImage(selectedBlob.canvas, selectedBlob.x, selectedBlob.y);
+
+      // 🔥 Clear selection visuals
+      bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+
+      // Reset polygon + selection state so you can draw again
+      polygon = [];
+      isSelected = false;
+      isDrawing = false;
+      selectedBlob = null; // optional: if you want blob to be "flattened" after dropping
+    });
+
+    bufferCanvas.addEventListener("mouseleave", () => {
+      dragging = false;
+    });
 
     function ray_casting(point, polygon) {
       let n = polygon.length;
@@ -738,16 +788,6 @@ const ToolsInstance = {
         ex: max_x + padding,
         ey: max_y + padding,
       };
-    }
-
-    function pointCollector(box) {
-      let point = [];
-      for (let i = box.x; i < box.ex; i++) {
-        for (let j = box.y; j < box.ey; j++) {
-          point.push({ x: i, y: j });
-        }
-      }
-      return point;
     }
 
     activateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
