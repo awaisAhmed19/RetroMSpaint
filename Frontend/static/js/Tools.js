@@ -589,55 +589,62 @@ const ToolsInstance = {
 
     bufferCtx.lineWidth = 1;
     ctx.lineWidth = 1;
-    bufferCanvas.style.cursor = "cosshair";
-    canvas.style.cursor = "cosshair";
-    selectionBuffer.style.cursor = "cosshair";
+    [bufferCanvas, canvas, selectionBuffer].forEach(c => c.style.cursor = "crosshair");
+
     let isDrawing = false;
-    let dragging = false;
-    let padding = 10;
+    let isDragging = false;
+    let isSelected = false;
+    let offsetX = 0, offsetY = 0;
     let polygon = [];
-    let selectedBlob = [];
-    let pos,
-      start,
-      selectedImageData = null;
+    let padding = 10;
+    let selectedBlob = null;
+    let start = null;
+    let offscreen = null;
+
     bufferCtx.strokeStyle = "black";
 
     const startLasso = (e) => {
-      selectedImageData = null;
       isDrawing = true;
+      isSelected = false;
+      polygon = [];
       start = getMousePos(bufferCanvas, e);
+      bufferCtx.beginPath();
+      bufferCtx.moveTo(start.x, start.y);
+      polygon.push(start);
     };
 
     const drawLasso = (e) => {
       if (!isDrawing) return;
-      pos = getMousePos(bufferCanvas, e);
-      bufferCtx.strokeStyle = "black";
-      bufferCtx.lineWidth = 1;
-      bufferCtx.lineCap = "round";
-      bufferCtx.lineTo(pos.x, pos.y);
-      //console.log(pos.x," ",pos.y);
+      const pos = getMousePos(bufferCanvas, e);
+
       polygon.push(pos);
+      bufferCtx.lineTo(pos.x, pos.y);
       bufferCtx.stroke();
-      updateCoords(bufferCanvas);
     };
 
     const stopLasso = (e) => {
-      isDrawing = false;
-      dragging = true;
-      pos = getMousePos(bufferCanvas, e);
-      bufferCtx.lineTo(start.x, start.y);
+      if (!isDrawing || polygon.length < 3) return; // need at least a triangle
 
+      isDrawing = false;
+      isDragging = true;
+      isSelected = true;
+
+      bufferCtx.lineTo(start.x, start.y);
+      bufferCtx.stroke();
+      bufferCtx.closePath();
 
       const selectionBox = boundingBox();
-      let offscreen = document.createElement("canvas");
+      if (!selectionBox) return;
 
-      let w = selectionBox.ex - selectionBox.x;
-      let h = selectionBox.ey - selectionBox.y;
+      // prepare offscreen canvas
+      offscreen = document.createElement("canvas");
+      const w = selectionBox.ex - selectionBox.x;
+      const h = selectionBox.ey - selectionBox.y;
       offscreen.width = w;
       offscreen.height = h;
+      const ofctx = offscreen.getContext("2d");
 
-      let ofctx = offscreen.getContext("2d");
-
+      // clip polygon
       ofctx.beginPath();
       polygon.forEach((p, i) => {
         if (i === 0) ofctx.moveTo(p.x - selectionBox.x, p.y - selectionBox.y);
@@ -648,6 +655,7 @@ const ToolsInstance = {
 
       ofctx.drawImage(ctx.canvas, selectionBox.x, selectionBox.y, w, h, 0, 0, w, h);
 
+      // clear original selection
       ctx.save();
       ctx.beginPath();
       polygon.forEach((p, i) => {
@@ -659,128 +667,77 @@ const ToolsInstance = {
       ctx.clearRect(selectionBox.x, selectionBox.y, w, h);
       ctx.restore();
 
+      const backgroundImage = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-      // snapshot of the full canvas after cutting
-      let backgroundImage = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-      // store it with the blob
       selectedBlob = {
         canvas: offscreen,
         x: selectionBox.x,
         y: selectionBox.y,
-        w: w,
-        h: h,
+        w,
+        h,
         background: backgroundImage
       };
+
       deactivateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
+      activateTool(bufferCanvas, startDraggingLasso, draggingLasso, stopDraggingLasso);
     };
 
-
-
-    let offsetX = 0;
-    let offsetY = 0;
-
-    bufferCanvas.addEventListener("mousedown", (e) => {
+    const startDraggingLasso = (e) => {
       if (!selectedBlob) return;
+      const pos = getMousePos(bufferCanvas, e);
 
-      let pos = getMousePos(bufferCanvas, e);
-
-      // check if click is inside blob bounds
       if (
         pos.x >= selectedBlob.x &&
         pos.x <= selectedBlob.x + selectedBlob.w &&
         pos.y >= selectedBlob.y &&
         pos.y <= selectedBlob.y + selectedBlob.h
       ) {
-        dragging = true;
+        isDragging = true;
         offsetX = pos.x - selectedBlob.x;
         offsetY = pos.y - selectedBlob.y;
       }
-    });
+    };
 
+    const draggingLasso = (e) => {
+      if (!isDragging || !selectedBlob) return;
 
-    bufferCanvas.addEventListener("mousemove", (e) => {
-      if (!dragging || !selectedBlob) return;
-
-      let pos = getMousePos(bufferCanvas, e);
+      const pos = getMousePos(bufferCanvas, e);
       selectedBlob.x = pos.x - offsetX;
       selectedBlob.y = pos.y - offsetY;
 
-      // restore the background snapshot
       ctx.putImageData(selectedBlob.background, 0, 0);
-
-      // draw the floating blob on top
+      bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
       bufferCtx.drawImage(selectedBlob.canvas, selectedBlob.x, selectedBlob.y);
-      bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-    });
+    };
 
-
-
-    bufferCanvas.addEventListener("mouseup", () => {
+    const stopDraggingLasso = () => {
       if (!selectedBlob) return;
+      isDragging = false;
 
-      dragging = false;
-
-      // Commit blob to the main canvas
       ctx.drawImage(selectedBlob.canvas, selectedBlob.x, selectedBlob.y);
-
-      // 🔥 Clear selection visuals
       bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
 
-      // Reset polygon + selection state so you can draw again
       polygon = [];
       isSelected = false;
-      isDrawing = false;
-      selectedBlob = null; // optional: if you want blob to be "flattened" after dropping
-    });
+      selectedBlob = null;
 
-    bufferCanvas.addEventListener("mouseleave", () => {
-      dragging = false;
-    });
-
-    function ray_casting(point, polygon) {
-      let n = polygon.length;
-      let is_in = false;
-      let x = point.x;
-      let y = point.y;
-
-      for (let i = 0; i < n; i++) {
-        let x1 = polygon[i].x;
-        let y1 = polygon[i].y;
-        let x2 = polygon[(i + 1) % n].x; // wrap to first point
-        let y2 = polygon[(i + 1) % n].y;
-
-        if ((y < y1 && y >= y2) || (y >= y1 && y < y2)) {
-          if (x < ((x2 - x1) * (y - y1)) / (y2 - y1) + x1) {
-            is_in = !is_in;
-          }
-        }
-      }
-
-      return is_in;
-    }
+      deactivateTool(bufferCanvas, startDraggingLasso, draggingLasso, stopDraggingLasso);
+      activateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
+    };
 
     function boundingBox() {
-      let min_x = Infinity,
-        min_y = Infinity;
-      let max_x = -Infinity,
-        max_y = -Infinity;
+      if (!polygon || polygon.length === 0) return null;
+      let min_x = Math.min(...polygon.map(p => p.x));
+      let min_y = Math.min(...polygon.map(p => p.y));
+      let max_x = Math.max(...polygon.map(p => p.x));
+      let max_y = Math.max(...polygon.map(p => p.y));
 
-      if (!polygon || polygon.length === 0) return;
-
-      bufferCtx.setLineDash([5, 3]);
-      for (let i = 0; i < polygon.length; i++) {
-        min_x = Math.min(min_x, polygon[i].x);
-        min_y = Math.min(min_y, polygon[i].y);
-        max_x = Math.max(max_x, polygon[i].x);
-        max_y = Math.max(max_y, polygon[i].y);
-      }
       let width = max_x - min_x + 2 * padding;
       let height = max_y - min_y + 2 * padding;
 
+      bufferCtx.setLineDash([5, 3]);
       bufferCtx.strokeStyle = "black";
-      bufferCtx.rect(min_x - padding, min_y - padding, width, height);
-      bufferCtx.stroke();
+      bufferCtx.strokeRect(min_x - padding, min_y - padding, width, height);
 
       return {
         x: min_x - padding,
@@ -794,15 +751,16 @@ const ToolsInstance = {
     bufferCanvas.style.display = "flex";
     updateCoords(bufferCanvas);
     updateDimens(bufferCanvas);
+
     return {
       removeEvents: () => {
         bufferCanvas.style.display = "none";
         selectionBuffer.style.display = "none";
         deactivateTool(bufferCanvas, startLasso, drawLasso, stopLasso);
+        deactivateTool(bufferCanvas, startDraggingLasso, draggingLasso, stopDraggingLasso);
       },
     };
   },
-
   rectlasso: () => {
     const bufferCanvas = document.getElementById("canvasbuffer");
     const selectionBuffer = document.getElementById("selectionbuffer");
@@ -816,9 +774,9 @@ const ToolsInstance = {
 
     bufferCtx.lineWidth = 1;
     ctx.lineWidth = 1;
-    bufferCanvas.style.cursor = "cosshair";
-    canvas.style.cursor = "cosshair";
-    selectionBuffer.style.cursor = "cosshair";
+    bufferCanvas.style.cursor = "crosshair";
+    canvas.style.cursor = "crosshair";
+    selectionBuffer.style.cursor = "crosshair";
     let isDrawing = false;
     let isDragging = false;
     let isSelected = false;
