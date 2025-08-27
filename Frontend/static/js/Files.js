@@ -4,7 +4,7 @@ const canvas_container = document.getElementById("canvas-container");
 
 // Function to save canvas as a PNG file
 function saveCanvas() {
-  canvas.toBlob(function (blob) {
+  canvas.toBlob(function(blob) {
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = "canvas-image.png";
@@ -47,9 +47,9 @@ async function handleOpenFile() {
       const file = await fileHandle[0].getFile();
       const fileReader = new FileReader();
 
-      fileReader.onload = function () {
+      fileReader.onload = function() {
         const img = new Image();
-        img.onload = function () {
+        img.onload = function() {
           // Calculate new dimensions based on canvas size
           const aspectRatio = img.width / img.height;
           const maxWidth = canvas.width;
@@ -81,13 +81,13 @@ async function handleOpenFile() {
       input.type = "file";
       input.accept = "image/*";
 
-      input.onchange = function (e) {
+      input.onchange = function(e) {
         const file = e.target.files[0];
         const fileReader = new FileReader();
 
-        fileReader.onload = function () {
+        fileReader.onload = function() {
           const img = new Image();
-          img.onload = function () {
+          img.onload = function() {
             // Calculate new dimensions based on canvas size
             const aspectRatio = img.width / img.height;
             const maxWidth = canvas.width;
@@ -172,7 +172,7 @@ const eventHandlers = {
   Exit: handleExit,
 };
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function() {
   Object.keys(eventHandlers).forEach((id) => {
     const element = document.getElementById(id);
     if (element) {

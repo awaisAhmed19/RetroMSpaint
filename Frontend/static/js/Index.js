@@ -14,7 +14,7 @@ window.addEventListener("load", () => {
 });
 
 //to prevent zooming of the browser window
-document.onkeydown = function (e) {
+document.onkeydown = function(e) {
   if ((e.ctrlKey && e.key === "+") || (e.ctrlKey && e.key === "-")) {
     e.preventDefault();
   }
@@ -105,64 +105,46 @@ function defaultFootNote() {
     "For Help, click Help Topics on the Help Menu");
 }
 
-//TODO: toggling the menu dropdown
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function() {
   const menubar = document.querySelectorAll(".menubar-btn");
+  let dropdownVisible = false;
+  let currentDropdownId = null;
 
-  const MenuManager = {
-    visible: false,
-    current: null,
-    open(id) {
-      const dropdown = document.getElementById(id);
-      if (dropdown) {
-        dropdown.classList.add("active");
-        this.visible = true;
-        this.current = id;
-      }
-    },
-    close() {
-      if (this.current) {
-        const dropdown = document.getElementById(this.current);
-        if (dropdown) dropdown.classList.remove("active");
-      }
-      this.visible = false;
-      this.current = null;
-    },
-    toggle(id) {
-      if (this.visible && this.current === id) {
-        this.close();
-      } else {
-        this.close(); // close any open dropdown
-        this.open(id);
-      }
-    },
+  const toggleDropdown = (dropdownId) => {
+    const dropdown = document.querySelector(".dropdown-container");
+    if (dropdownVisible && currentDropdownId === dropdownId) {
+      dropdown.classList.remove("active");
+      dropdownVisible = false;
+    } else {
+      dropdown.classList.add("active");
+      dropdownVisible = true;
+      currentDropdownId = dropdownId;
+    }
   };
 
   menubar.forEach((btn) => {
-    btn.addEventListener("click", function (e) {
+    btn.addEventListener("click", function(e) {
       e.preventDefault();
       const dropdownId = btn.getAttribute("data-dropdown-id");
-      MenuManager.toggle(dropdownId);
+      toggleDropdown(dropdownId);
     });
   });
 
-  document.addEventListener("click", function (e) {
-    const clickedInsideMenu = Array.from(menubar).some((btn) =>
-      btn.contains(e.target),
+  document.addEventListener("click", function(e) {
+    const dropdown = document.getElementById("dropdowncontainer");
+    const clickedInside = Array.from(menubar).some((btn) =>
+      btn.contains(e.target)
     );
-    const clickedInsideDropdown = MenuManager.current
-      ? document.getElementById(MenuManager.current)?.contains(e.target)
-      : false;
 
-    if (!clickedInsideMenu && !clickedInsideDropdown) {
-      MenuManager.close();
+    if (dropdownVisible && !dropdown.contains(e.target) && !clickedInside) {
+      dropdown.classList.remove("active");
+      dropdownVisible = false;
     }
   });
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      MenuManager.close();
-    }
-  });
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    closeDropdownMenu();
+  }
 });

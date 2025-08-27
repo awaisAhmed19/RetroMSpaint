@@ -70,13 +70,15 @@ function switchColorHandler() {
 let isDrawing = false;
 
 
-function getMousePos(canvas, e) {
+
+function getMousePos(canvas, evt) {
   const rect = canvas.getBoundingClientRect();
   return {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top,
+    x: (evt.clientX - rect.left) * (canvas.width / rect.width),
+    y: (evt.clientY - rect.top) * (canvas.height / rect.height)
   };
 }
+
 
 function coordFunc(canvas, e) {
   const pos = getMousePos(canvas, e);
@@ -195,9 +197,8 @@ function deactivateTool(canvas) {
 const ToolsInstance = {
   pencil: () => {
     let isDrawing = false;
-    const customCursorUrl = "../cursors/move.png";
     let pos = null;
-    canvas.style.cursor = `url(./static/cursors/pencil.png), auto`;
+    ctx.style.cursor = "crosshair";
 
     const start = (e) => {
       ctx.beginPath();
@@ -751,6 +752,7 @@ const ToolsInstance = {
     bufferCanvas.style.display = "flex";
     updateCoords(bufferCanvas);
     updateDimens(bufferCanvas);
+    undo.logging("Lasso");
 
     return {
       removeEvents: () => {
